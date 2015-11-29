@@ -6,11 +6,20 @@ compiler:
 before_install:
   - echo $LANG
   - echo $LC_ALL
+  - sudo apt-get update -qq
+  - sudo apt-get install libgtest-dev
+  - sudo mkdir /usr/src/gtest/build
+  - cd /usr/src/gtest/build
+  - sudo cmake .. -DBUILD_SHARED_LIBS=1
+  - sudo make -j4
+  - sudo ln -s /usr/src/gtest/build/libgtest.so /usr/lib/libgtest.so
+  - sudo ln -s /usr/src/gtest/build/libgtest_main.so /usr/lib/libgtest_main.so
 
 install:
-  - sudo apt-get update -qq
   - sudo apt-get install -qq gnome-common gnome-doc-utils libgnome2-dev
-         libgnomeui-dev libunique-dev scrollkeeper
+         libgnomeui-dev libunique-dev scrollkeeper libglib2.0-dev
+before_script:
+  - cd -
 
 script:
   - ./autogen.sh
