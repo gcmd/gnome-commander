@@ -48,15 +48,6 @@ inline gchar *get_string (const gchar *path, const gchar *def)
     return value;
 }
 
-inline gint get_int (const gchar *path, int def)
-{
-    gboolean b = FALSE;
-    gint value = gnome_config_get_int_with_default (path, &b);
-    if (b)
-        return def;
-    return value;
-}
-
 inline gboolean get_bool (const gchar *path, gboolean def)
 {
     gboolean b = FALSE;
@@ -140,18 +131,6 @@ gchar *gnome_cmd_data_get_string (const gchar *path, const gchar *def)
     gchar *s = g_build_path (G_DIR_SEPARATOR_S, PACKAGE, path, NULL);
 
     gchar *v = get_string (s, def);
-
-    g_free (s);
-
-    return v;
-}
-
-
-gint gnome_cmd_data_get_int (const gchar *path, int def)
-{
-    gchar *s = g_build_path (G_DIR_SEPARATOR_S, PACKAGE, path, NULL);
-
-    gint v = get_int (s, def);
 
     g_free (s);
 

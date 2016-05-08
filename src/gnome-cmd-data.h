@@ -1,4 +1,4 @@
-/** 
+/**
  * @file gnome-cmd-data.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
@@ -24,6 +24,12 @@
 
 #include <vector>
 #include <string>
+#include <glib-object.h>
+#include <glib.h>
+#include <config.h>
+#include <stdio.h>
+#include <gio/gio.h>
+
 
 #include "gnome-cmd-app.h"
 #include "gnome-cmd-types.h"
@@ -34,6 +40,20 @@
 #include "history.h"
 #include "dict.h"
 #include "tuple.h"
+
+#define GCMD_TYPE_SETTINGS (gcmd_settings_get_type ())
+
+G_DECLARE_FINAL_TYPE (GcmdSettings, gcmd_settings, GCMD, SETTINGS, GObject)
+
+GcmdSettings *gcmd_settings_new (void);
+
+/* key constants */
+#define GCMD_SETTINGS_USE_DEFAULT_FONT                "use-default-font"
+#define GCMD_SETTINGS_PANEL_FONT                      "panel-font"
+#define GCMD_SETTINGS_SYSTEM_FONT                     "monospace-font-name"
+#define GCMD_SETTINGS_SIZE_DISP_MODE                  "size-display-mode"
+
+#define GCMD_PREF_GENERAL                             "org.gnome.gnome-commander.preferences.general"
 
 struct GnomeCmdConRemote;
 
@@ -87,6 +107,7 @@ struct GnomeCmdData
         GnomeCmdColorTheme           color_themes[GNOME_CMD_NUM_COLOR_MODES];
 
       public:
+        GcmdSettings                 *gcmd_settings;
         //  General
         LeftMouseButtonMode          left_mouse_button_mode;
         gboolean                     left_mouse_button_unselects;
@@ -144,7 +165,8 @@ struct GnomeCmdData
         gboolean                     device_only_icon;
         gboolean                     skip_mounting;
 
-        Options(): left_mouse_button_mode(LEFT_BUTTON_OPENS_WITH_DOUBLE_CLICK),
+        Options(): gcmd_settings(NULL),
+                   left_mouse_button_mode(LEFT_BUTTON_OPENS_WITH_DOUBLE_CLICK),
                    left_mouse_button_unselects(TRUE),
                    middle_mouse_button_mode(MIDDLE_BUTTON_GOES_UP_DIR),
                    right_mouse_button_mode(RIGHT_BUTTON_POPUPS_MENU),
@@ -432,6 +454,7 @@ struct GnomeCmdData
     gboolean                     XML_cfg_has_bookmarks;
 
     Options                      options;
+    GcmdSettings                 *settings;
 
     std::vector<Selection>       selections;
 
@@ -471,8 +494,11 @@ struct GnomeCmdData
     void free();                // FIXME: free() -> ~GnomeCmdData()
 
     void load();
+    void migrate_all_data_to_gsettings();
+    gint migrate_data_int_value_into_gsettings(gint user_value, GSettings *settings, const char *key);
     void load_more();
     void save();
+    gint gnome_cmd_data_get_int (const gchar *path, int def);
 
     GnomeCmdConRemote *get_quick_connect() const       {  return quick_connect;                     }
 

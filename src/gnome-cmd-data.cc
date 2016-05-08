@@ -1,4 +1,4 @@
-/** 
+/**
  * @file gnome-cmd-data.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
@@ -18,7 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-
 
 #include <config.h>
 #include <glib.h>
@@ -49,6 +48,141 @@ using namespace std;
 
 GnomeCmdData gnome_cmd_data;
 GnomeVFSVolumeMonitor *monitor = NULL;
+
+struct _GcmdSettings
+{
+    GObject parent;
+
+    GSettings *general;
+    GSettings *interface;
+};
+
+G_DEFINE_TYPE (GcmdSettings, gcmd_settings, G_TYPE_OBJECT)
+
+static void gcmd_settings_finalize (GObject *object)
+{
+//    GcmdSettings *gs = GCMD_SETTINGS (object);
+//
+//    g_free (gs->old_scheme);
+//
+    G_OBJECT_CLASS (gcmd_settings_parent_class)->finalize (object);
+}
+
+static void gcmd_settings_dispose (GObject *object)
+{
+    GcmdSettings *gs = GCMD_SETTINGS (object);
+
+    g_clear_object (&gs->general);
+    g_clear_object (&gs->interface);
+
+    G_OBJECT_CLASS (gcmd_settings_parent_class)->dispose (object);
+}
+
+static void set_font (GcmdSettings *gs,
+                      const gchar *font)
+{
+    //Hier muss jetzt die Schrift in den Panels aktualisiert werden!
+    printf("%s\n", font);
+}
+
+static void on_system_font_changed (GSettings     *settings,
+                                    const gchar   *key,
+                                    GcmdSettings *gs)
+{
+
+    gboolean use_default_font;
+
+    use_default_font = g_settings_get_boolean (gs->general,
+                           GCMD_SETTINGS_USE_DEFAULT_FONT);
+
+    if (use_default_font)
+    {
+        gchar *font;
+
+        font = g_settings_get_string (settings, key);
+        set_font (gs, font);
+        g_free (font);
+    }
+}
+
+static void on_use_default_font_changed (GSettings     *settings,
+                                         const gchar   *key,
+                                         GcmdSettings *gs)
+{
+    gboolean def;
+    gchar *font;
+
+    def = g_settings_get_boolean (settings, key);
+
+    if (def)
+    {
+        font = g_settings_get_string (gs->interface,
+                          GCMD_SETTINGS_SYSTEM_FONT);
+    }
+    else
+    {
+        font = g_settings_get_string (gs->general,
+                          GCMD_SETTINGS_PANEL_FONT);
+    }
+
+    set_font (gs, font);
+
+    g_free (font);
+}
+
+static void on_general_font_changed (GSettings     *settings,
+                                     const gchar   *key,
+                                     GcmdSettings *gs)
+{
+    gboolean use_default_font;
+
+    use_default_font = g_settings_get_boolean (gs->general,
+                           GCMD_SETTINGS_USE_DEFAULT_FONT);
+
+    if (!use_default_font)
+    {
+        gchar *font;
+
+        font = g_settings_get_string (settings, key);
+        set_font (gs, font);
+        g_free (font);
+    }
+}
+
+static void gcmd_settings_class_init (GcmdSettingsClass *klass)
+{
+    GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+    object_class->finalize = gcmd_settings_finalize;
+    object_class->dispose = gcmd_settings_dispose;
+}
+
+GcmdSettings *gcmd_settings_new ()
+{
+    return (GcmdSettings *) g_object_new (GCMD_TYPE_SETTINGS, NULL);
+}
+
+static void gcmd_settings_init (GcmdSettings *gs)
+{
+    gs->interface = g_settings_new ("org.gnome.desktop.interface");
+    gs->general = g_settings_new (GCMD_PREF_GENERAL);
+
+    g_signal_connect (gs->interface,
+                      "changed::monospace-font-name",
+                      G_CALLBACK (on_system_font_changed),
+                      gs);
+
+    g_signal_connect (gs->general,
+                      "changed::use-default-font",
+                      G_CALLBACK (on_use_default_font_changed),
+                      gs);
+
+    g_signal_connect (gs->general,
+                      "changed::panel-font",
+                      G_CALLBACK (on_general_font_changed),
+                      gs);
+}
+
 
 struct GnomeCmdData::Private
 {
@@ -484,7 +618,7 @@ static void save_fav_apps (const gchar *fname)
            g_free (group_name);
         }
     }
-    
+
     gcmd_key_file_save_to_file (path, key_file);
 
     g_key_file_free(key_file);
@@ -1020,7 +1154,7 @@ static void load_fav_apps (const gchar *fname)
 /**
  * This function reads the given file and sets up favourite applications
  * by filling gnome_cmd_data.options.fav_apps.
- * 
+ *
  * @note Beginning with gcmd-v1.6 GKeyFile is used for storing and
  * loading configuration files. For compatibility reasons, this
  * functions tries to load favourite applications from the given file
@@ -1030,12 +1164,12 @@ static void load_fav_apps (const gchar *fname)
  * backup configuration is stored in @c fav-apps.backup in the old file
  * format. If the result is no, then nothing happens and FALSE is
  * returned.
- * 
+ *
  * @note In later versions of gcmd (later than v1.6), this function
  * might be removed, because when saving the configuration in @link
  * save_fav_apps() @endlink, GKeyFile is used and the old file
  * format isn't used anymore.
- * 
+ *
  * @returns FALSE if the very first letter of the given file is not
  * alphanumeric and TRUE if it is alphanumeric.
  */
@@ -1146,17 +1280,6 @@ inline void GnomeCmdData::save_auto_load_plugins()
 {
     gnome_cmd_data_set_int ("/plugins/count", g_list_length (priv->auto_load_plugins));
     gnome_cmd_data_set_string_history ("/plugins/auto_load%d", priv->auto_load_plugins);
-}
-
-
-inline void load_uint_array (const gchar *format, guint *array, gint length)
-{
-    for (gint i=0; i<length; i++)
-    {
-        gchar *name = g_strdup_printf (format, i);
-        array[i] = gnome_cmd_data_get_int (name, array[i]);
-        g_free (name);
-    }
 }
 
 
@@ -1331,6 +1454,61 @@ void GnomeCmdData::free()
     }
 }
 
+/**
+ * This method converts user settings from gcmds old config files prior to v1.6.0 to
+ * GSettings. Therefore, it first looks for those files in question and then converts the data.
+ */
+void GnomeCmdData::migrate_all_data_to_gsettings()
+{
+    options.gcmd_settings = gcmd_settings_new();
+    gchar *xml_cfg_path = config_dir ? g_build_filename (config_dir, PACKAGE ".xml", NULL) : g_build_filename (g_get_home_dir (), "." PACKAGE, PACKAGE ".xml", NULL);
+    gchar *package_config_path = gnome_config_get_real_path(PACKAGE);
+
+    //TODO: migrate xml stuff
+    /////////////////////////////////////////////////////////////
+    //// Data migration from .gnome-commander/gnome-commander.xml
+    /////////////////////////////////////////////////////////////
+    //FILE *fd = fopen (xml_cfg_path, "r");
+    //if (fd)
+    //{
+    //    // TODO: Data migration from xml-file
+    //    fclose (fd);
+    //
+    //}
+    //else
+    //{
+    //    g_warning ("Failed to open the file %s for reading, skipping data migration", xml_cfg_path);
+    //
+    //    options.size_disp_mode = (GnomeCmdSizeDispMode) g_settings_get_int (gcmd_settings->general, GCMD_SETTINGS_SIZE_DISP_MODE);
+    //}
+    g_free (xml_cfg_path);
+
+    ///////////////////////////////////////////////////////////////////////
+    // Data migration from .gnome2/gnome-commander, created by gnome_config
+    ///////////////////////////////////////////////////////////////////////
+    FILE *fd = fopen (package_config_path, "r");
+    if (fd)
+    {
+        int ihelper;
+
+        // size_disp_mode
+        ihelper = migrate_data_int_value_into_gsettings(gnome_cmd_data_get_int ("/options/size_disp_mode", GNOME_CMD_SIZE_DISP_MODE_POWERED),
+                                                        options.gcmd_settings->general, GCMD_SETTINGS_SIZE_DISP_MODE);
+        g_settings_set_enum (options.gcmd_settings->general, GCMD_SETTINGS_SIZE_DISP_MODE, ihelper);
+
+        // ToDo: Move old xml-file to ~/.gnome-commander/gnome-commander.xml.backup
+        //       à la save_devices_old ("devices.backup");
+        //       and move .gnome2/gnome-commander to .gnome2/gnome-commander.backup
+    }
+    else
+    {
+        g_warning ("Failed to open the file %s for reading, skipping data migration", package_config_path);
+
+        options.size_disp_mode = (GnomeCmdSizeDispMode) g_settings_get_int (options.gcmd_settings->general, GCMD_SETTINGS_SIZE_DISP_MODE);
+    }
+    g_free(package_config_path);
+}
+
 
 void GnomeCmdData::load()
 {
@@ -1421,7 +1599,7 @@ void GnomeCmdData::load()
     options.color_themes[GNOME_CMD_COLOR_NONE].curs_fg = NULL;
     options.color_themes[GNOME_CMD_COLOR_NONE].curs_bg = NULL;
 
-    options.size_disp_mode = (GnomeCmdSizeDispMode) gnome_cmd_data_get_int ("/options/size_disp_mode", GNOME_CMD_SIZE_DISP_MODE_POWERED);
+    options.size_disp_mode = (GnomeCmdSizeDispMode) g_settings_get_enum (options.gcmd_settings->general, GCMD_SETTINGS_SIZE_DISP_MODE);
     options.perm_disp_mode = (GnomeCmdPermDispMode) gnome_cmd_data_get_int ("/options/perm_disp_mode", GNOME_CMD_PERM_DISP_MODE_TEXT);
 
 #ifdef HAVE_LOCALE_H
@@ -1853,12 +2031,27 @@ void GnomeCmdData::load()
     g_free (xml_cfg_path);
 }
 
+/**
+ * This method returns an int value which is either the given user_value or,
+ * the default integer value of the given GSettings key.
+ * @param user_value An integer value
+ * @param settings A GSettings pointer
+ * @param key a GSettings key path given as a char array
+ */
+int GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettings *settings, const char *key)
+{
+    gint default_value;
+
+    default_value = *(gint*) g_settings_get_default_value (settings, key);
+
+    return user_value != default_value ? user_value : default_value;
+}
 
 void GnomeCmdData::load_more()
 {
     if (load_fav_apps_old ("fav-apps") == FALSE)
 	load_fav_apps("fav-apps");
-    
+
     if (!XML_cfg_has_bookmarks)
     {
         load_local_bookmarks();
@@ -1871,7 +2064,7 @@ void GnomeCmdData::load_more()
 
 void GnomeCmdData::save()
 {
-    gnome_cmd_data_set_int    ("/options/size_disp_mode", options.size_disp_mode);
+    g_settings_set_enum       (options.gcmd_settings->general, GCMD_SETTINGS_SIZE_DISP_MODE, options.size_disp_mode);
     gnome_cmd_data_set_int    ("/options/perm_disp_mode", options.perm_disp_mode);
     gnome_cmd_data_set_int    ("/options/layout", options.layout);
     gnome_cmd_data_set_int    ("/options/list_row_height", options.list_row_height);
@@ -2091,6 +2284,17 @@ void GnomeCmdData::save()
     save_auto_load_plugins();
 
     gnome_config_sync ();
+}
+
+gint GnomeCmdData::gnome_cmd_data_get_int (const gchar *path, int def)
+{
+    gchar *s = g_build_path (G_DIR_SEPARATOR_S, PACKAGE, path, NULL);
+
+    gint v = get_int (s, def);
+
+    g_free (s);
+
+    return v;
 }
 
 
