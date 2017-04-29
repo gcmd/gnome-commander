@@ -2,7 +2,7 @@
  * @file gnome-cmd-mkdir-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,12 @@ inline GSList *make_uri_list (GnomeCmdDir *dir, string filename)
 
     // make an absolute filename from one that is starting with a tilde
     if (filename.compare(0, 2, "~/")==0)
+    {
         if (gnome_cmd_dir_is_local (dir))
             stringify (filename, gnome_vfs_expand_initial_tilde (filename.c_str()));
         else
             filename.erase(0,1);
+    }
 
 #ifdef HAVE_SAMBA
     // smb exception handling: test if we are in a samba share...
@@ -104,7 +106,7 @@ static void response_callback (GtkDialog *dialog, int response_id, GnomeCmdDir *
 
                     GnomeVFSResult result = GNOME_VFS_OK;
 
-                    guint perm = (GNOME_VFS_PERM_USER_ALL | GNOME_VFS_PERM_GROUP_ALL | GNOME_VFS_PERM_OTHER_ALL) & ~gnome_cmd_data.umask | GNOME_VFS_PERM_USER_WRITE | GNOME_VFS_PERM_USER_EXEC;
+                    guint perm = ((GNOME_VFS_PERM_USER_ALL | GNOME_VFS_PERM_GROUP_ALL | GNOME_VFS_PERM_OTHER_ALL) & ~gnome_cmd_data.umask ) | GNOME_VFS_PERM_USER_WRITE | GNOME_VFS_PERM_USER_EXEC;
 
                     for (GSList *i = uri_list; i; i = g_slist_next (i))
                     {

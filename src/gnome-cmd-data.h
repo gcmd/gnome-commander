@@ -2,7 +2,7 @@
  * @file gnome-cmd-data.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -484,6 +484,7 @@ struct GnomeCmdData
         gboolean match_case;
 
         Selection(): syntax(Filter::TYPE_REGEX), max_depth(-1), content_search(FALSE), match_case(FALSE)       {}
+        ~Selection() {}
 
         const std::string &description() const    {  return filename_pattern;  }
         void reset();
@@ -502,9 +503,10 @@ struct GnomeCmdData
 
         std::vector<Selection> &profiles;
 
-        SearchConfig(std::vector<Selection> &selections): width(600), height(400), name_patterns(SEARCH_HISTORY_SIZE), content_patterns(SEARCH_HISTORY_SIZE), profiles(selections)   {  default_profile.name = "Default";  }
+        explicit SearchConfig(std::vector<Selection> &selections): width(600), height(400), name_patterns(SEARCH_HISTORY_SIZE), content_patterns(SEARCH_HISTORY_SIZE), profiles(selections)   {  default_profile.name = "Default";  }
 
         friend XML::xstream &operator << (XML::xstream &xml, SearchConfig &cfg);
+        ~SearchConfig() {};
     };
 
     struct AdvrenameConfig
@@ -525,6 +527,7 @@ struct GnomeCmdData
             Profile(): template_string("$N"),
                        counter_start(1), counter_width(1), counter_step(1),
                        case_conversion(0), trim_blanks(3)                     {}
+            ~Profile()                                                        {}
 
             const std::string &description() const {  return template_string;  }
             void reset();

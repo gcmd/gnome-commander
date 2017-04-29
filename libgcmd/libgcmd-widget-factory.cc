@@ -2,7 +2,7 @@
  * @file libgcmd-widget-factory.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -285,7 +285,7 @@ GtkWidget *create_radio (GtkWidget *parent, GSList *group, const gchar *text, co
 }
 
 
-GtkWidget *create_radio_with_mnemonic (GtkWidget *parent, GSList *group, gchar *text, gchar *name)
+GtkWidget *create_radio_with_mnemonic (GtkWidget *parent, GSList *group, gchar *text, const gchar *name)
 {
     GtkWidget *radio = gtk_radio_button_new_with_mnemonic (group, text);
 
@@ -422,7 +422,7 @@ GtkWidget *create_hbuttonbox (GtkWidget *parent)
     return w;
 }
 
-
+//deprecated since GTK2.4
 GtkWidget *create_combo (GtkWidget *parent)
 {
     GtkWidget *combo = gtk_combo_new ();
@@ -432,6 +432,14 @@ GtkWidget *create_combo (GtkWidget *parent)
     return combo;
 }
 
+GtkWidget *create_combo_new (GtkWidget *parent)
+{
+    GtkWidget *combo = gtk_combo_box_text_new_with_entry ();
+    g_object_ref (combo);
+    g_object_set_data_full (G_OBJECT (parent), "combo", combo, g_object_unref);
+    gtk_widget_show (combo);
+    return combo;
+}
 
 GtkWidget *create_option_menu (GtkWidget *parent, const gchar **items)
 {
@@ -512,7 +520,6 @@ static void on_response (GtkDialog *dialog, gint id, gpointer data)
 {
     gtk_widget_destroy (GTK_WIDGET (dialog));
 }
-
 
 void create_error_dialog (const gchar *msg, ...)
 {

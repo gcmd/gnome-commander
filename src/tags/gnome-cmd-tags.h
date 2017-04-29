@@ -2,7 +2,7 @@
  * @file gnome-cmd-tags.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -487,20 +487,26 @@ void gcmd_tags_shutdown();
 GnomeCmdFileMetadata *gcmd_tags_bulk_load(GnomeCmdFile *f);
 
 const gchar *gcmd_tags_get_name(const GnomeCmdTag tag);
-const GnomeCmdTagClass gcmd_tags_get_class(const GnomeCmdTag tag);
+GnomeCmdTagClass gcmd_tags_get_class(const GnomeCmdTag tag);
 const gchar *gcmd_tags_get_class_name(const GnomeCmdTag tag);
 const gchar *gcmd_tags_get_value(GnomeCmdFile *f, const GnomeCmdTag tag);
+const std::string gcmd_tags_get_value_string(GnomeCmdFile *f, const GnomeCmdTag tag);
 const gchar *gcmd_tags_get_title(const GnomeCmdTag tag);
 const gchar *gcmd_tags_get_description(const GnomeCmdTag tag);
 
-// gcmd_tags_get_tag_by_name() returns tag for given tag_name (eg. AlbumArtist) in the specified tag_class (here TAG_AUDIO)
-// if tag_class is omitted, tag_name must contain fully qualified tag name (eg. Audio.AlbumArtist)
-
+/**
+ * gcmd_tags_get_tag_by_name() returns tag for given tag_name (eg. AlbumArtist)
+ * in the specified tag_class (here TAG_AUDIO). If tag_class is omitted, tag_name
+ * must contain fully qualified tag name (eg. Audio.AlbumArtist).
+ */
 GnomeCmdTag gcmd_tags_get_tag_by_name(const gchar *tag_name, const GnomeCmdTagClass tag_class=TAG_NONE_CLASS);
 
-// gcmd_tags_get_value_by_name() returns metatag value for given tag_name (eg. AlbumArtist) in the specified tag_class (here TAG_AUDIO)
-// if tag_class is omitted, tag_name must contain fully qualified tag name (eg. Audio.AlbumArtist)
-
+/**
+ * gcmd_tags_get_value_by_name() returns metatag value for given
+ * tag_name (eg. AlbumArtist) in the specified tag_class (here TAG_AUDIO)
+ * if tag_class is omitted, tag_name must contain fully qualified tag
+ * name (eg. Audio.AlbumArtist).
+ */
 inline const gchar *gcmd_tags_get_value_by_name(GnomeCmdFile *f, const gchar *tag_name, const GnomeCmdTagClass tag_class=TAG_NONE_CLASS)
 {
     g_return_val_if_fail (f != NULL, "");
@@ -526,7 +532,7 @@ class GnomeCmdFileMetadata
 
   public:
 
-    GnomeCmdFileMetadata() {}                                                   // to make g++ 3.4 happy
+    GnomeCmdFileMetadata() {}
 
     gboolean is_accessed (const GnomeCmdTagClass tag_class) const;
     gboolean is_accessed (const GnomeCmdTag tag) const;
@@ -537,8 +543,11 @@ class GnomeCmdFileMetadata
     void add (const GnomeCmdTag tag, const gchar *value);
     template <typename T>
     void add (const GnomeCmdTag tag, const T &value);
+#ifdef __GNUC__
+    void addf (const GnomeCmdTag tag, const gchar *fmt, ...) __attribute__ ((format (gnu_printf, 3, 4)));
+#else
     void addf (const GnomeCmdTag tag, const gchar *fmt, ...);
-
+#endif
     gboolean has_tag (const GnomeCmdTag tag);
 
     const std::string operator[] (const GnomeCmdTag tag);
@@ -555,23 +564,6 @@ inline gboolean GnomeCmdFileMetadata::is_accessed (const GnomeCmdTagClass tag_cl
     return elem==accessed.end() ? FALSE : elem->second;
 }
 
-
-inline void GnomeCmdFileMetadata::add (const GnomeCmdTag tag, std::string value)
-{
-    if (value.empty())
-        return;
-
-    std::string::size_type end = value.find_last_not_of(" \t\n\r\0",std::string::npos,5);         // remove trailing whitespace from a string
-
-    if (end==std::string::npos)
-        return;
-
-    value.erase(end+1);
-
-    metadata[tag].insert(value);
-}
-
-
 inline void GnomeCmdFileMetadata::add (const GnomeCmdTag tag, const gchar *value)
 {
     if (value && *value)
@@ -580,7 +572,7 @@ inline void GnomeCmdFileMetadata::add (const GnomeCmdTag tag, const gchar *value
 
 
 template <typename T>
-inline void GnomeCmdFileMetadata::add (const GnomeCmdTag tag, const T &value)
+void GnomeCmdFileMetadata::add (const GnomeCmdTag tag, const T &value)
 {
    std::ostringstream os;
 

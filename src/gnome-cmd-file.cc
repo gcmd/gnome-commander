@@ -2,7 +2,7 @@
  * @file gnome-cmd-file.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -281,7 +281,7 @@ GnomeVFSResult GnomeCmdFile::chown(uid_t uid, gid_t gid)
 {
     g_return_val_if_fail (info != NULL, GNOME_VFS_ERROR_CORRUPTED_DATA);
 
-    if (uid != -1)
+    if (uid != (uid_t)-1)
         info->uid = uid;
     info->gid = gid;
 
@@ -538,7 +538,7 @@ GnomeVFSFileSize GnomeCmdFile::get_tree_size()
     if (is_dotdot)
         return 0;
 
-    if (priv->tree_size != -1)
+    if (priv->tree_size != (GnomeVFSFileSize)-1)
         return priv->tree_size;
 
     GnomeVFSURI *uri = get_uri();
@@ -663,7 +663,14 @@ inline void do_view_file (GnomeCmdFile *f, gint internal_viewer=-1)
 
         case FALSE: {
                         gchar *filename = f->get_quoted_real_path();
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
                         gchar *command = g_strdup_printf (gnome_cmd_data.options.viewer, filename);
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
                         run_command (command);
                         g_free (filename);
                     }
@@ -727,7 +734,14 @@ void gnome_cmd_file_edit (GnomeCmdFile *f)
 
     gchar *fpath = f->get_quoted_real_path();
     gchar *dpath = f->get_unescaped_dirname();
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
     gchar *command = g_strdup_printf (gnome_cmd_data.options.editor, fpath);
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     run_command_indir (command, dpath, FALSE);
 
@@ -752,25 +766,25 @@ void gnome_cmd_file_show_cap_paste (GnomeCmdFile *f)
 }
 
 
-void GnomeCmdFile::update_info(GnomeVFSFileInfo *info)
+void GnomeCmdFile::update_info(GnomeVFSFileInfo *file_info)
 {
-    g_return_if_fail (info != NULL);
+    g_return_if_fail (file_info != NULL);
 
     g_free (collate_key);
     gnome_vfs_file_info_unref (this->info);
-    gnome_vfs_file_info_ref (info);
-    this->info = info;
+    gnome_vfs_file_info_ref (file_info);
+    this->info = file_info;
 
     gchar *utf8_name;
 
     if (!gnome_cmd_data.options.case_sens_sort)
     {
-        gchar *s = get_utf8 (info->name);
+        gchar *s = get_utf8 (file_info->name);
         utf8_name = g_utf8_casefold (s, -1);
         g_free (s);
     }
     else
-        utf8_name = get_utf8 (info->name);
+        utf8_name = get_utf8 (file_info->name);
 
     collate_key = g_utf8_collate_key_for_filename (utf8_name, -1);
     g_free (utf8_name);
@@ -911,5 +925,5 @@ void GnomeCmdFile::invalidate_tree_size()
 
 gboolean GnomeCmdFile::has_tree_size()
 {
-    return priv->tree_size != -1;
+    return priv->tree_size != (GnomeVFSFileSize)-1;
 }

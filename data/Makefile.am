@@ -4,7 +4,8 @@ desktopdir = $(datadir)/applications
 desktop_in_files = @PACKAGE@.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
-@INTLTOOL_DESKTOP_RULE@
+$(desktop_DATA): %.desktop: %.desktop.in
+	$(AM_V_GEN) $(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
 
 gsettings_ENUM_NAMESPACE = org.gnome.gnome-commander
 gsettings_ENUM_FILES = $(top_srcdir)/src/gnome-cmd-types.h \
@@ -18,11 +19,12 @@ appdatadir = $(datadir)/appdata
 appdata_in_files = @PACKAGE@.appdata.xml.in
 appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 
+$(appdata_DATA): $(appdata_in_files)
+	$(AM_V_GEN) $(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o $@
+
 mimetopdir = $(datadir)/@PACKAGE@/mime
 mimexmldir = $(mimetopdir)/packages
 mimexml_DATA = gnome-commander-mime.xml
-
-@INTLTOOL_XML_RULE@
 
 ebuild_files = @PACKAGE@.ebuild
 ebuild_DATA_NOINST = @PACKAGE@-@VERSION@.ebuild
@@ -52,6 +54,5 @@ install-data-hook:
 uninstall-hook:
 	for target in $(DESTDIR)/$(mimetopdir)/* ; \
 		do test "x$${target}" != "x$(DESTDIR)/$(mimexmldir)" && rm -rf $${target} ; done
-
 
 -include $(top_srcdir)/git.mk

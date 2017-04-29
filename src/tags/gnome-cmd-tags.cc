@@ -2,7 +2,7 @@
  * @file gnome-cmd-tags.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@
 
 using namespace std;
 
-
 struct GnomeCmdTagName
 {
     const gchar *name;
@@ -70,7 +69,9 @@ static char no_support_for_taglib_tags_string[] = N_("<ID3, APE, FLAC and Vorbis
 #endif
 
 #ifndef HAVE_GSF
+#ifndef HAVE_PDF
 static char no_support_for_libgsf_tags_string[] = N_("<OLE2 and ODF tags not supported>");
+#endif
 #endif
 
 #ifndef HAVE_PDF
@@ -92,8 +93,12 @@ void GnomeCmdFileMetadata::addf(const GnomeCmdTag tag, const gchar *fmt, ...)
         va_end (args);
 
         // If that worked, return the string
-        if (n > -1 && n < buff.size())
-          break;
+        if (n > -1)
+        {
+            guint letters = n;
+            if (letters < buff.size())
+                break;
+        }
 
         buff.resize(n > -1 ? n+1 : buff.size()*2);
     }
@@ -632,6 +637,7 @@ GnomeCmdTag gcmd_tags_get_tag_by_name(const gchar *tag_name, const GnomeCmdTagCl
                 t.name = "Vorbis.";
                 break;
 
+            case TAG_NONE_CLASS:
             default:
                 t.name = empty_string;
                 break;
@@ -657,7 +663,7 @@ const gchar *gcmd_tags_get_name(const GnomeCmdTag tag)
 }
 
 
-const GnomeCmdTagClass gcmd_tags_get_class(const GnomeCmdTag tag)
+GnomeCmdTagClass gcmd_tags_get_class(const GnomeCmdTag tag)
 {
     return metatags[tag].tag_class;
 }
@@ -709,6 +715,7 @@ const gchar *gcmd_tags_get_class_name(const GnomeCmdTag tag)
         case TAG_VORBIS:
             return "Vorbis";
 
+        case TAG_NONE_CLASS:
         default:
             break;
     }
@@ -717,17 +724,18 @@ const gchar *gcmd_tags_get_class_name(const GnomeCmdTag tag)
 }
 
 
-const gchar *gcmd_tags_get_value(GnomeCmdFile *f, const GnomeCmdTag tag)
+const std::string gcmd_tags_get_value_string(GnomeCmdFile *f, const GnomeCmdTag tag)
 {
     g_return_val_if_fail (f != NULL, empty_string);
 
-    const gchar *ret_val = empty_string;
+    std::string ret_val = empty_string;
 
     switch (metatags[tag].tag_class)
     {
         case TAG_IMAGE:
         case TAG_EXIF :
         case TAG_IPTC :
+        case TAG_ICC  :
 #ifndef HAVE_EXIV2
                         return _(no_support_for_exiv2_tags_string);
 #endif
@@ -774,10 +782,17 @@ const gchar *gcmd_tags_get_value(GnomeCmdFile *f, const GnomeCmdTag tag)
 
         case TAG_RPM  : break;
 
+        case TAG_NONE_CLASS:
         default:        break;
     }
 
-    return ret_val ? ret_val : empty_string;
+    return ret_val.length() != 0 ? ret_val : empty_string;
+}
+
+
+const gchar *gcmd_tags_get_value(GnomeCmdFile *f, const GnomeCmdTag tag)
+{
+    return gcmd_tags_get_value_string(f, tag).c_str();
 }
 
 
@@ -790,4 +805,20 @@ const gchar *gcmd_tags_get_title(const GnomeCmdTag tag)
 const gchar *gcmd_tags_get_description(const GnomeCmdTag tag)
 {
     return _(metatags[tag].description);
+}
+
+void GnomeCmdFileMetadata::add (const GnomeCmdTag tag, std::string value)
+{
+    if (value.empty())
+        return;
+
+    // remove trailing whitespace from a string
+    std::string::size_type string_end = value.find_last_not_of(" \t\n\r\0",std::string::npos,5);
+
+    if (string_end==std::string::npos)
+        return;
+
+    value.erase(string_end+1);
+
+    metadata[tag].insert(value);
 }

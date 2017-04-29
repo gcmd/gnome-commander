@@ -2,7 +2,7 @@
  * @file ls_colors.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,7 @@ inline GdkColor *code2color (gint code)
         case 45: return palette.magenta_bg;
         case 46: return palette.cyan_bg;
         case 47: return palette.white_bg;
+        default: break;
     }
 
     return NULL;
@@ -165,7 +166,7 @@ static LsColor *create_color (gchar *ls_color)
 }
 
 
-static void init (gchar *ls_colors)
+static void init (const gchar *ls_colors)
 {
     gchar **ents = g_strsplit (ls_colors, ":", 0);
 
@@ -191,7 +192,7 @@ static void init (gchar *ls_colors)
 
 void ls_colors_init ()
 {
-    gchar *s = getenv ("LS_COLORS");
+    const gchar *s = getenv ("LS_COLORS");
     if (!s)
         s = DEFAULT_COLORS;
 

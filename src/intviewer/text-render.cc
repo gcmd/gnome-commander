@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -568,6 +568,10 @@ static gboolean text_render_scroll(GtkWidget *widget, GdkEventScroll *event)
         return FALSE;
 
     // Mouse scroll wheel
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (event->direction)
     {
         case GDK_SCROLL_UP:
@@ -581,6 +585,9 @@ static gboolean text_render_scroll(GtkWidget *widget, GdkEventScroll *event)
         default:
             return FALSE;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     text_render_position_changed (w);
     text_render_redraw (w);
@@ -665,10 +672,11 @@ static gboolean text_render_motion_notify(GtkWidget *widget, GdkEventMotion *eve
 
     GdkModifierType mods;
     gint x, y;
-    offset_type new_marker;
 
     if (w->priv->button != 0)
     {
+        offset_type new_marker;
+
         x = event->x;
         y = event->y;
 
@@ -933,6 +941,10 @@ static gboolean text_render_vscroll_change_value(GtkRange *range,
     if (!obj->priv->dp)
         return FALSE;
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (scroll)
     {
         case GTK_SCROLL_STEP_BACKWARD:
@@ -961,7 +973,9 @@ static gboolean text_render_vscroll_change_value(GtkRange *range,
         default:
             return FALSE;
     }
-
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     text_render_position_changed(obj);
     text_render_redraw(obj);
 
@@ -1028,7 +1042,7 @@ static guint get_max_char_width(GtkWidget *widget, PangoFontDescription *font_de
             pango_layout_set_text(layout, str, -1);
             pango_layout_get_pixel_extents (layout, NULL, &logical_rect);
         }
-        maxwidth = MAX(maxwidth, logical_rect.width);
+        maxwidth = MAX(maxwidth, MAX(0, logical_rect.width));
     }
 
     g_object_unref (layout);
@@ -1219,6 +1233,9 @@ void  text_render_set_display_mode (TextRender *w, TextRender::DISPLAYMODE mode)
         w->priv->display_line = hex_mode_display_line;
         w->priv->pixel_to_offset = hex_mode_pixel_to_offset;
         w->priv->copy_to_clipboard = hex_mode_copy_to_clipboard;
+        break;
+
+    default:
         break;
     }
 
@@ -1596,7 +1613,6 @@ static int text_mode_display_line(TextRender *w, int y, int column, offset_type 
 
     offset_type current;
     char_type value;
-    int rc=0;
     int char_count = 0;
     offset_type marker_start;
     offset_type marker_end;
@@ -1629,10 +1645,7 @@ static int text_mode_display_line(TextRender *w, int y, int column, offset_type 
         // Read a UTF8 character from the input file. The "inputmode" module is responsible for converting the file into UTF8
         value = gv_input_mode_get_utf8_char(w->priv->im, current);
         if (value==INVALID_CHAR)
-        {
-            rc = -1;
             break;
-        }
 
         // move to the next character's offset
         current = gv_input_get_next_char_offset(w->priv->im, current);
@@ -1678,7 +1691,6 @@ static int binary_mode_display_line(TextRender *w, int y, int column, offset_typ
 
     offset_type current;
     char_type value;
-    int rc=0;
     offset_type marker_start;
     offset_type marker_end;
     gboolean show_marker;
@@ -1708,10 +1720,7 @@ static int binary_mode_display_line(TextRender *w, int y, int column, offset_typ
            The "inputmode" module is responsible for converting the file into UTF8 */
         value = gv_input_mode_get_utf8_char(w->priv->im, current);
         if (value==INVALID_CHAR)
-        {
-            rc = -1;
             break;
-        }
 
         // move to the next character's offset
         current = gv_input_get_next_char_offset(w->priv->im, current);

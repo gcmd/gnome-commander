@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,14 +145,14 @@ guint8 *text2hex (const gchar *text, /*out*/ guint &buflen)
     len = 0;
     high_nib = TRUE;
     value = 0;
-    for (gint idx=0; text[idx]; ++idx)
-        if (g_ascii_isxdigit (text[idx]))
+    for (gint idx2=0; text[idx2]; ++idx2)
+        if (g_ascii_isxdigit (text[idx2]))
         {
             if (high_nib)
-                value = g_ascii_xdigit_value(text[idx]) * 16;
+                value = g_ascii_xdigit_value(text[idx2]) * 16;
             else
             {
-                value += g_ascii_xdigit_value(text[idx]);
+                value += g_ascii_xdigit_value(text[idx2]);
                 result[len] = value;
                 len++;
             }

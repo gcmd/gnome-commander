@@ -2,7 +2,7 @@
  * @file gnome-cmd-data.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,6 @@ using namespace std;
 #define DEFAULT_GUI_UPDATE_RATE 100
 
 GnomeCmdData gnome_cmd_data;
-GnomeVFSVolumeMonitor *monitor = NULL;
 
 struct GnomeCmdData::Private
 {
@@ -105,7 +104,7 @@ static void gcmd_settings_dispose (GObject *object)
     G_OBJECT_CLASS (gcmd_settings_parent_class)->dispose (object);
 }
 
-void on_size_display_mode_changed ()
+static void on_size_display_mode_changed ()
 {
     gint size_disp_mode;
 
@@ -115,7 +114,7 @@ void on_size_display_mode_changed ()
     main_win->update_view();
 }
 
-void on_perm_display_mode_changed ()
+static void on_perm_display_mode_changed ()
 {
     gint perm_disp_mode;
 
@@ -125,7 +124,7 @@ void on_perm_display_mode_changed ()
     main_win->update_view();
 }
 
-void on_graphical_layout_mode_changed ()
+static void on_graphical_layout_mode_changed ()
 {
     gint graphical_layout_mode;
 
@@ -135,7 +134,7 @@ void on_graphical_layout_mode_changed ()
     main_win->update_view();
 }
 
-void on_list_row_height_changed ()
+static void on_list_row_height_changed ()
 {
     guint list_row_height;
 
@@ -145,7 +144,7 @@ void on_list_row_height_changed ()
     main_win->update_view();
 }
 
-void on_date_disp_format_changed ()
+static void on_date_disp_format_changed ()
 {
     GnomeCmdDateFormat date_format;
 
@@ -156,7 +155,7 @@ void on_date_disp_format_changed ()
     main_win->update_view();
 }
 
-void on_filter_hide_unknown_changed()
+static void on_filter_hide_unknown_changed()
 {
     gboolean filter;
 
@@ -166,7 +165,7 @@ void on_filter_hide_unknown_changed()
     main_win->update_view();
 }
 
-void on_filter_hide_regular_changed ()
+static void on_filter_hide_regular_changed ()
 {
     gboolean filter;
 
@@ -176,7 +175,7 @@ void on_filter_hide_regular_changed ()
     main_win->update_view();
 }
 
-void on_filter_hide_directory_changed ()
+static void on_filter_hide_directory_changed ()
 {
     gboolean filter;
 
@@ -186,7 +185,7 @@ void on_filter_hide_directory_changed ()
     main_win->update_view();
 }
 
-void on_filter_hide_fifo_changed ()
+static void on_filter_hide_fifo_changed ()
 {
     gboolean filter;
 
@@ -196,7 +195,7 @@ void on_filter_hide_fifo_changed ()
     main_win->update_view();
 }
 
-void on_filter_hide_socket_changed ()
+static void on_filter_hide_socket_changed ()
 {
     gboolean filter;
 
@@ -206,7 +205,7 @@ void on_filter_hide_socket_changed ()
     main_win->update_view();
 }
 
-void on_filter_hide_character_device_changed ()
+static void on_filter_hide_character_device_changed ()
 {
     gboolean filter;
 
@@ -216,7 +215,7 @@ void on_filter_hide_character_device_changed ()
     main_win->update_view();
 }
 
-void on_filter_hide_block_device_changed ()
+static void on_filter_hide_block_device_changed ()
 {
     gboolean filter;
 
@@ -226,7 +225,7 @@ void on_filter_hide_block_device_changed ()
     main_win->update_view();
 }
 
-void on_filter_hide_symbolic_link_changed ()
+static void on_filter_hide_symbolic_link_changed ()
 {
     gboolean filter;
 
@@ -236,7 +235,7 @@ void on_filter_hide_symbolic_link_changed ()
     main_win->update_view();
 }
 
-void on_filter_dotfile_changed ()
+static void on_filter_dotfile_changed ()
 {
     gboolean filter;
 
@@ -246,7 +245,7 @@ void on_filter_dotfile_changed ()
     main_win->update_view();
 }
 
-void on_filter_backup_changed ()
+static void on_filter_backup_changed ()
 {
     gboolean filter;
 
@@ -256,7 +255,7 @@ void on_filter_backup_changed ()
     main_win->update_view();
 }
 
-void on_backup_pattern_changed ()
+static void on_backup_pattern_changed ()
 {
     char *backup_pattern;
 
@@ -266,7 +265,7 @@ void on_backup_pattern_changed ()
     g_free(backup_pattern);
 }
 
-void on_list_font_changed ()
+static void on_list_font_changed ()
 {
     g_free(gnome_cmd_data.options.list_font);
     gnome_cmd_data.options.list_font = g_settings_get_string (gnome_cmd_data.options.gcmd_settings->general, GCMD_SETTINGS_LIST_FONT);
@@ -274,7 +273,7 @@ void on_list_font_changed ()
     main_win->update_view();
 }
 
-void on_ext_disp_mode_changed ()
+static void on_ext_disp_mode_changed ()
 {
     gint ext_disp_mode;
 
@@ -284,7 +283,7 @@ void on_ext_disp_mode_changed ()
     main_win->update_view();
 }
 
-void on_icon_size_changed ()
+static void on_icon_size_changed ()
 {
     guint icon_size;
 
@@ -294,7 +293,7 @@ void on_icon_size_changed ()
     main_win->update_view();
 }
 
-void on_show_devbuttons_changed ()
+static void on_show_devbuttons_changed ()
 {
     gboolean show_devbuttons;
 
@@ -304,7 +303,7 @@ void on_show_devbuttons_changed ()
     main_win->fs(INACTIVE)->update_show_devbuttons();
 }
 
-void on_show_devlist_changed ()
+static void on_show_devlist_changed ()
 {
     gboolean show_devlist;
 
@@ -315,7 +314,7 @@ void on_show_devlist_changed ()
     main_win->fs(INACTIVE)->update_show_devlist();
 }
 
-void on_show_cmdline_changed ()
+static void on_show_cmdline_changed ()
 {
     gboolean show_cmdline;
 
@@ -324,7 +323,7 @@ void on_show_cmdline_changed ()
     main_win->update_cmdline_visibility();
 }
 
-void on_show_toolbar_changed ()
+static void on_show_toolbar_changed ()
 {
     if (gnome_cmd_data.show_toolbar != g_settings_get_boolean (gnome_cmd_data.options.gcmd_settings->general, GCMD_SETTINGS_SHOW_TOOLBAR))
     {
@@ -333,7 +332,7 @@ void on_show_toolbar_changed ()
     }
 }
 
-void on_show_buttonbar_changed ()
+static void on_show_buttonbar_changed ()
 {
     if (gnome_cmd_data.buttonbar_visibility != g_settings_get_boolean (gnome_cmd_data.options.gcmd_settings->general, GCMD_SETTINGS_SHOW_BUTTONBAR))
     {
@@ -342,7 +341,7 @@ void on_show_buttonbar_changed ()
     }
 }
 
-void on_horizontal_orientation_changed ()
+static void on_horizontal_orientation_changed ()
 {
     gboolean horizontal_orientation;
 
@@ -353,7 +352,7 @@ void on_horizontal_orientation_changed ()
     main_win->focus_file_lists();
 }
 
-void on_always_show_tabs_changed ()
+static void on_always_show_tabs_changed ()
 {
     gboolean always_show_tabs;
 
@@ -363,7 +362,7 @@ void on_always_show_tabs_changed ()
     main_win->update_style();
 }
 
-void on_tab_lock_indicator_changed ()
+static void on_tab_lock_indicator_changed ()
 {
     gint tab_lock_indicator;
 
@@ -373,7 +372,7 @@ void on_tab_lock_indicator_changed ()
     main_win->update_style();
 }
 
-void on_confirm_delete_changed ()
+static void on_confirm_delete_changed ()
 {
     gboolean confirm_delete;
 
@@ -381,7 +380,7 @@ void on_confirm_delete_changed ()
     gnome_cmd_data.options.confirm_delete = confirm_delete;
 }
 
-void on_confirm_delete_default_changed ()
+static void on_confirm_delete_default_changed ()
 {
     gint confirm_delete_default;
 
@@ -389,7 +388,7 @@ void on_confirm_delete_default_changed ()
     gnome_cmd_data.options.confirm_delete_default = (GtkButtonsType) confirm_delete_default;
 }
 
-void on_confirm_copy_overwrite_changed ()
+static void on_confirm_copy_overwrite_changed ()
 {
     gint confirm_copy_overwrite;
 
@@ -397,7 +396,7 @@ void on_confirm_copy_overwrite_changed ()
     gnome_cmd_data.options.confirm_copy_overwrite = (GnomeCmdConfirmOverwriteMode) confirm_copy_overwrite;
 }
 
-void on_confirm_move_overwrite_changed ()
+static void on_confirm_move_overwrite_changed ()
 {
     gint confirm_move_overwrite;
 
@@ -405,7 +404,7 @@ void on_confirm_move_overwrite_changed ()
     gnome_cmd_data.options.confirm_move_overwrite = (GnomeCmdConfirmOverwriteMode) confirm_move_overwrite;
 }
 
-void on_mouse_drag_and_drop_changed ()
+static void on_mouse_drag_and_drop_changed ()
 {
     gboolean confirm_mouse_dnd;
 
@@ -413,7 +412,7 @@ void on_mouse_drag_and_drop_changed ()
     gnome_cmd_data.options.confirm_mouse_dnd = confirm_mouse_dnd;
 }
 
-void on_select_dirs_changed ()
+static void on_select_dirs_changed ()
 {
     gboolean select_dirs;
 
@@ -421,7 +420,7 @@ void on_select_dirs_changed ()
     gnome_cmd_data.options.select_dirs = select_dirs;
 }
 
-void on_case_sensitive_changed ()
+static void on_case_sensitive_changed ()
 {
     gboolean case_sensitive;
 
@@ -429,13 +428,13 @@ void on_case_sensitive_changed ()
     gnome_cmd_data.options.case_sens_sort = case_sensitive;
 }
 
-void on_symlink_string_changed ()
+static void on_symlink_string_changed ()
 {
     g_free(gnome_cmd_data.options.symlink_prefix);
     gnome_cmd_data.options.symlink_prefix = g_settings_get_string (gnome_cmd_data.options.gcmd_settings->general, GCMD_SETTINGS_SYMLINK_PREFIX);
 }
 
-void on_theme_changed()
+static void on_theme_changed()
 {
     gint theme;
 
@@ -445,7 +444,7 @@ void on_theme_changed()
     main_win->update_view();
 }
 
-void on_custom_color_norm_fg_changed()
+static void on_custom_color_norm_fg_changed()
 {
     gint theme;
 
@@ -459,7 +458,7 @@ void on_custom_color_norm_fg_changed()
         main_win->update_view();
 }
 
-void on_custom_color_norm_bg_changed()
+static void on_custom_color_norm_bg_changed()
 {
     gint theme;
 
@@ -473,7 +472,7 @@ void on_custom_color_norm_bg_changed()
         main_win->update_view();
 }
 
-void on_custom_color_alt_fg_changed()
+static void on_custom_color_alt_fg_changed()
 {
     gint theme;
 
@@ -487,7 +486,7 @@ void on_custom_color_alt_fg_changed()
         main_win->update_view();
 }
 
-void on_custom_color_alt_bg_changed()
+static void on_custom_color_alt_bg_changed()
 {
     gint theme;
 
@@ -501,7 +500,7 @@ void on_custom_color_alt_bg_changed()
         main_win->update_view();
 }
 
-void on_custom_color_sel_fg_changed()
+static void on_custom_color_sel_fg_changed()
 {
     gint theme;
 
@@ -515,7 +514,7 @@ void on_custom_color_sel_fg_changed()
         main_win->update_view();
 }
 
-void on_custom_color_sel_bg_changed()
+static void on_custom_color_sel_bg_changed()
 {
     gint theme;
 
@@ -529,7 +528,7 @@ void on_custom_color_sel_bg_changed()
         main_win->update_view();
 }
 
-void on_custom_color_curs_fg_changed()
+static void on_custom_color_curs_fg_changed()
 {
     gint theme;
 
@@ -543,7 +542,7 @@ void on_custom_color_curs_fg_changed()
         main_win->update_view();
 }
 
-void on_custom_color_curs_bg_changed()
+static void on_custom_color_curs_bg_changed()
 {
     gint theme;
 
@@ -557,7 +556,7 @@ void on_custom_color_curs_bg_changed()
         main_win->update_view();
 }
 
-void on_use_ls_colors_changed()
+static void on_use_ls_colors_changed()
 {
     gboolean use_ls_colors;
 
@@ -567,7 +566,7 @@ void on_use_ls_colors_changed()
     main_win->update_view();
 }
 
-void on_ls_color_black_fg_changed()
+static void on_ls_color_black_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.black_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -577,7 +576,7 @@ void on_ls_color_black_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_black_bg_changed()
+static void on_ls_color_black_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.black_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -587,7 +586,7 @@ void on_ls_color_black_bg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_red_fg_changed()
+static void on_ls_color_red_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.red_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -597,7 +596,7 @@ void on_ls_color_red_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_red_bg_changed()
+static void on_ls_color_red_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.red_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -607,7 +606,7 @@ void on_ls_color_red_bg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_green_fg_changed()
+static void on_ls_color_green_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.green_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -617,7 +616,7 @@ void on_ls_color_green_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_green_bg_changed()
+static void on_ls_color_green_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.green_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -627,7 +626,7 @@ void on_ls_color_green_bg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_yellow_fg_changed()
+static void on_ls_color_yellow_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.yellow_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -637,7 +636,7 @@ void on_ls_color_yellow_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_yellow_bg_changed()
+static void on_ls_color_yellow_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.yellow_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -647,7 +646,7 @@ void on_ls_color_yellow_bg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_blue_fg_changed()
+static void on_ls_color_blue_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.blue_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -657,7 +656,7 @@ void on_ls_color_blue_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_blue_bg_changed()
+static void on_ls_color_blue_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.blue_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -667,7 +666,7 @@ void on_ls_color_blue_bg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_magenta_fg_changed()
+static void on_ls_color_magenta_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.magenta_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -677,7 +676,7 @@ void on_ls_color_magenta_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_magenta_bg_changed()
+static void on_ls_color_magenta_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.magenta_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -687,7 +686,7 @@ void on_ls_color_magenta_bg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_cyan_fg_changed()
+static void on_ls_color_cyan_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.cyan_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -697,7 +696,7 @@ void on_ls_color_cyan_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_cyan_bg_changed()
+static void on_ls_color_cyan_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.cyan_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -707,7 +706,7 @@ void on_ls_color_cyan_bg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_white_fg_changed()
+static void on_ls_color_white_fg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.white_fg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -717,7 +716,7 @@ void on_ls_color_white_fg_changed()
         main_win->update_view();
 }
 
-void on_ls_color_white_bg_changed()
+static void on_ls_color_white_bg_changed()
 {
     gnome_cmd_data.set_color_if_valid_key_value(gnome_cmd_data.options.ls_colors_palette.white_bg,
                                                 gnome_cmd_data.options.gcmd_settings->colors,
@@ -727,7 +726,7 @@ void on_ls_color_white_bg_changed()
         main_win->update_view();
 }
 
-void on_always_download_changed()
+static void on_always_download_changed()
 {
     gboolean always_download;
 
@@ -735,7 +734,7 @@ void on_always_download_changed()
     gnome_cmd_data.options.honor_expect_uris = always_download;
 }
 
-void on_multiple_instances_changed()
+static void on_multiple_instances_changed()
 {
     gboolean allow_multiple_instances;
 
@@ -743,21 +742,21 @@ void on_multiple_instances_changed()
     gnome_cmd_data.options.allow_multiple_instances = allow_multiple_instances;
 }
 
-void on_use_internal_viewer_changed()
+static void on_use_internal_viewer_changed()
 {
     gboolean use_internal_viewer;
     use_internal_viewer = g_settings_get_boolean (gnome_cmd_data.options.gcmd_settings->programs, GCMD_SETTINGS_USE_INTERNAL_VIEWER);
     gnome_cmd_data.options.use_internal_viewer = use_internal_viewer;
 }
 
-void on_quick_search_shortcut_changed()
+static void on_quick_search_shortcut_changed()
 {
     gint quick_search;
     quick_search = g_settings_get_enum (gnome_cmd_data.options.gcmd_settings->general, GCMD_SETTINGS_QUICK_SEARCH_SHORTCUT);
     gnome_cmd_data.options.quick_search = (GnomeCmdQuickSearchShortcut) quick_search;
 }
 
-void on_quick_search_exact_match_begin_changed()
+static void on_quick_search_exact_match_begin_changed()
 {
     gboolean quick_search_exact_match;
 
@@ -765,7 +764,7 @@ void on_quick_search_exact_match_begin_changed()
     gnome_cmd_data.options.quick_search_exact_match_begin = quick_search_exact_match;
 }
 
-void on_quick_search_exact_match_end_changed()
+static void on_quick_search_exact_match_end_changed()
 {
     gboolean quick_search_exact_match;
 
@@ -773,7 +772,7 @@ void on_quick_search_exact_match_end_changed()
     gnome_cmd_data.options.quick_search_exact_match_end = quick_search_exact_match;
 }
 
-void on_dev_skip_mounting_changed()
+static void on_dev_skip_mounting_changed()
 {
     gboolean skip_mounting;
 
@@ -781,7 +780,7 @@ void on_dev_skip_mounting_changed()
     gnome_cmd_data.options.skip_mounting = skip_mounting;
 }
 
-void on_dev_only_icon_changed()
+static void on_dev_only_icon_changed()
 {
     gboolean dev_only_icon;
 
@@ -789,7 +788,7 @@ void on_dev_only_icon_changed()
     gnome_cmd_data.options.device_only_icon = dev_only_icon;
 }
 
-void on_mainmenu_visibility_changed()
+static void on_mainmenu_visibility_changed()
 {
     gboolean mainmenu_visibility;
 
@@ -798,7 +797,7 @@ void on_mainmenu_visibility_changed()
     main_win->update_mainmenu_visibility();
 }
 
-void on_viewer_cmd_changed()
+static void on_viewer_cmd_changed()
 {
     gchar *viewer_cmd;
     g_free(gnome_cmd_data.options.viewer);
@@ -806,7 +805,7 @@ void on_viewer_cmd_changed()
     gnome_cmd_data.options.viewer = viewer_cmd;
 }
 
-void on_editor_cmd_changed()
+static void on_editor_cmd_changed()
 {
     gchar *editor_cmd;
     g_free(gnome_cmd_data.options.editor);
@@ -814,7 +813,7 @@ void on_editor_cmd_changed()
     gnome_cmd_data.options.editor = editor_cmd;
 }
 
-void on_differ_cmd_changed()
+static void on_differ_cmd_changed()
 {
     gchar *differ_cmd;
     g_free(gnome_cmd_data.options.differ);
@@ -822,7 +821,7 @@ void on_differ_cmd_changed()
     gnome_cmd_data.options.differ = differ_cmd;
 }
 
-void on_sendto_cmd_changed()
+static void on_sendto_cmd_changed()
 {
     gchar *sendto_cmd;
     g_free(gnome_cmd_data.options.sendto);
@@ -830,7 +829,7 @@ void on_sendto_cmd_changed()
     gnome_cmd_data.options.sendto = sendto_cmd;
 }
 
-void on_terminal_cmd_changed()
+static void on_terminal_cmd_changed()
 {
     gchar *terminal_cmd;
     g_free(gnome_cmd_data.options.termopen);
@@ -838,7 +837,7 @@ void on_terminal_cmd_changed()
     gnome_cmd_data.options.termopen = terminal_cmd;
 }
 
-void on_terminal_exec_cmd_changed()
+static void on_terminal_exec_cmd_changed()
 {
     gchar *terminal_exec_cmd;
     g_free(gnome_cmd_data.options.termexec);
@@ -846,13 +845,13 @@ void on_terminal_exec_cmd_changed()
     gnome_cmd_data.options.termexec = terminal_exec_cmd;
 }
 
-void on_ftp_anonymous_password_changed()
+static void on_ftp_anonymous_password_changed()
 {
     g_free(gnome_cmd_data.priv->ftp_anonymous_password);
     gnome_cmd_data.priv->ftp_anonymous_password = g_settings_get_string (gnome_cmd_data.options.gcmd_settings->network, GCMD_SETTINGS_FTP_ANONYMOUS_PASSWORD);
 }
 
-void on_use_gcmd_block_changed()
+static void on_use_gcmd_block_changed()
 {
     gnome_cmd_data.use_gcmd_block = g_settings_get_boolean (gnome_cmd_data.options.gcmd_settings->programs, GCMD_SETTINGS_USE_GCMD_BLOCK);
 }
@@ -1338,6 +1337,7 @@ GnomeCmdData::Options::Options(const Options &cfg)
     fav_apps = cfg.fav_apps;
     device_only_icon = cfg.device_only_icon;
     skip_mounting = cfg.skip_mounting;
+    gcmd_settings = NULL;
 }
 
 
@@ -1397,6 +1397,7 @@ GnomeCmdData::Options &GnomeCmdData::Options::operator = (const Options &cfg)
         fav_apps = cfg.fav_apps;
         device_only_icon = cfg.device_only_icon;
         skip_mounting = cfg.skip_mounting;
+        gcmd_settings = NULL;
     }
 
     return *this;
@@ -1516,7 +1517,7 @@ inline XML::xstream &operator << (XML::xstream &xml, GnomeCmdBookmark &bookmark)
 }
 
 
-inline void write(XML::xstream &xml, GnomeCmdCon *con, const gchar *name)
+static void write(XML::xstream &xml, GnomeCmdCon *con, const gchar *name)
 {
     if (!con)
         return;
@@ -1540,48 +1541,53 @@ inline void write(XML::xstream &xml, GnomeCmdCon *con, const gchar *name)
 /**
  * Save favourite applications in the given file by means of GKeyFile.
  */
-inline void save_devices (const gchar *fname)
+static void save_devices (const gchar *fname)
 {
+    GList *devices;
     gchar *path = config_dir ?
         g_build_filename (config_dir, fname, NULL) :
         g_build_filename (g_get_home_dir (), "." PACKAGE, fname, NULL);
     GKeyFile *key_file;
     key_file = g_key_file_new ();
 
-    for (GList *i = gnome_cmd_con_list_get_all_dev (gnome_cmd_data.priv->con_list); i; i = i->next)
+    devices = gnome_cmd_con_list_get_all_dev (gnome_cmd_data.priv->con_list);
+
+    if (devices)
     {
-        GnomeCmdConDevice *device = GNOME_CMD_CON_DEVICE (i->data);
-        if (device && !gnome_cmd_con_device_get_autovol (device))
+        for (; devices; devices = devices->next)
         {
-            gchar *alias = gnome_vfs_escape_string (gnome_cmd_con_device_get_alias (device));
+            GnomeCmdConDevice *device = GNOME_CMD_CON_DEVICE (devices->data);
+            if (device && !gnome_cmd_con_device_get_autovol (device))
+            {
+                gchar *alias = gnome_vfs_escape_string (gnome_cmd_con_device_get_alias (device));
 
-            gchar *device_fn = (gchar *) gnome_cmd_con_device_get_device_fn (device);
-            if (device_fn && device_fn[0] != '\0')
-                device_fn = gnome_vfs_escape_path_string (device_fn);
-            else
-                device_fn = g_strdup ("x");
+                gchar *device_fn = (gchar *) gnome_cmd_con_device_get_device_fn (device);
+                if (device_fn && device_fn[0] != '\0')
+                    device_fn = gnome_vfs_escape_path_string (device_fn);
+                else
+                    device_fn = g_strdup ("x");
 
-            gchar *mountp = gnome_vfs_escape_path_string (gnome_cmd_con_device_get_mountp (device));
+                gchar *mountp = gnome_vfs_escape_path_string (gnome_cmd_con_device_get_mountp (device));
 
-            gchar *icon_path = (gchar *) gnome_cmd_con_device_get_icon_path (device);
-            if (icon_path && icon_path[0] != '\0')
-                icon_path = gnome_vfs_escape_path_string (icon_path);
-            else
-                icon_path = g_strdup ("x");
+                gchar *icon_path = (gchar *) gnome_cmd_con_device_get_icon_path (device);
+                if (icon_path && icon_path[0] != '\0')
+                    icon_path = gnome_vfs_escape_path_string (icon_path);
+                else
+                    icon_path = g_strdup ("x");
 
-            printf("%s\n",device_fn);
-            g_key_file_set_string(key_file,alias,"device",device_fn);
-            g_key_file_set_string(key_file,alias,"mount_point",mountp);
-            g_key_file_set_string(key_file,alias,"icon_path",icon_path);
+                g_key_file_set_string(key_file,alias,"device",device_fn);
+                g_key_file_set_string(key_file,alias,"mount_point",mountp);
+                g_key_file_set_string(key_file,alias,"icon_path",icon_path);
 
-            g_free (alias);
-            g_free (device_fn);
-            g_free (mountp);
-            g_free (icon_path);
+                g_free (alias);
+                g_free (device_fn);
+                g_free (mountp);
+                g_free (icon_path);
+            }
         }
-    }
 
-    gcmd_key_file_save_to_file (path, key_file);
+        gcmd_key_file_save_to_file (path, key_file);
+    }
 
     g_key_file_free(key_file);
     g_free (path);
@@ -1593,7 +1599,7 @@ inline void save_devices (const gchar *fname)
  * @note This function should be deleted a while after
  * the release of gcmd-v1.6, see @link load_fav_apps @endlink.
  */
-inline void save_devices_old (const gchar *fname)
+static void save_devices_old (const gchar *fname)
 {
     gchar *path = config_dir ?
         g_build_filename (config_dir, fname, NULL) :
@@ -1715,11 +1721,11 @@ static void save_fav_apps (const gchar *fname)
                 if (app2)
                 {
                     gchar *group_name = g_strdup(gnome_cmd_app_get_name(app2));
-                    int name_occurence = 2;
 
                     /* Are the names equal? -> Change the name */
                     if (!strcmp(group_name_to_test, group_name))
                     {
+                        int name_occurence = 2;
                         gchar *new_name = g_strdup_printf("%s_%d",
                                             gnome_cmd_app_get_name(app2),
                                             name_occurence);
@@ -1741,27 +1747,32 @@ static void save_fav_apps (const gchar *fname)
         if (app)
         {
             gchar *group_name = g_strdup(gnome_cmd_app_get_name(app));
+            gchar *icon       = g_strdup(gnome_cmd_app_get_icon_path(app));
+            if (!icon)
+                icon = g_strdup("");
 
             g_key_file_set_string(key_file,group_name,"cmd",gnome_cmd_app_get_command(app));
-            g_key_file_set_string(key_file,group_name,"icon",gnome_cmd_app_get_icon_path(app));
+            g_key_file_set_string(key_file,group_name,"icon", icon);
             g_key_file_set_string(key_file,group_name,"pattern",gnome_cmd_app_get_pattern_string(app));
             g_key_file_set_integer(key_file,group_name,"target",gnome_cmd_app_get_target(app));
             g_key_file_set_integer(key_file,group_name,"handles_uris",gnome_cmd_app_get_handles_uris(app));
             g_key_file_set_integer(key_file,group_name,"handles_multiple",gnome_cmd_app_get_handles_multiple(app));
             g_key_file_set_integer(key_file,group_name,"requires_terminal",gnome_cmd_app_get_requires_terminal(app));
 
-           g_free (group_name);
+            g_free (icon);
+            g_free (group_name);
         }
     }
 
-    gcmd_key_file_save_to_file (path, key_file);
+    if (gnome_cmd_data.options.fav_apps)
+        gcmd_key_file_save_to_file (path, key_file);
 
     g_key_file_free(key_file);
     g_free (path);
 }
 
 
-inline gboolean load_connections (const gchar *fname)
+static gboolean load_connections (const gchar *fname)
 {
     guint prev_ftp_cons_no = g_list_length (gnome_cmd_con_list_get_all_remote (gnome_cmd_data.priv->con_list));
 
@@ -1826,11 +1837,11 @@ inline gboolean load_connections (const gchar *fname)
                 case 'B':
                     if (server)
                     {
-                        gchar name[256], path[256];
-                        gint ret = sscanf (line, "B: %256s %256s\n", name, path);
+                        gchar name[256], new_path[256];
+                        gint ret = sscanf (line, "B: %256s %256s\n", name, new_path);
 
                         if (ret == 2)
-                            gnome_cmd_con_add_bookmark (GNOME_CMD_CON (server), gnome_vfs_unescape_string (name, NULL), gnome_vfs_unescape_string (path, NULL));
+                            gnome_cmd_con_add_bookmark (GNOME_CMD_CON (server), gnome_vfs_unescape_string (name, NULL), gnome_vfs_unescape_string (new_path, NULL));
                     }
                     break;
 
@@ -1946,7 +1957,7 @@ inline gboolean device_mount_point_exists (GnomeCmdConList *list, const gchar *m
 }
 
 
-inline void add_vfs_volume (GnomeVFSVolume *volume)
+static void add_vfs_volume (GnomeVFSVolume *volume)
 {
     if (!gnome_vfs_volume_is_user_visible (volume))
         return;
@@ -2067,7 +2078,7 @@ static void drive_disconnected (GnomeVFSVolumeMonitor *volume_monitor, GnomeVFSD
 
 inline void set_vfs_volume_monitor ()
 {
-    monitor = gnome_vfs_get_volume_monitor ();
+    GnomeVFSVolumeMonitor *monitor = gnome_vfs_get_volume_monitor ();
 
     g_signal_connect (monitor, "volume-mounted", G_CALLBACK (volume_mounted), NULL);
     g_signal_connect (monitor, "volume-unmounted", G_CALLBACK (volume_unmounted), NULL);
@@ -2078,7 +2089,7 @@ inline void set_vfs_volume_monitor ()
 }
 
 
-inline void load_vfs_auto_devices ()
+static void load_vfs_auto_devices ()
 {
     GnomeVFSVolumeMonitor *monitor = gnome_vfs_get_volume_monitor ();
     GList *volumes = gnome_vfs_volume_monitor_get_mounted_volumes (monitor);
@@ -2183,6 +2194,13 @@ static gboolean load_devices_old (const gchar *fname)
     string line;
     int i = 0;
 
+    //Device file does not exist
+    if(f.fail())
+    {
+        g_free (path);
+        return FALSE;
+    }
+
     while (getline(f,line))
     {
         /* Is the file using the new storage format? If yes, stop here
@@ -2219,6 +2237,7 @@ static gboolean load_devices_old (const gchar *fname)
 
     load_vfs_auto_devices ();
     save_devices_old ("devices.deprecated");
+    save_devices ("devices");
     return TRUE;
 }
 
@@ -2319,6 +2338,13 @@ static gboolean load_fav_apps_old (const gchar *fname)
     string line;
     int i = 0;
 
+    //Device file does not exist
+    if(f.fail())
+    {
+        g_free (path);
+        return FALSE;
+    }
+
     while (getline(f,line))
     {
         /* Is the file using the new storage format? If yes, stop here
@@ -2366,10 +2392,14 @@ static gboolean load_fav_apps_old (const gchar *fname)
 
     g_free (path);
     save_fav_apps_old ("fav-apps.deprecated");
+    save_fav_apps ("fav-apps");
     return TRUE;
 }
 
-
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
 inline void GnomeCmdData::gnome_cmd_data_set_string_history (const gchar *format, GList *strings)
 {
     gchar key[128];
@@ -2380,13 +2410,16 @@ inline void GnomeCmdData::gnome_cmd_data_set_string_history (const gchar *format
         gnome_cmd_data_set_string (key, (gchar *) strings->data);
     }
 }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 /**
  * This function converts a GList into a NULL terminated array of char pointers.
  * This array is stored into the given GSettings key.
  * @returns The return value of g_settings_set_strv if the length of the GList is > 0, else true.
  */
-gboolean GnomeCmdData::set_gsettings_string_array_from_glist (GSettings *settings, const gchar *key, GList *strings)
+gboolean GnomeCmdData::set_gsettings_string_array_from_glist (GSettings *settings_given, const gchar *key, GList *strings)
 {
     gboolean rv = true;
     guint number_of_strings = g_list_length (strings);
@@ -2405,7 +2438,7 @@ gboolean GnomeCmdData::set_gsettings_string_array_from_glist (GSettings *setting
         str_array[ii] = NULL;
 
         // store the NULL terminated str_array in GSettings
-        rv = g_settings_set_strv(settings, key, str_array);
+        rv = g_settings_set_strv(settings_given, key, str_array);
 
         g_free(str_array);
     }
@@ -2447,6 +2480,10 @@ inline gboolean GnomeCmdData::save_auto_load_plugins()
 }
 
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
 inline GList* GnomeCmdData::load_string_history (const gchar *format, gint size)
 {
     GList *list = NULL;
@@ -2463,14 +2500,17 @@ inline GList* GnomeCmdData::load_string_history (const gchar *format, gint size)
 
     return list;
 }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 
-inline GList* GnomeCmdData::get_list_from_gsettings_string_array (GSettings *settings, const gchar *key)
+inline GList* GnomeCmdData::get_list_from_gsettings_string_array (GSettings *settings_given, const gchar *key)
 {
     GList *list = NULL;
 
     gchar** gsettings_array;
-    gsettings_array = g_settings_get_strv (settings, key);
+    gsettings_array = g_settings_get_strv (settings_given, key);
 
     for(gint i = 0; gsettings_array[i]; ++i)
     {
@@ -2501,7 +2541,7 @@ inline void GnomeCmdData::load_intviewer_defaults()
 }
 
 
-inline void GnomeCmdData::load_rename_history()
+void GnomeCmdData::load_rename_history()
 {
     gint size;
     GList *from=NULL, *to=NULL, *csens=NULL;
@@ -2583,6 +2623,9 @@ GnomeCmdData::GnomeCmdData(): search_defaults(selections)
 
     umask = ::umask(0);
     ::umask(umask);
+
+    priv = NULL;
+    settings = NULL;
 }
 
 
@@ -3081,19 +3124,19 @@ void GnomeCmdData::migrate_all_data_to_gsettings()
  * the keys value is resetted to the default value.
  * @returns TRUE if the current value is resetted by the default value, else FALSE
  */
-gboolean GnomeCmdData::set_valid_color_string(GSettings *settings, const char* key)
+gboolean GnomeCmdData::set_valid_color_string(GSettings *settings_given, const char* key)
 {
     gchar *colorstring;
     gboolean return_value;
 
-    colorstring = g_settings_get_string (settings, key);
+    colorstring = g_settings_get_string (settings_given, key);
     if (!is_valid_color_string(colorstring))
     {
         GVariant *variant;
-        variant = g_settings_get_default_value (settings, key);
+        variant = g_settings_get_default_value (settings_given, key);
         g_warning("Illegal color string \'%s\' for gsettings key %s. Resetting to default value \'%s\'",
                   colorstring, key, g_variant_get_string(variant, NULL));
-        g_settings_set_string (settings, key, g_variant_get_string(variant, NULL));
+        g_settings_set_string (settings_given, key, g_variant_get_string(variant, NULL));
         g_variant_unref (variant);
         return_value = TRUE;
     }
@@ -3748,7 +3791,6 @@ void GnomeCmdData::load()
         load_rename_history();
 
         // add a few default templates here - for new users
-#if GLIB_CHECK_VERSION (2, 14, 0)
         {
             AdvrenameConfig::Profile p;
 
@@ -3767,7 +3809,6 @@ void GnomeCmdData::load()
 
             advrename_defaults.profiles.push_back(p);
         }
-#endif
 
     }
 
@@ -3790,21 +3831,25 @@ void GnomeCmdData::load()
     g_free (xml_cfg_path);
 }
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
 /**
  * This method returns an int value which is either the given user_value or,
  * the default integer value of the given GSettings key. The user_value is returned
  * if it is different from the default value of the GSettings key.
  * @param user_value An integer value
- * @param settings A GSettings pointer
+ * @param settings_given A GSettings pointer
  * @param key a GSettings key path given as a char array
  */
-gint GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettings *settings, const char *key)
+gint GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettings *settings_given, const char *key)
 {
     GVariant *variant;
     gint default_value;
     gint return_value;
 
-    variant = g_settings_get_default_value (settings, key);
+    variant = g_settings_get_default_value (settings_given, key);
 
     switch (g_variant_classify(variant))
     {
@@ -3812,12 +3857,12 @@ gint GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettin
         // default value, i.e. nobody changed the given key before gcmd data migration was started.
         case G_VARIANT_CLASS_STRING:
         {
-            default_value = g_settings_get_enum (settings, key);
+            default_value = g_settings_get_enum (settings_given, key);
 
             if (user_value != default_value)
-                g_settings_set_enum (settings, key, user_value);
+                g_settings_set_enum (settings_given, key, user_value);
 
-            return_value = g_settings_get_enum(settings, key);
+            return_value = g_settings_get_enum(settings_given, key);
 
             break;
         }
@@ -3826,9 +3871,9 @@ gint GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettin
             default_value = g_variant_get_uint32 (variant);
 
             if (user_value != default_value)
-                g_settings_set_uint (settings, key, user_value);
+                g_settings_set_uint (settings_given, key, user_value);
 
-            return_value = g_settings_get_uint(settings, key);
+            return_value = g_settings_get_uint(settings_given, key);
 
             break;
         }
@@ -3837,9 +3882,9 @@ gint GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettin
             default_value = g_variant_get_int32 (variant);
 
             if (user_value != default_value)
-                g_settings_set_int (settings, key, user_value);
+                g_settings_set_int (settings_given, key, user_value);
 
-            return_value = g_settings_get_int(settings, key);
+            return_value = g_settings_get_int(settings_given, key);
 
             break;
         }
@@ -3851,9 +3896,9 @@ gint GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettin
             buser_value = user_value == 1 ? TRUE : FALSE;
 
             if (buser_value != bdef_value)
-                g_settings_set_boolean (settings, key, buser_value);
+                g_settings_set_boolean (settings_given, key, buser_value);
 
-            return_value = g_settings_get_boolean (settings, key) ? 1 : 0;
+            return_value = g_settings_get_boolean (settings_given, key) ? 1 : 0;
 
             break;
         }
@@ -3869,6 +3914,9 @@ gint GnomeCmdData::migrate_data_int_value_into_gsettings(int user_value, GSettin
 
     return return_value;
 }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 void GnomeCmdData::save_xml ()
 {
@@ -3947,22 +3995,23 @@ void GnomeCmdData::save_xml ()
  * entry of the array is set to user_value.
  * @returns FALSE if an error occured setting the key value to a new string.
  */
-gboolean GnomeCmdData::migrate_data_string_value_into_gsettings(const char* user_value, GSettings *settings, const char *key)
+gboolean GnomeCmdData::migrate_data_string_value_into_gsettings(const char* user_value, GSettings *settings_given, const char *key)
 {
     GVariant *variant;
-    gchar *default_value;
     gint rv = true;
 
-    variant = g_settings_get_default_value (settings, key);
+    variant = g_settings_get_default_value (settings_given, key);
 
     if (g_variant_classify(variant) == G_VARIANT_CLASS_STRING)
     {
+        gchar *default_value;
+
         // In the following it is assumed that the value behind 'default_value' is the actual
         // default value, i.e. nobody changed the given key before gcmd data migration was started.
-        default_value = g_settings_get_string (settings, key);
+        default_value = g_settings_get_string (settings_given, key);
 
         if (strcmp(user_value, default_value) != 0)
-            rv = g_settings_set_string (settings, key, user_value);
+            rv = g_settings_set_string (settings_given, key, user_value);
     }
     else if (g_variant_classify(variant) == G_VARIANT_CLASS_ARRAY)
     {
@@ -3971,7 +4020,7 @@ gboolean GnomeCmdData::migrate_data_string_value_into_gsettings(const char* user
         str_array[0] = g_strdup(user_value);
         str_array[1] = NULL;
 
-        rv = (gint) g_settings_set_strv(settings, key, str_array);
+        rv = (gint) g_settings_set_strv(settings_given, key, str_array);
 
         g_free(str_array);
     }
@@ -4251,17 +4300,18 @@ gboolean GnomeCmdData::gnome_cmd_data_parse_color (const gchar *spec, GdkColor *
  * string representing color is used to set back the string in the
  * GSettings key.
  */
-gboolean GnomeCmdData::set_color_if_valid_key_value(GdkColor *color, GSettings *settings, const char *key)
+gboolean GnomeCmdData::set_color_if_valid_key_value(GdkColor *color, GSettings *settings_given, const char *key)
 {
     gboolean return_value;
     gchar *colorstring_new;
-    gchar *colorstring_old;
 
-    colorstring_new = g_settings_get_string (settings, key);
+    colorstring_new = g_settings_get_string (settings_given, key);
     if (!gnome_cmd_data.is_valid_color_string(colorstring_new))
     {
+        gchar *colorstring_old;
+
         colorstring_old = gdk_color_to_string (color);
-        g_settings_set_string (settings, key, colorstring_old);
+        g_settings_set_string (settings_given, key, colorstring_old);
         g_warning("Illegal color string \'%s\'. Resetting to old value \'%s\'", colorstring_new, colorstring_old);
         g_free(colorstring_old);
         return_value = TRUE;
@@ -4309,20 +4359,20 @@ void GnomeCmdData::gnome_cmd_data_get_color_gnome_config (const gchar *path, Gdk
  * types, see @link set_gsettings_when_changed @endlink .
  * @returns TRUE if new value could be stored, else FALSE
  */
-gboolean GnomeCmdData::set_gsettings_enum_when_changed (GSettings *settings, const char *key, gint new_value)
+gboolean GnomeCmdData::set_gsettings_enum_when_changed (GSettings *settings_given, const char *key, gint new_value)
 {
     GVariant *default_val;
     gboolean rv = true;
 
-    default_val = g_settings_get_default_value (settings, key);
+    default_val = g_settings_get_default_value (settings_given, key);
 
     // An enum key must be of type G_VARIANT_CLASS_STRING
     if (g_variant_classify(default_val) == G_VARIANT_CLASS_STRING)
     {
         gint old_value;
-        old_value = g_settings_get_enum(settings, key);
+        old_value = g_settings_get_enum(settings_given, key);
         if (old_value != new_value)
-            rv = g_settings_set_enum (settings, key, new_value);
+            rv = g_settings_set_enum (settings_given, key, new_value);
     }
     else
     {
@@ -4337,6 +4387,10 @@ gboolean GnomeCmdData::set_gsettings_enum_when_changed (GSettings *settings, con
 }
 
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
 /**
  * This method stores the value for a given key if the value is different from the  currently stored one
  * under the keys value. This function is able of storing several types of GSettings values (except enums
@@ -4345,11 +4399,11 @@ gboolean GnomeCmdData::set_gsettings_enum_when_changed (GSettings *settings, con
  * to the correct type so that *value can be saved.
  * @returns TRUE if new value could be stored, else FALSE
  */
-gboolean GnomeCmdData::set_gsettings_when_changed (GSettings *settings, const char *key, gpointer value)
+gboolean GnomeCmdData::set_gsettings_when_changed (GSettings *settings_given, const char *key, gpointer value)
 {
     GVariant *default_val;
     gboolean rv = true;
-    default_val = g_settings_get_default_value (settings, key);
+    default_val = g_settings_get_default_value (settings_given, key);
 
     switch (g_variant_classify(default_val))
     {
@@ -4358,9 +4412,9 @@ gboolean GnomeCmdData::set_gsettings_when_changed (GSettings *settings, const ch
             gint old_value;
             gint new_value = *(gint*) value;
 
-            old_value = g_settings_get_int (settings, key);
+            old_value = g_settings_get_int (settings_given, key);
             if (old_value != new_value)
-                rv = g_settings_set_int (settings, key, new_value);
+                rv = g_settings_set_int (settings_given, key, new_value);
             break;
         }
         case G_VARIANT_CLASS_UINT32:
@@ -4368,9 +4422,9 @@ gboolean GnomeCmdData::set_gsettings_when_changed (GSettings *settings, const ch
             gint old_value;
             gint new_value = *(gint*) value;
 
-            old_value = g_settings_get_uint (settings, key);
+            old_value = g_settings_get_uint (settings_given, key);
             if (old_value != new_value)
-                rv = g_settings_set_uint (settings, key, new_value);
+                rv = g_settings_set_uint (settings_given, key, new_value);
             break;
         }
         case G_VARIANT_CLASS_STRING:
@@ -4378,9 +4432,9 @@ gboolean GnomeCmdData::set_gsettings_when_changed (GSettings *settings, const ch
             gchar *old_value;
             gchar *new_value = (char*) value;
 
-            old_value = g_settings_get_string (settings, key);
+            old_value = g_settings_get_string (settings_given, key);
             if (strcmp(old_value, new_value) != 0)
-                rv = g_settings_set_string (settings, key, new_value);
+                rv = g_settings_set_string (settings_given, key, new_value);
             g_free(old_value);
             break;
         }
@@ -4389,9 +4443,9 @@ gboolean GnomeCmdData::set_gsettings_when_changed (GSettings *settings, const ch
             gboolean old_value;
             gboolean new_value = *(gboolean*) value;
 
-            old_value = g_settings_get_boolean (settings, key);
+            old_value = g_settings_get_boolean (settings_given, key);
             if (old_value != new_value)
-                rv = g_settings_set_boolean (settings, key, new_value);
+                rv = g_settings_set_boolean (settings_given, key, new_value);
             break;
         }
         default:
@@ -4406,14 +4460,17 @@ gboolean GnomeCmdData::set_gsettings_when_changed (GSettings *settings, const ch
 
     return rv;
 }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
-gboolean GnomeCmdData::set_gsettings_color_when_changed (GSettings *settings, const char *key, GdkColor *color)
+gboolean GnomeCmdData::set_gsettings_color_when_changed (GSettings *settings_given, const char *key, GdkColor *color)
 {
     gboolean return_value;
     gchar *colorstring;
 
     colorstring = gdk_color_to_string (color);
-    return_value = set_gsettings_when_changed (settings, key, colorstring);
+    return_value = set_gsettings_when_changed (settings_given, key, colorstring);
     g_free(colorstring);
 
     return return_value;

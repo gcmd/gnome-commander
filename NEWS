@@ -1,4 +1,17 @@
 ===================================
+gnome-commander 1.8.0
+---------------
+
+New features:
+ * [build] Don't use gnome-autogen.sh anymore (Many thanks to Philip Withnall and David King)
+ * [build] Translations are now handled by upstream gettext instead of intltool
+ * [build] New documentation infrastructure: Use yelp-tools instead of gnome-doc-utils
+ * Code cleanup
+
+Bug fixes:
+ * [build] Python is now found at build time, too, when its version is equal to or higher than 3.x
+
+===================================
 gnome-commander 1.6.0
 ---------------
 
@@ -25,6 +38,7 @@ New features:
  * Write bookmark changes immediately to file, Sync bookmarks between all instances (Thanks to Puux)
  * Storage of options is done in the dconf database now instead of a gnome-config file (see bgo#570733)
  * Devices and fav-apps are now stored within the GKeyFile format
+ * File Roller plugin can use patterns of strftime when creating the archive name
  * Started usage of google test framework for unit tests
  * New colour theme 'Winter'
  * Code cleanup
@@ -50,12 +64,39 @@ New or updated translations:
        ro (Jobava)
        sk (Dušan Kazik, Tibor Kaputa)
        sl (Matej Urbančič)
+       sr (Мирослав Николић)
+       sr@latin (Мирослав Николић)
        sv (Anders Jonsson, Josef Andersson)
        tr (Necdet Yücel)
 New or updated docs:
        cs (Daniel Mustieles, Marek Černocký)
        de (Christian Kirbach, Mario Blättermann)
        el (Dimitris Spingos, Maria Mavridou)
+       es (Daniel Mustieles)
+
+===================================
+gnome-commander 1.4.9
+---------------
+Bug fixes:
+ * Fixed bgo#764306 (Spelling mistake and wrong words in strings, thanks to Anders Jonsson)
+ * New or updated translations:
+       cs (Marek Černocký)
+       de (Mario Blättermann)
+       es (Daniel Mustieles)
+       hu (Balázs Meskó)
+       hu (Balázs Úr)
+       hu (Gábor Kelemen)
+       id (Andika Triwidada)
+       pl (Piotr Drąg)
+       pt (Tiago Santos)
+       ro (Jobava)
+       sk (Dušan Kazik)
+       sr (Мирослав Николић)
+       sr@latin (Мирослав Николић)
+       sv (Anders Jonsson)
+* New or updated docs:
+       cs (Marek Černocký)
+       de (Mario Blättermann)
        es (Daniel Mustieles)
 
 ===================================

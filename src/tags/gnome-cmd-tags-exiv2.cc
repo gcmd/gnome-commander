@@ -2,7 +2,7 @@
  * @file gnome-cmd-tags-exiv2.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,13 +58,17 @@ inline void readTags(GnomeCmdFileMetadata *metadata, const T &data)
 
         DEBUG('t', "\t%s (%s) = %s\n", i->key().c_str(), gcmd_tags_get_name(tag), i->toString().c_str());
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
         switch (tag)
         {
             case TAG_NONE:
                 break;
 
             case TAG_EXIF_MAKERNOTE:
-                metadata->addf(tag,_("unsupported tag (suppressed %u B of binary data)"), i->size());
+                metadata->addf(tag,_("unsupported tag (suppressed %ld B of binary data)"), i->size());
                 break;
 
             case TAG_EXIF_EXIFVERSION:
@@ -101,6 +105,9 @@ inline void readTags(GnomeCmdFileMetadata *metadata, const T &data)
                 break;
         }
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 #endif
 

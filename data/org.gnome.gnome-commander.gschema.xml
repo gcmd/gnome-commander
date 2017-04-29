@@ -71,7 +71,8 @@
     </key>
     <key name="date-disp-format" type="s">
       <!-- Translators: Feel free to replace the default date format to a common value
-           used in your country. See "man strftime" for details.-->
+           used in your country. See "man strftime" for details. Attention: Do not change
+           the single quotes which sourround the string.-->
       <default l10n="messages">'%F %R'</default>
       <summary>Date format</summary>
       <description>
@@ -501,7 +502,7 @@
       <summary>Backup file pattern</summary>
       <description>
           The given string defines suffixes (separated by semicolon) for files which
-          should by filtered out if backup files should by hidden.
+          should be filtered out if backup files should be hidden.
       </description>
     </key>
   </schema>
@@ -880,6 +881,13 @@
         <summary>File suffix</summary>
         <description>
             Default file suffix of archives created with the File Roller plugin.
+        </description>
+    </key>
+    <key name="prefix-pattern" type="s">
+        <default>'$N'</default>
+        <summary>Prefix pattern</summary>
+        <description>
+            The prefix pattern is used to build up the name for an archive created with the File Roller plugin.
         </description>
     </key>
   </schema>

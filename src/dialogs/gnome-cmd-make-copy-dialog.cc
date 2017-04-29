@@ -2,7 +2,7 @@
  * @file gnome-cmd-make-copy-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ struct GnomeCmdMakeCopyDialogPrivate
 {
     GnomeCmdFile *f;
     GnomeCmdDir *dir;
-    GnomeCmdMainWin *mw;
 };
 
 
@@ -163,7 +162,7 @@ GtkType gnome_cmd_make_copy_dialog_get_type ()
     {
         GtkTypeInfo dlg_info =
         {
-            "GnomeCmdMakeCopyDialog",
+            (gchar*) "GnomeCmdMakeCopyDialog",
             sizeof (GnomeCmdMakeCopyDialog),
             sizeof (GnomeCmdMakeCopyDialogClass),
             (GtkClassInitFunc) class_init,

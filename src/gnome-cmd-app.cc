@@ -2,7 +2,7 @@
  * @file gnome-cmd-app.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ GnomeCmdApp *gnome_cmd_app_new_with_values (const gchar *name,
 }
 
 
-char* panel_find_icon (GtkIconTheme *icon_theme, const char *icon_name, gint size)
+static char* panel_find_icon (GtkIconTheme *icon_theme, const char *icon_name, gint size)
 {
     char *retval  = NULL;
     GtkIconInfo *icon_info = NULL;

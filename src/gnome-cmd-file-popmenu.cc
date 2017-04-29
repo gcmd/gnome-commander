@@ -2,7 +2,7 @@
  * @file gnome-cmd-file-popmenu.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -352,6 +352,9 @@ inline gboolean fav_app_matches_files (GnomeCmdApp *app, GList *files)
                 if (!ok) return FALSE;
             }
             return TRUE;
+
+        default:
+            break;
     }
 
     return FALSE;
@@ -482,7 +485,7 @@ inline gchar *get_default_application_action_name (GList *files, gchar **icon_pa
 GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
 {
     gint pos, match_count;
-    GList *vfs_apps, *tmp;
+    GList *vfs_apps, *tmp_list;
 
     // Make place for separator and open with other...
     static GnomeUIInfo apps_uiinfo[MAX_OPEN_WITH_APPS+2];
@@ -534,7 +537,7 @@ GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
     gint i = -1;
     menu->priv->data_list = NULL;
 
-    vfs_apps = tmp = gnome_vfs_mime_get_all_applications (f->info->mime_type);
+    vfs_apps = tmp_list = gnome_vfs_mime_get_all_applications (f->info->mime_type);
     for (; vfs_apps && i < MAX_OPEN_WITH_APPS; vfs_apps = vfs_apps->next)
     {
         GnomeVFSMimeApplication *vfs_app = (GnomeVFSMimeApplication *) vfs_apps->data;
@@ -568,17 +571,17 @@ GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
     apps_uiinfo[i].user_data = files;
     apps_uiinfo[i].pixmap_type = GNOME_APP_PIXMAP_NONE;
 
-    gnome_vfs_mime_application_list_free (tmp);
+    gnome_vfs_mime_application_list_free (tmp_list);
     apps_uiinfo[++i].type = GNOME_APP_UI_ENDOFINFO;
 
     // Set default callback data
-    for (gint i=0; open_uiinfo[i].type != GNOME_APP_UI_ENDOFINFO; ++i)
-        if (open_uiinfo[i].type == GNOME_APP_UI_ITEM)
-            open_uiinfo[i].user_data = fl;
+    for (gint j=0; open_uiinfo[j].type != GNOME_APP_UI_ENDOFINFO; ++j)
+        if (open_uiinfo[j].type == GNOME_APP_UI_ITEM)
+            open_uiinfo[j].user_data = fl;
 
-    for (gint i=0; other_uiinfo[i].type != GNOME_APP_UI_ENDOFINFO; ++i)
-        if (other_uiinfo[i].type == GNOME_APP_UI_ITEM)
-            other_uiinfo[i].user_data = fl;
+    for (gint j=0; other_uiinfo[j].type != GNOME_APP_UI_ENDOFINFO; ++j)
+        if (other_uiinfo[j].type == GNOME_APP_UI_ITEM)
+            other_uiinfo[j].user_data = fl;
 
     open_uiinfo[0].label = get_default_application_action_name(files, (gchar **) &open_uiinfo[0].pixmap_info);  // must be freed after gnome_app_fill_menu ()
     open_uiinfo[0].pixmap_type = open_uiinfo[0].pixmap_info ? GNOME_APP_PIXMAP_FILENAME : GNOME_APP_PIXMAP_NONE;
@@ -599,9 +602,9 @@ GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
 
     // Add favorite applications
     match_count = 0;
-    for (GList *i=gnome_cmd_data.options.fav_apps; i; i = i->next)
+    for (GList *j=gnome_cmd_data.options.fav_apps; j; j = j->next)
     {
-        GnomeCmdApp *app = (GnomeCmdApp *) i->data;
+        GnomeCmdApp *app = (GnomeCmdApp *) j->data;
         if (fav_app_matches_files (app, files))
         {
             add_fav_app_menu_item (menu, app, pos++, files);
@@ -609,9 +612,9 @@ GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
         }
     }
 
-    for (GList *i=plugin_manager_get_all (); i; i = i->next)
+    for (GList *j=plugin_manager_get_all (); j; j = j->next)
     {
-        PluginData *data = (PluginData *) i->data;
+        PluginData *data = (PluginData *) j->data;
         if (data->active)
         {
             GList *items = gnome_cmd_plugin_create_popup_menu_items (data->plugin, main_win->get_state());
@@ -669,7 +672,7 @@ GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
     if (dp != NULL)
     {
         struct dirent *ep;
-        while (ep = readdir (dp))
+        while ((ep = readdir (dp)))
         {
             struct stat buf;
             string s (user_dir);
@@ -699,11 +702,11 @@ GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
             string s (user_dir);
             s.append ("/").append ((char*) l->data);
 
-            FILE *f = fopen (s.c_str (), "r");
-            if (f)
+            FILE *ff = fopen (s.c_str (), "r");
+            if (ff)
             {
                 char buf[256];
-                while (fgets (buf, 256, f))
+                while (fgets (buf, 256, ff))
                 {
                     if (strncmp (buf, "#name:", 6) == 0)
                     {
@@ -716,7 +719,7 @@ GtkWidget *gnome_cmd_file_popmenu_new (GnomeCmdFileList *fl)
                         data->term = strncmp (buf + 7, "true", 4) == 0;
                     }
                 }
-                fclose (f);
+                fclose (ff);
             }
 
             data->name = g_strdup (s.c_str ());
@@ -754,7 +757,7 @@ GtkType gnome_cmd_file_popmenu_get_type ()
     {
         GtkTypeInfo dlg_info =
         {
-            "GnomeCmdFilePopmenu",
+            (gchar*) "GnomeCmdFilePopmenu",
             sizeof (GnomeCmdFilePopmenu),
             sizeof (GnomeCmdFilePopmenuClass),
             (GtkClassInitFunc) class_init,

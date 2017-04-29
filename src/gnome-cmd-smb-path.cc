@@ -2,7 +2,7 @@
  * @file gnome-cmd-smb-path.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,20 +29,20 @@
 using namespace std;
 
 
-inline void GnomeCmdSmbPath::set_resources(const gchar *workgroup, const gchar *resource, const gchar *path)
+inline void GnomeCmdSmbPath::set_resources(const gchar *set_res_workgroup, const gchar *set_res_resource, const gchar *set_res_path)
 {
-    this->workgroup = g_strdup (workgroup);
+    this->workgroup = g_strdup (set_res_workgroup);
 
-    if (workgroup)
+    if (set_res_workgroup)
     {
-        if (resource)
+        if (set_res_resource)
         {
-            this->resource = g_strdup (resource);
-            this->resource_path = g_strdup (path);
-            this->path = g_strconcat (G_DIR_SEPARATOR_S, resource, path, NULL);
+            this->resource = g_strdup (set_res_resource);
+            this->resource_path = g_strdup (set_res_path);
+            this->path = g_strconcat (G_DIR_SEPARATOR_S, set_res_resource, set_res_path, NULL);
         }
         else
-            this->path = g_strconcat (G_DIR_SEPARATOR_S, workgroup, NULL);
+            this->path = g_strconcat (G_DIR_SEPARATOR_S, set_res_workgroup, NULL);
     }
     else
         this->path = g_strdup (G_DIR_SEPARATOR_S);
@@ -143,9 +143,9 @@ GnomeCmdPath *GnomeCmdSmbPath::get_parent()
 }
 
 
-GnomeCmdSmbPath::GnomeCmdSmbPath(const gchar *workgroup, const gchar *resource, const gchar *resource_path): resource(0), resource_path(0)
+GnomeCmdSmbPath::GnomeCmdSmbPath(const gchar *constr_workgroup, const gchar *constr_resource, const gchar *constr_resource_path): resource(0), resource_path(0)
 {
-    set_resources(workgroup,resource,resource_path);
+    set_resources(constr_workgroup,constr_resource,constr_resource_path);
 }
 
 
@@ -154,9 +154,7 @@ GnomeCmdSmbPath::GnomeCmdSmbPath(const gchar *path_str): workgroup(0), resource(
     g_return_if_fail (path_str != NULL);
 
     gchar *s, *t;
-    gchar *a = NULL,
-          *b = NULL,
-          *c = NULL;
+    gchar *c = NULL;
 
     DEBUG('s', "Creating smb-path for %s\n", path_str);
 
@@ -179,6 +177,9 @@ GnomeCmdSmbPath::GnomeCmdSmbPath(const gchar *path_str): workgroup(0), resource(
 
     if (v[0] != NULL)
     {
+        gchar *a = NULL;
+        gchar *b = NULL;
+
         a = g_strdup (v[0]);
         if (v[1] != NULL)
         {
@@ -206,7 +207,7 @@ GnomeCmdSmbPath::GnomeCmdSmbPath(const gchar *path_str): workgroup(0), resource(
             else
             {
                 if (!b)
-                    b = "/";
+                    b = (char*) "/";
                 b = c ? g_strconcat (G_DIR_SEPARATOR_S, b, c, NULL) : g_strdup (b);
                 g_free (c);
                 set_resources(ent->workgroup_name, a, b);

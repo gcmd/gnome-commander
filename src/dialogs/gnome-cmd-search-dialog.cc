@@ -2,7 +2,7 @@
  * @file gnome-cmd-search-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@ struct SearchData
     gboolean stopped;                           /**< stops the search routine if set to TRUE. This is done by the stop_button */
     gboolean dialog_destroyed;                  /**< set when the search dialog is destroyed, also stops the search of course */
 
-    SearchData(GnomeCmdSearchDialog *dlg);
+    explicit SearchData(GnomeCmdSearchDialog *dlg);
 
     void set_statusmsg(const gchar *msg=NULL);
     gchar *build_search_command();
@@ -125,7 +125,7 @@ struct GnomeCmdSearchDialog::Private
     GtkWidget *pbar;
     GtkWidget *profile_menu_button;
 
-    Private(GnomeCmdSearchDialog *dlg);
+    explicit Private(GnomeCmdSearchDialog *dlg);
     ~Private();
 
     static gchar *translate_menu(const gchar *path, gpointer data);
@@ -154,6 +154,7 @@ inline GnomeCmdSearchDialog::Private::Private(GnomeCmdSearchDialog *dlg): data(d
     result_list = NULL;
     statusbar = NULL;
     pbar = NULL;
+    profile_menu_button = NULL;
 }
 
 
@@ -172,14 +173,15 @@ inline GtkWidget *GnomeCmdSearchDialog::Private::create_placeholder_menu(GnomeCm
 {
     guint items_size = cfg.profiles.empty() ? 1 : cfg.profiles.size()+3;
     GtkItemFactoryEntry *items = g_try_new0 (GtkItemFactoryEntry, items_size);
-    GtkItemFactoryEntry *i = items;
 
     g_return_val_if_fail (items!=NULL, NULL);
+
+    GtkItemFactoryEntry *i = items;
 
     i->path = g_strdup (_("/_Save Profile As..."));
     i->callback = (GtkItemFactoryCallback) manage_profiles;
     i->callback_action = TRUE;
-    i->item_type = "<StockItem>";
+    i->item_type = (gchar*) "<StockItem>";
     i->extra_data = GTK_STOCK_SAVE_AS;
     ++i;
 
@@ -187,12 +189,12 @@ inline GtkWidget *GnomeCmdSearchDialog::Private::create_placeholder_menu(GnomeCm
     {
         i->path = g_strdup (_("/_Manage Profiles..."));
         i->callback = (GtkItemFactoryCallback) manage_profiles;
-        i->item_type = "<StockItem>";
+        i->item_type = (gchar*) "<StockItem>";
         i->extra_data = GTK_STOCK_EDIT;
         ++i;
 
         i->path = g_strdup ("/");
-        i->item_type = "<Separator>";
+        i->item_type = (gchar*) "<Separator>";
         ++i;
 
         for (vector<GnomeCmdData::Selection>::const_iterator p=cfg.profiles.begin(); p!=cfg.profiles.end(); ++p, ++i)
@@ -200,7 +202,7 @@ inline GtkWidget *GnomeCmdSearchDialog::Private::create_placeholder_menu(GnomeCm
             i->path = g_strconcat ("/", p->name.c_str(), NULL);
             i->callback = (GtkItemFactoryCallback) load_profile;
             i->callback_action = (i-items)-3;
-            i->item_type = "<StockItem>";
+            i->item_type = (gchar*) "<StockItem>";
             i->extra_data = GTK_STOCK_REVERT_TO_SAVED;
         }
     }
@@ -209,8 +211,8 @@ inline GtkWidget *GnomeCmdSearchDialog::Private::create_placeholder_menu(GnomeCm
 
     gtk_item_factory_create_items (ifac, items_size, items, this);
 
-    for (guint i=0; i<items_size; ++i)
-        g_free (items[i].path);
+    for (guint ii=0; ii<items_size; ++ii)
+        g_free (items[ii].path);
 
     g_free (items);
 
@@ -380,9 +382,9 @@ inline gboolean handle_list_keypress (GnomeCmdFileList *fl, GdkEventKey *event)
         case GDK_F4:
             gnome_cmd_file_list_edit (fl);
             return TRUE;
+        default:
+            return FALSE;
     }
-
-    return FALSE;
 }
 
 
@@ -488,6 +490,8 @@ static gpointer perform_search_operation (SearchData *data)
     return NULL;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 
 static gboolean update_search_status_widgets (SearchData *data)
 {
@@ -512,7 +516,7 @@ static gboolean update_search_status_widgets (SearchData *data)
         gnome_cmd_file_list_free (files);
     }
 
-    if (!data->search_done && !data->stopped || data->pdata.files)
+    if ((!data->search_done && !data->stopped) || data->pdata.files)
         return TRUE;
 
     if (!data->dialog_destroyed)
@@ -532,23 +536,23 @@ static gboolean update_search_status_widgets (SearchData *data)
         gtk_dialog_set_response_sensitive (*data->dialog, GnomeCmdSearchDialog::GCMD_RESPONSE_GOTO, matches>0);
         gtk_dialog_set_response_sensitive (*data->dialog, GnomeCmdSearchDialog::GCMD_RESPONSE_STOP, FALSE);
         gtk_dialog_set_response_sensitive (*data->dialog, GnomeCmdSearchDialog::GCMD_RESPONSE_FIND, TRUE);
-	gtk_dialog_set_default_response (*data->dialog, GnomeCmdSearchDialog::GCMD_RESPONSE_FIND);
-	
-        if (matches)
-	{
-	    GnomeCmdFileList *fl = data->dialog->priv->result_list;
-	    gtk_widget_grab_focus (*fl);         // set focus to result list
-	    // select one file, as matches is non-zero, there should be at least one entry
-	    if (!fl->get_focused_file())
-	    {
-		fl->select_row(0);
-	    }
-	}
-    }
+        gtk_dialog_set_default_response (*data->dialog, GnomeCmdSearchDialog::GCMD_RESPONSE_FIND);
 
+        if (matches)
+        {
+            GnomeCmdFileList *fl = data->dialog->priv->result_list;
+            gtk_widget_grab_focus (*fl);         // set focus to result list
+            // select one file, as matches is non-zero, there should be at least one entry
+            if (!fl->get_focused_file())
+            {
+                fl->select_row(0);
+            }
+        }
+    }
     return FALSE;    // returning FALSE here stops the timeout callbacks
 }
 
+#pragma GCC diagnostic pop
 
 /**
  * This function gets called then the search-dialog is about the be destroyed.
@@ -562,7 +566,7 @@ gboolean SearchData::join_thread_func (SearchData *data)
         g_thread_join (data->thread);
 
     if (data->pdata.mutex)
-        g_mutex_free (data->pdata.mutex);
+        g_mutex_clear (data->pdata.mutex);
 
     return FALSE;
 }
@@ -581,9 +585,9 @@ gboolean SearchData::start_generic_search()
     }
 
     if (!pdata.mutex)
-        pdata.mutex = g_mutex_new ();
+        g_mutex_init(pdata.mutex);
 
-    thread = g_thread_create ((GThreadFunc) perform_search_operation, this, TRUE, NULL);
+    thread = g_thread_new (NULL, (GThreadFunc) perform_search_operation, this);
 
     return TRUE;
 }
@@ -656,6 +660,8 @@ gchar *SearchData::build_search_command()
         case Filter::TYPE_REGEX:
             g_string_append_printf (command, " -regextype posix-extended -iregex '.*/.*%s.*'", file_pattern_utf8);
             break;
+        default:
+            ;
     }
 
     if (dialog->defaults.default_profile.content_search)
@@ -898,7 +904,7 @@ void GnomeCmdSearchDialog::Private::on_dialog_response(GtkDialog *window, int re
             {
                 dialog->priv->data.stopped = TRUE;
                 gtk_dialog_set_response_sensitive (*dialog, GCMD_RESPONSE_STOP, FALSE);
-		gtk_dialog_set_default_response (*dialog, GCMD_RESPONSE_FIND);
+                gtk_dialog_set_default_response (*dialog, GCMD_RESPONSE_FIND);
             }
             break;
 
@@ -984,7 +990,7 @@ void GnomeCmdSearchDialog::Private::on_dialog_response(GtkDialog *window, int re
                     gtk_dialog_set_response_sensitive (*dialog, GCMD_RESPONSE_GOTO, FALSE);
                     gtk_dialog_set_response_sensitive (*dialog, GCMD_RESPONSE_STOP, TRUE);
                     gtk_dialog_set_response_sensitive (*dialog, GCMD_RESPONSE_FIND, FALSE);
-		    gtk_dialog_set_default_response (*dialog, GCMD_RESPONSE_STOP);
+                    gtk_dialog_set_default_response (*dialog, GCMD_RESPONSE_STOP);
                 }
             }
             break;
@@ -1017,6 +1023,9 @@ void GnomeCmdSearchDialog::Private::on_dialog_response(GtkDialog *window, int re
                 g_free (dpath);
             }
 
+#if defined (__GNUC__) && __GNUC__ >= 7
+        __attribute__ ((fallthrough));
+#endif
         case GTK_RESPONSE_NONE:
         case GTK_RESPONSE_DELETE_EVENT:
         case GTK_RESPONSE_CANCEL:

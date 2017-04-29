@@ -2,7 +2,7 @@
     GNOME Commander - A GNOME based file manager
     Copyright (C) 2001-2006 Marcus Bjurman
     Copyright (C) 2007-2012 Piotr Eljasiak
-    Copyright (C) 2013-2016 Uwe Scholz
+    Copyright (C) 2013-2017 Uwe Scholz
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,5 +50,10 @@ struct _TestPluginClass
 GtkType test_plugin_get_type ();
 
 GnomeCmdPlugin *test_plugin_new ();
+extern "C"
+{
+    GnomeCmdPlugin *create_plugin   ();
+    PluginInfo     *get_plugin_info ();
+}
 
 #endif //__TEST_PLUGIN_H__

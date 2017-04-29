@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -390,7 +390,7 @@ inline gboolean utf8_is_valid_char(GVInputModesData *imd, offset_type offset)
 {
     int len = utf8_get_char_len(imd, offset);
 
-    if (len==0 || (gv_input_mode_get_byte(imd, offset+len)==INVALID_CHAR))
+    if (len==0 || (gv_input_mode_get_byte(imd, offset+len)==(int)INVALID_CHAR))
         return FALSE;
 
     if (len==1)

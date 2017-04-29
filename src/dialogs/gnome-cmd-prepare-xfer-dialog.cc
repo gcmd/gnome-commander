@@ -2,7 +2,7 @@
  * @file gnome-cmd-prepare-xfer-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,17 +49,18 @@ static void on_ok (GtkButton *button, GnomeCmdPrepareXferDialog *dialog)
 {
     GnomeCmdCon *con = gnome_cmd_dir_get_connection (dialog->default_dest_dir);
     gchar *user_path = g_strstrip (g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->dest_dir_entry))));
-    gint user_path_len = strlen (user_path);
-
-    gchar *dest_path = user_path;
+    gchar *dest_path = NULL;
     gchar *dest_fn = NULL;
-    GnomeCmdDir *dest_dir;
-
-    // Make whatever the user entered into a valid path if possible
+    gint user_path_len;
 
     if (!user_path)
         goto bailout;
 
+    user_path_len = strlen (user_path);
+    dest_path = user_path;
+    GnomeCmdDir *dest_dir;
+
+    // Make whatever the user entered into a valid path if possible
     if (user_path_len > 2 && user_path[user_path_len-1] == '/')
         user_path[user_path_len-1] = '\0';
 
@@ -187,14 +188,14 @@ static void on_ok (GtkButton *button, GnomeCmdPrepareXferDialog *dialog)
                 // Nothing exists, ask the user if a new directory might be suitable in the path that he specified
                 gchar *msg = g_strdup_printf (_("The directory '%s' doesn't exist, do you want to create it?"),
                                               g_path_get_basename (dest_path));
-                GtkWidget *dialog = gtk_message_dialog_new (*main_win,
+                GtkWidget *dir_dialog = gtk_message_dialog_new (*main_win,
                                                             (GtkDialogFlags) 0,
                                                             GTK_MESSAGE_QUESTION,
                                                             GTK_BUTTONS_OK_CANCEL,
                                                             "%s",
                                                             msg);
-                gint choice = gtk_dialog_run (GTK_DIALOG (dialog));
-                gtk_widget_destroy (dialog);
+                gint choice = gtk_dialog_run (GTK_DIALOG (dir_dialog));
+                gtk_widget_destroy (dir_dialog);
                 g_free (msg);
 
                 if (choice == GTK_RESPONSE_OK)
@@ -258,9 +259,9 @@ static gboolean on_dest_dir_entry_keypressed (GtkEntry *entry, GdkEventKey *even
         case GDK_F6:
             gnome_cmd_toggle_file_name_selection (dialog->dest_dir_entry);
             return TRUE;
+        default:
+            return FALSE;
     }
-
-    return FALSE;
 }
 
 
@@ -351,7 +352,7 @@ GtkType gnome_cmd_prepare_xfer_dialog_get_type ()
     {
         GtkTypeInfo dlg_info =
         {
-            "GnomeCmdPrepareXferDialog",
+            (gchar*) "GnomeCmdPrepareXferDialog",
             sizeof (GnomeCmdPrepareXferDialog),
             sizeof (GnomeCmdPrepareXferDialogClass),
             (GtkClassInitFunc) class_init,

@@ -2,7 +2,7 @@
  * @file gnome-cmd-xml-config.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ namespace XML
             std::string str;
 
             Controller(const Controller &c) : what(c.what), str(c.str) {}
-            Controller(const what_type _what) : what(_what)            {}
+            explicit Controller(const what_type _what) : what(_what)   {}
 
             // use template constructor because string field <str> may be initialized from different sources: char*, std::string etc
             template <typename T>
@@ -61,7 +61,7 @@ namespace XML
         };
 
         // xstream refers std::ostream object to perform actual output operations
-        xstream(std::ostream &_s) : s(_s), state(stateNone)
+        explicit xstream(std::ostream &_s) : s(_s), state(stateNone)
         {
             s << "<?xml version=\"" << versionMajor << '.' << versionMinor << "\" encoding=\"UTF-8\"?>";
         }
@@ -129,6 +129,8 @@ namespace XML
                             s << '"';
                             break;
 
+                        case stateTag:
+                        case stateNone:
                         default:
                             break;
                     }
@@ -151,6 +153,9 @@ namespace XML
                 case Controller::whatComment:
                     s << "\n<!-- " << controller.str << " -->";
                     break; // Controller::whatComment
+
+                default:
+                    break;
             }
 
             return *this;
@@ -171,12 +176,12 @@ namespace XML
 
         const char *tabs(unsigned offset=0) const
         {
-            static std::string tabs(32,'\t');
+            static std::string mytabs(32,'\t');
 
-            if (tabs.size() <= tags.size())
-                tabs.append(32,'\t');
+            if (mytabs.size() <= tags.size())
+                mytabs.append(32,'\t');
 
-            return tabs.c_str() + tabs.size() - tags.size() + offset;
+            return mytabs.c_str() + mytabs.size() - tags.size() + offset;
         }
 
         // I don't know any way easier (legal) to clear std::stringstream...
@@ -195,6 +200,9 @@ namespace XML
                 case stateAttribute:
                     s << '"';
 
+#if defined (__GNUC__) && __GNUC__ >= 7
+                __attribute__ ((fallthrough));
+#endif
                 case stateTagName:
                 case stateTag:
                     if (self_closed)
@@ -202,6 +210,7 @@ namespace XML
                     else
                         s << '>';
 
+                case stateNone:
                 default:
                     break;
             }

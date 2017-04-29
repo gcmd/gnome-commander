@@ -2,7 +2,7 @@
  * @file utils.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
  */
 
 #include <config.h>
-#include <locale.h>
 #include <errno.h>
 #include <dirent.h>
 #include <fnmatch.h>
@@ -46,10 +45,6 @@ struct TmpDlData
     GtkWidget *dialog;
     gpointer *args;
 };
-
-#ifdef HAVE_LOCALE_H
-extern struct lconv *locale_information;
-#endif
 
 #define FIX_PW_HACK
 #define STRINGS_TO_URIS_CHUNK 1024
@@ -119,7 +114,14 @@ void run_command_indir (const gchar *in_command, const gchar *dpath, gboolean te
         else
             arg = g_shell_quote (in_command);
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
         command = g_strdup_printf (gnome_cmd_data.options.termexec, arg);
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
         g_free (arg);
     }
@@ -200,9 +202,7 @@ gint run_simple_dialog (GtkWidget *parent, gboolean ignore_close_box,
     va_end (button_title_args);
 
     dialog = gtk_message_dialog_new (*main_win, GTK_DIALOG_MODAL, msg_type, GTK_BUTTONS_NONE, NULL);
-    gchar *escaped_text = g_markup_escape_text (text, -1);
-    gtk_message_dialog_set_markup (GTK_MESSAGE_DIALOG (dialog), escaped_text);
-    g_free(escaped_text);
+    gtk_message_dialog_set_markup (GTK_MESSAGE_DIALOG (dialog), text);
 
     if (title)
         gtk_window_set_title (GTK_WINDOW (dialog), title);
@@ -377,18 +377,18 @@ const gchar *size2string (GnomeVFSFileSize size, GnomeCmdSizeDispMode size_disp_
                 if (i)
                     g_snprintf (buf0, sizeof(buf0), "%.1f %s ", dsize, prefixes[i]);
                 else
-                    g_snprintf (buf0, sizeof(buf0), "%llu %s ", size, prefixes[0]);
+                    g_snprintf (buf0, sizeof(buf0), "%lu %s ", size, prefixes[0]);
             }
             break;
 
         case GNOME_CMD_SIZE_DISP_MODE_GROUPED:
             {
-                gint len = g_snprintf (buf0, sizeof(buf0), "%llu ", size);
+                gint len = g_snprintf (buf0, sizeof(buf0), "%lu ", size);
 
                 if (len < 5)
                     return buf0;
 
-                gchar *sep = " ";
+                gchar *sep = (gchar*) " ";
 
                 gchar *src  = buf0;
                 gchar *dest = buf1;
@@ -406,11 +406,14 @@ const gchar *size2string (GnomeVFSFileSize size, GnomeCmdSizeDispMode size_disp_
             return buf1;
 
         case GNOME_CMD_SIZE_DISP_MODE_LOCALE:
-            g_snprintf (buf0, sizeof(buf0), "%'llu ", size);
+            g_snprintf (buf0, sizeof(buf0), "%'lu ", size);
             break;
 
         case GNOME_CMD_SIZE_DISP_MODE_PLAIN:
-            g_snprintf (buf0, sizeof(buf0), "%llu ", size);
+            g_snprintf (buf0, sizeof(buf0), "%lu ", size);
+            break;
+
+        default:
             break;
     }
 
@@ -426,7 +429,14 @@ const gchar *time2string (time_t t, const gchar *date_format)
     struct tm lt;
 
     localtime_r (&t, &lt);
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
     strftime (buf, sizeof(buf), date_format, &lt);
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     // convert formatted date from current locale to UTF8
     gchar *loc_date = g_locale_to_utf8 (buf, -1, NULL, NULL, NULL);
@@ -1036,8 +1046,13 @@ gchar *get_temp_download_filepath (const gchar *fname)
 
     if (!tmp_file_dir)
     {
+        if (chdir (tmp_dir))
+        {
+            gnome_cmd_show_message (NULL, _("Failed to change working directory to a temporary directory."), strerror (errno));
+
+            return NULL;
+        }
         gchar *tmp_file_dir_template = g_strdup_printf ("gcmd-%s-XXXXXX", g_get_user_name());
-        chdir (tmp_dir);
         tmp_file_dir = mkdtemp (tmp_file_dir_template);
         if (!tmp_file_dir)
         {
@@ -1060,7 +1075,11 @@ void remove_temp_download_dir ()
         gchar *path = g_build_filename (g_get_tmp_dir (), tmp_file_dir, NULL);
         gchar *command = g_strdup_printf ("rm -rf %s", path);
         g_free (path);
-        system (command);
+        int status;
+        if ((status = system (command)))
+        {
+            g_warning ("executing \"%s\" failed with exit status %d\n", command, status);
+        }
         g_free (command);
     }
 }
@@ -1367,6 +1386,26 @@ void gnome_cmd_toggle_file_name_selection (GtkWidget *entry)
 }
 
 
+void gnome_cmd_help_display (const gchar *file_name, const gchar *link_id)
+{
+    GError *error = NULL;
+    gchar help_uri[256] = "help:";
+
+    strcat(help_uri, PACKAGE_NAME);
+
+    if (link_id != NULL)
+    {
+        strcat(help_uri, "/");
+        strcat(help_uri, link_id);
+    }
+
+    gtk_show_uri (NULL, help_uri,  gtk_get_current_event_time (), &error);
+
+    if (error != NULL)
+        gnome_cmd_error_message (_("There was an error displaying help."), error);
+}
+
+
 gboolean gnome_cmd_prepend_su_to_vector (int &argc, char **&argv)
 {
     // sanity
@@ -1422,7 +1461,6 @@ gboolean gnome_cmd_prepend_su_to_vector (int &argc, char **&argv)
     return TRUE;
 }
 
-
 int split(const string &s, vector<string> &coll, const char *sep)
 {
   coll.clear();
@@ -1443,7 +1481,7 @@ int split(const string &s, vector<string> &coll, const char *sep)
   int n = 1;
   int start = 0;
 
-  for (int end; (end=s.find(sep,start))!=string::npos; ++n)
+  for (int end; (size_t)(end=s.find(sep,start))!=string::npos; ++n)
   {
     coll.push_back(string(s,start,end-start));
     start = end + seplen;
@@ -1452,4 +1490,29 @@ int split(const string &s, vector<string> &coll, const char *sep)
   coll.push_back(string(s,start));
 
   return n;
+}
+
+
+gint get_string_pixel_size (const char *s, int len)
+{
+    // find the size, in pixels, of the given string
+    gint xSize, ySize;
+
+    gchar *buf = g_strndup(s, len);
+    gchar *utf8buf = get_utf8 (buf);
+
+    GtkLabel *label = GTK_LABEL (gtk_label_new (utf8buf));
+    gchar *ms = get_mono_text (utf8buf);
+    gtk_label_set_markup (label, ms);
+    g_free (ms);
+    g_object_ref_sink(G_OBJECT(label));
+
+    PangoLayout *layout = gtk_label_get_layout (label);
+    pango_layout_get_pixel_size (layout, &xSize, &ySize);
+
+    g_object_unref(GTK_OBJECT (label));
+    g_free (utf8buf);
+    g_free (buf);
+
+    return xSize;
 }

@@ -2,7 +2,7 @@
  * @file gnome-cmd-con-remote.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ static void get_file_info_func (GnomeCmdCon *con)
 
 static gboolean start_get_file_info (GnomeCmdCon *con)
 {
-    g_thread_create ((GThreadFunc) get_file_info_func, con, FALSE, NULL);
+    g_thread_new (NULL, (GThreadFunc) get_file_info_func, con);
 
     return FALSE;
 }
@@ -225,7 +225,7 @@ GtkType gnome_cmd_con_remote_get_type ()
     {
         GtkTypeInfo info =
         {
-            "GnomeCmdConRemote",
+            (gchar*) "GnomeCmdConRemote",
             sizeof (GnomeCmdConRemote),
             sizeof (GnomeCmdConRemoteClass),
             (GtkClassInitFunc) class_init,

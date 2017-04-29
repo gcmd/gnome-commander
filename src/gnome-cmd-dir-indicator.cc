@@ -2,7 +2,7 @@
  * @file gnome-cmd-dir-indicator.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,7 +181,6 @@ static gint on_dir_indicator_motion (GnomeCmdDirIndicator *indicator, GdkEventMo
 
     // find out where in the label the pointer is at
     gint iX = (gint) event->x;
-    gint iY = (gint) event->y;
 
     for (gint i=0; i < indicator->priv->numPositions; i++)
     {
@@ -215,31 +214,6 @@ static gint on_dir_indicator_leave (GnomeCmdDirIndicator *indicator, GdkEventMot
     gdk_window_set_cursor (GTK_WIDGET (indicator)->window, NULL);
 
     return TRUE;
-}
-
-
-inline int get_string_pixel_size (const char *s, int len)
-{
-    // find the size, in pixels, of the given string
-    gint xSize, ySize;
-
-    gchar *buf = g_strndup(s, len);
-    gchar *utf8buf = get_utf8 (buf);
-
-    GtkLabel *label = GTK_LABEL (gtk_label_new (utf8buf));
-    gchar *ms = get_mono_text (utf8buf);
-    gtk_label_set_markup (label, ms);
-    g_free (ms);
-    g_object_ref_sink(G_OBJECT(label));
-
-    PangoLayout *layout = gtk_label_get_layout (label);
-    pango_layout_get_pixel_size (layout, &xSize, &ySize);
-
-    g_object_unref(GTK_OBJECT (label));
-    g_free (utf8buf);
-    g_free (buf);
-
-    return xSize;
 }
 
 
@@ -517,7 +491,7 @@ GtkType gnome_cmd_dir_indicator_get_type ()
     if (type == 0)
     {
         GtkTypeInfo info = {
-            "GnomeCmdDirIndicator",
+            (gchar*) "GnomeCmdDirIndicator",
             sizeof(GnomeCmdDirIndicator),
             sizeof(GnomeCmdDirIndicatorClass),
             (GtkClassInitFunc) class_init,
@@ -569,12 +543,11 @@ void gnome_cmd_dir_indicator_set_dir (GnomeCmdDirIndicator *indicator, gchar *pa
 
     const gchar sep = isUNC ? '\\' : G_DIR_SEPARATOR;
     GArray *pos = g_array_sized_new (FALSE, FALSE, sizeof(gint), 16);
-    gint i;
 
     for (s = isUNC ? path+2 : path+1; *s; ++s)
         if (*s==sep)
         {
-            i = s-path;
+            gint i = s-path;
             g_array_append_val (pos, i);
         }
 
@@ -606,10 +579,10 @@ void gnome_cmd_dir_indicator_set_dir (GnomeCmdDirIndicator *indicator, gchar *pa
         indicator->priv->slashPixelPosition[pos_idx++] = get_string_pixel_size (path, 1);
     }
 
-    for (i = isUNC ? 1 : 0; i < pos->len; i++)
+    for (guint ii = isUNC ? 1 : 0; ii < pos->len; ii++)
     {
-        indicator->priv->slashCharPosition[pos_idx] = g_array_index (pos, gint, i);
-        indicator->priv->slashPixelPosition[pos_idx++] = get_string_pixel_size (path, g_array_index (pos, gint, i)+1);
+        indicator->priv->slashCharPosition[pos_idx] = g_array_index (pos, gint, ii);
+        indicator->priv->slashPixelPosition[pos_idx++] = get_string_pixel_size (path, g_array_index (pos, gint, ii)+1);
     }
 
     if (indicator->priv->numPositions>0)

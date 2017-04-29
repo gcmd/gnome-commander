@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -229,7 +229,7 @@ static void gviewer_image_status_update(ImageRender *obj, ImageRender::Status *s
     if (status->image_width > 0 && status->image_height > 0)
     {
         gchar zoom[10];
-        char *size_string = ""; // size_string = gnome_vfs_format_file_size_for_display (bytes);
+        char *size_string = strdup(""); // size_string = gnome_vfs_format_file_size_for_display (bytes);
 
         if (!status->best_fit)
             g_snprintf(zoom, sizeof(zoom), "%i%%", (int)(status->scale_factor*100.0));
@@ -242,6 +242,7 @@ static void gviewer_image_status_update(ImageRender *obj, ImageRender::Status *s
                     ngettext ("bit/sample", "bits/sample", status->bits_per_sample),
                     size_string,
                     status->best_fit?_("(fit to window)"):zoom);
+        free(size_string);
     }
 
     gtk_signal_emit (GTK_OBJECT (viewer), gviewer_signals[STATUS_LINE_CHANGED], temp);
@@ -294,8 +295,8 @@ static void gviewer_destroy (GtkObject *widget)
 static VIEWERDISPLAYMODE guess_display_mode(const unsigned char *data, int len)
 {
     gboolean control_chars = FALSE; /* True if found ASCII < 0x20 */
-    gboolean ascii_chars = FALSE;
-    gboolean extended_chars = FALSE; /* True if found ASCII >= 0x80 */
+    //gboolean ascii_chars = FALSE;
+    //gboolean extended_chars = FALSE; /* True if found ASCII >= 0x80 */
 
     const char *mime = gnome_vfs_get_mime_type_for_data(data, len);
 
@@ -307,10 +308,10 @@ static VIEWERDISPLAYMODE guess_display_mode(const unsigned char *data, int len)
     {
         if (data[i]<0x20 && data[i]!=10 && data[i]!=13 && data[i]!=9)
             control_chars = TRUE;
-        if (data[i]>=0x80)
-            extended_chars = TRUE;
-        if (data[i]>=0x20 && data[i]<=0x7F)
-            ascii_chars = TRUE;
+        //if (data[i]>=0x80)
+        //    extended_chars = TRUE;
+        //if (data[i]>=0x20 && data[i]<=0x7F)
+        //    ascii_chars = TRUE;
         /* TODO: add UTF-8 detection */
     }
 
@@ -380,6 +381,9 @@ void gviewer_set_display_mode(GViewer *obj, VIEWERDISPLAYMODE mode)
         case DISP_MODE_IMAGE:
             client = obj->priv->iscrollbox;
             break;
+
+        default:
+            break;
     }
 
     if (client != obj->priv->last_client)
@@ -402,6 +406,9 @@ void gviewer_set_display_mode(GViewer *obj, VIEWERDISPLAYMODE mode)
 
             case DISP_MODE_IMAGE:
                 image_render_notify_status_changed(obj->priv->imgr);
+                break;
+
+            default:
                 break;
         }
 
@@ -441,7 +448,6 @@ void gviewer_load_file(GViewer *obj, const gchar*filename)
     g_return_if_fail (filename);
 
     g_free (obj->priv->filename);
-    obj->priv->filename = NULL;
 
     obj->priv->filename = g_strdup (filename);
 

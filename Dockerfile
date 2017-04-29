@@ -1,5 +1,5 @@
 # This is a Docker image for building gnome-commander
-FROM ubuntu:16.04
+FROM ubuntu:17.04
 MAINTAINER Uwe Scholz <u.scholz83@gmx.de>
 
 ENV GCMD_PATH /gnome-commander
@@ -10,7 +10,7 @@ RUN \
   echo $LANG && \
   echo $LC_ALL && \
   sudo apt-get build-dep gnome-commander -y && \
-  sudo apt-get install -y -qq autoconf-archive cmake flex git-core gnome-common libglib2.0-dev libgtest-dev libunique-dev scrollkeeper
+  sudo apt-get install -y -qq autoconf-archive cmake flex git-core gnome-common libglib2.0-dev libgtest-dev libunique-dev yelp-tools
 
 RUN \
   cd /usr/src/gtest && \

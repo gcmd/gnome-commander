@@ -2,7 +2,7 @@
  * @file gnome-cmd-options-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ static void on_confirm_delete_toggled (GtkToggleButton *togglebutton, GtkWidget 
  *
  **********************************************************************/
 
-inline GtkWidget *create_general_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
+static GtkWidget *create_general_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
 {
     GtkWidget *frame, *hbox, *vbox, *cat, *cat_box;
     GtkWidget *radio, *check;
@@ -181,6 +181,7 @@ inline GtkWidget *create_general_tab (GtkWidget *parent, GnomeCmdData::Options &
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check), cfg.quick_search_exact_match_end);
 
 
+#ifdef HAVE_UNIQUE
     // Multiple instances
     cat_box = create_vbox (parent, FALSE, 0);
     cat = create_category (parent, cat_box, _("Multiple instances"));
@@ -189,7 +190,7 @@ inline GtkWidget *create_general_tab (GtkWidget *parent, GnomeCmdData::Options &
     check = create_check (parent, _("Don't start a new instance"), "multiple_instance_check");
     gtk_box_pack_start (GTK_BOX (cat_box), check, FALSE, TRUE, 0);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check), !cfg.allow_multiple_instances);
-
+#endif
 
     // Save on exit
     cat_box = create_vbox (parent, FALSE, 0);
@@ -268,7 +269,14 @@ static void on_date_format_update (GtkEditable *editable, GtkWidget *options_dia
 
     char s[256];
     time_t t = time (NULL);
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
     strftime (s, sizeof(s), locale_format, localtime (&t));
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     gchar *utf8_str = g_locale_to_utf8 (s, -1, NULL, NULL, NULL);
 
     gtk_label_set_text (GTK_LABEL (test_label), utf8_str);
@@ -277,7 +285,7 @@ static void on_date_format_update (GtkEditable *editable, GtkWidget *options_dia
 }
 
 
-inline GtkWidget *create_format_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
+static GtkWidget *create_format_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
 {
     GtkWidget *frame, *hbox, *scrolled_window, *vbox, *cat, *cat_box, *table;
     GtkWidget *radio, *label, *entry;
@@ -684,7 +692,7 @@ static void on_ls_colors_edit (GtkButton *btn, GtkWidget *parent)
 }
 
 
-inline GtkWidget *create_layout_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
+static GtkWidget *create_layout_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
 {
     GtkWidget *frame, *hbox, *scrolled_window, *vbox, *cat;
     GtkWidget *entry, *spin, *scale, *table, *label, *fpicker, *btn;
@@ -934,7 +942,7 @@ inline void store_tabs_options (GtkWidget *dialog, GnomeCmdData::Options &cfg)
  *
  **********************************************************************/
 
-inline GtkWidget *create_confirmation_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
+static GtkWidget *create_confirmation_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
 {
     GtkWidget *frame, *hbox, *scrolled_window, *vbox, *cat, *cat_box;
     GtkWidget *radio, *check;
@@ -1546,7 +1554,7 @@ static void on_app_move_down (GtkWidget *button, GtkWidget *frame)
 }
 
 
-inline GtkWidget *create_programs_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
+static GtkWidget *create_programs_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
 {
     GtkWidget *frame, *hbox, *scrolled_window, *vbox, *cat, *table1, *table2;
     GtkWidget *entry, *button, *label, *clist, *bbox, *check;
@@ -1931,7 +1939,7 @@ static void on_device_move_down (GtkWidget *button, GtkWidget *frame)
 }
 
 
-inline GtkWidget *create_devices_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
+static GtkWidget *create_devices_tab (GtkWidget *parent, GnomeCmdData::Options &cfg)
 {
     GtkWidget *frame, *hbox, *scrolled_window, *vbox, *cat, *cat_box;
     GtkWidget *button, *clist, *bbox, *check;

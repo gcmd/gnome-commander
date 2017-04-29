@@ -2,7 +2,7 @@
  * @file gnome-cmd-key-shortcuts-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,8 +69,14 @@ inline GnomeCmdKeyShortcutsDialogPrivate::GnomeCmdKeyShortcutsDialogPrivate()
 GnomeCmdUserActions *GnomeCmdKeyShortcutsDialog::user_actions = NULL;
 
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-declarations"
+#endif
 G_DEFINE_TYPE (GnomeCmdKeyShortcutsDialog, gnome_cmd_key_shortcuts_dialog, GTK_TYPE_DIALOG)
-
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 static void gnome_cmd_key_shortcuts_dialog_finalize (GObject *object)
 {
@@ -588,6 +594,7 @@ static void cell_edited_callback (GtkCellRendererText *cell, gchar *path_string,
     gint col = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (cell), "column"));
 
     if (gtk_tree_model_get_iter (model, &iter, path))
+    {
         if (col==COL_ACTION && GnomeCmdKeyShortcutsDialog::user_actions)
             gtk_list_store_set (GTK_LIST_STORE (model), &iter,
                                 col, new_text,
@@ -597,6 +604,7 @@ static void cell_edited_callback (GtkCellRendererText *cell, gchar *path_string,
             gtk_list_store_set (GTK_LIST_STORE (model), &iter,
                                 col, new_text,
                                 -1);
+    }
 
     gtk_tree_path_free (path);
 }

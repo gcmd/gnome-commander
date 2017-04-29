@@ -2,7 +2,7 @@
  * @file gnome-cmd-user-actions.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ inline GnomeCmdFileList *get_fl (const FileSelectorID fsID)
 
 
 // The file returned from this function is not to be unrefed
-inline GnomeCmdFile *get_selected_file (const FileSelectorID fsID)
+static GnomeCmdFile *get_selected_file (const FileSelectorID fsID)
 {
     GnomeCmdFile *f = get_fl (fsID)->get_first_selected_file();
 
@@ -141,7 +141,7 @@ inline gboolean append_real_path (string &s, const gchar *name)
 }
 
 
-inline gboolean append_real_path (string &s, GnomeCmdFile *f)
+static gboolean append_real_path (string &s, GnomeCmdFile *f)
 {
     if (!f)
         return FALSE;
@@ -193,6 +193,7 @@ static UserActionData user_actions_data[] = {
                                              {bookmarks_add_current, "bookmarks.add_current", N_("Bookmark current directory")},
                                              {bookmarks_edit, "bookmarks.edit", N_("Manage bookmarks")},
                                              {bookmarks_goto, "bookmarks.goto", N_("Go to bookmarked location")},
+                                             {bookmarks_view, "bookmarks.view", N_("Show bookmarks of current device")},
                                              {command_execute, "command.execute", N_("Execute command")},
                                              {command_open_terminal, "command.open_terminal", N_("Open terminal")},
                                              {command_open_terminal_as_root, "command.open_terminal_as_root", N_("Open terminal as root")},
@@ -276,8 +277,9 @@ static UserActionData user_actions_data[] = {
                                              {view_terminal, "view.terminal", N_("Show terminal")},
 #endif
                                              {view_up, "view.up", N_("Up one directory")},
-                                             
                                              {view_main_menu, "view.main_menu", N_("Display main menu")},
+                                             {view_step_up, "view.step_up", N_("Move cursor one step up")},
+                                             {view_step_down, "view.step_down", N_("Move cursor one step down")},
                                             };
 
 
@@ -495,9 +497,9 @@ void GnomeCmdUserActions::shutdown()
 }
 
 
-gboolean GnomeCmdUserActions::register_action(guint state, guint keyval, const gchar *name, const char *user_data)
+gboolean GnomeCmdUserActions::register_action(guint state, guint keyval, const gchar *action_name, const char *user_data)
 {
-    GnomeCmdUserActionFunc func = action_func[name];
+    GnomeCmdUserActionFunc func = action_func[action_name];
 
     if (!func)
         return FALSE;
@@ -527,7 +529,7 @@ gboolean GnomeCmdUserActions::register_action(guint state, guint keyval, const g
 }
 
 
-void GnomeCmdUserActions::unregister(const gchar *name)
+void GnomeCmdUserActions::unregister(const gchar *action_name)
 {
 }
 
@@ -549,9 +551,9 @@ void GnomeCmdUserActions::unregister(guint state, guint keyval)
 }
 
 
-gboolean GnomeCmdUserActions::registered(const gchar *name)
+gboolean GnomeCmdUserActions::registered(const gchar *action_name)
 {
-    GnomeCmdUserActionFunc func = action_func[name];
+    GnomeCmdUserActionFunc func = action_func[action_name];
 
     if (!func)
         return FALSE;
@@ -687,7 +689,7 @@ GtkTreeModel *gnome_cmd_user_actions_create_model ()
 
 
 template <typename F>
-inline void get_file_list (string &s, GList *sfl, F f)
+static void get_file_list (string &s, GList *sfl, F f)
 {
     vector<string> a;
 
@@ -785,7 +787,6 @@ void file_edit (GtkMenuItem *menuitem, gpointer not_used)
         gnome_cmd_file_selector_show_new_textfile_dialog (get_fs (ACTIVE));
     else
     {
-	GnomeCmdDir *dir = NULL;
 	gchar       *command;
 
 	command = g_strdup (gnome_cmd_data.options.editor);
@@ -803,6 +804,7 @@ void file_edit (GtkMenuItem *menuitem, gpointer not_used)
 	}
 	else
 	{
+        GnomeCmdDir *dir = NULL;
 	    gint     argc;
 	    gchar  **argv  = NULL;
 	    GError  *error = NULL;
@@ -889,8 +891,8 @@ void file_create_symlink (GtkMenuItem *menuitem, gpointer not_used)
     }
    else
    {
-        GnomeCmdFile *f = get_fl (ACTIVE)->get_focused_file();
-        gnome_cmd_file_selector_create_symlink (inactive_fs, f);
+        GnomeCmdFile *focused_f = get_fl (ACTIVE)->get_focused_file();
+        gnome_cmd_file_selector_create_symlink (inactive_fs, focused_f);
    }
 }
 
@@ -930,7 +932,6 @@ void file_advrename (GtkMenuItem *menuitem, gpointer not_used)
 
 void file_sendto (GtkMenuItem *menuitem, gpointer not_used)
 {
-    GnomeCmdDir  *dir     = NULL;
     gchar        *command = NULL;
     string        dir_path;
     string        cmd;
@@ -948,6 +949,7 @@ void file_sendto (GtkMenuItem *menuitem, gpointer not_used)
     }
     else
     {
+    GnomeCmdDir *dir = NULL;
 	gint     argc;
 	gchar  **argv  = NULL;
 	GError  *error = NULL;
@@ -979,7 +981,7 @@ void file_diff (GtkMenuItem *menuitem, gpointer not_used)
 
     GList *sel_files = active_fl->get_selected_files();
 
-    string s;
+    string files_to_differ;
 
     switch (g_list_length (sel_files))
     {
@@ -990,8 +992,8 @@ void file_diff (GtkMenuItem *menuitem, gpointer not_used)
             if (!get_fs (INACTIVE)->is_local())
                 gnome_cmd_show_message (*main_win, _("Operation not supported on remote file systems"));
             else
-                if (!append_real_path (s, get_selected_file (ACTIVE)) || !append_real_path (s, get_selected_file (INACTIVE)))
-                    s.clear();
+                if (!append_real_path (files_to_differ, get_selected_file (ACTIVE)) || !append_real_path (files_to_differ, get_selected_file (INACTIVE)))
+                    files_to_differ.clear();
             break;
 
         case 2:
@@ -999,7 +1001,7 @@ void file_diff (GtkMenuItem *menuitem, gpointer not_used)
             sel_files = active_fl->sort_selection(sel_files);
 
             for (GList *i = sel_files; i; i = i->next)
-                append_real_path (s, GNOME_CMD_FILE (i->data));
+                append_real_path (files_to_differ, GNOME_CMD_FILE (i->data));
             break;
 
         default:
@@ -1009,9 +1011,16 @@ void file_diff (GtkMenuItem *menuitem, gpointer not_used)
 
     g_list_free (sel_files);
 
-    if (!s.empty())
+    if (!files_to_differ.empty())
     {
-        gchar *cmd = g_strdup_printf (gnome_cmd_data.options.differ, s.c_str(), "");
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
+        gchar *cmd = g_strdup_printf (gnome_cmd_data.options.differ, files_to_differ.c_str(), "");
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
         run_command (cmd);
 
@@ -1036,7 +1045,14 @@ void file_sync_dirs (GtkMenuItem *menuitem, gpointer not_used)
     append_real_path (s, GNOME_CMD_FILE (active_fs->get_directory()));
     append_real_path (s, GNOME_CMD_FILE (inactive_fs->get_directory()));
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
     gchar *cmd = g_strdup_printf (gnome_cmd_data.options.differ, s.c_str(), "");
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     run_command (cmd);
 
@@ -1048,6 +1064,10 @@ void file_exit (GtkMenuItem *menuitem, gpointer not_used)
 {
     gint x, y;
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (gnome_cmd_data.main_win_state)
     {
         case GDK_WINDOW_STATE_MAXIMIZED:
@@ -1060,6 +1080,9 @@ void file_exit (GtkMenuItem *menuitem, gpointer not_used)
             gnome_cmd_data_set_main_win_pos (x, y);
             break;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     gtk_widget_destroy (*main_win);
 }
@@ -1530,6 +1553,22 @@ void view_horizontal_orientation (GtkMenuItem *menuitem, gpointer not_used)
     g_settings_set_boolean (gcmd_user_actions.settings->general, GCMD_SETTINGS_HORIZONTAL_ORIENTATION, checkitem->active);
 }
 
+void view_step_up (GtkMenuItem *menuitem, gpointer not_used)
+{
+    GnomeCmdFileSelector *fs = get_fs (ACTIVE);
+    GnomeCmdFileList *fl = fs->file_list();
+
+    g_signal_emit_by_name (fl, "scroll-vertical", GTK_SCROLL_STEP_BACKWARD, 0.0, NULL);
+}
+
+void view_step_down (GtkMenuItem *menuitem, gpointer not_used)
+{
+    GnomeCmdFileSelector *fs = get_fs (ACTIVE);
+    GnomeCmdFileList *fl = fs->file_list();
+
+    g_signal_emit_by_name (fl, "scroll-vertical", GTK_SCROLL_STEP_FORWARD, 0.0, NULL);
+}
+
 void view_up (GtkMenuItem *menuitem, gpointer not_used)
 {
     GnomeCmdFileSelector *fs = get_fs (ACTIVE);
@@ -1930,6 +1969,12 @@ void bookmarks_goto (GtkMenuItem *menuitem, gpointer bookmark_name)
 }
 
 
+void bookmarks_view (GtkMenuItem *menuitem, gpointer not_used)
+{
+    gnome_cmd_dir_indicator_show_bookmarks (GNOME_CMD_DIR_INDICATOR (get_fs (ACTIVE)->dir_indicator));
+}
+
+
 /************** Plugins Menu **************/
 
 void plugins_configure (GtkMenuItem *menuitem, gpointer not_used)
@@ -2022,7 +2067,7 @@ void help_about (GtkMenuItem *menuitem, gpointer not_used)
 
     static const gchar copyright[] = "Copyright \xc2\xa9 2001-2006 Marcus Bjurman\n"
                                      "Copyright \xc2\xa9 2007-2012 Piotr Eljasiak\n"
-                                     "Copyright \xc2\xa9 2013-2016 Uwe Scholz";
+                                     "Copyright \xc2\xa9 2013-2017 Uwe Scholz";
 
     static const gchar comments[] = N_("A fast and powerful file manager for the GNOME desktop");
 
@@ -2224,6 +2269,10 @@ int parse_command(string *cmd, gchar *command)
 		}
                 *cmd += '%';
 		cmdlen = cmd->length();
+#if defined (__GNUC__) && __GNUC__ >= 7
+		__attribute__ ((fallthrough));
+#endif
+
             case '%':           // %%  percent sign
 		if (cmdcap < cmdlen + 1)
 		{

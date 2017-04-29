@@ -2,7 +2,7 @@
  * @file gnome-cmd-file-list.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,10 +40,10 @@ GType gnome_cmd_file_list_get_type ();
 
 
 /* DnD target names */
-#define TARGET_MC_DESKTOP_ICON_TYPE     "application/x-mc-desktop-icon"
-#define TARGET_URI_LIST_TYPE            "text/uri-list"
-#define TARGET_TEXT_PLAIN_TYPE          "text/plain"
-#define TARGET_URL_TYPE                 "_NETSCAPE_URL"
+#define TARGET_MC_DESKTOP_ICON_TYPE     (gchar*) "application/x-mc-desktop-icon"
+#define TARGET_URI_LIST_TYPE            (gchar*) "text/uri-list"
+#define TARGET_TEXT_PLAIN_TYPE          (gchar*) "text/plain"
+#define TARGET_URL_TYPE                 (gchar*) "_NETSCAPE_URL"
 
 /* Standard DnD types */
 enum TargetType
@@ -108,8 +108,8 @@ struct GnomeCmdFileList
     GnomeCmdFileList(ColumnID sort_col, GtkSortType sort_order);
     ~GnomeCmdFileList();
 
-    int size()                          {  return g_list_length (get_visible_files());  }
-    bool empty()                        {  return get_visible_files()==NULL;            }    // FIXME should be: size()==0
+    guint size()                          {  return g_list_length (get_visible_files());  }
+    bool empty()                          {  return get_visible_files()==NULL;            }    // FIXME should be: size()==0
     void clear();
 
     void reload();

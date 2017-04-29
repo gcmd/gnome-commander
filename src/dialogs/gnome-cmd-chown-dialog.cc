@@ -2,7 +2,7 @@
  * @file gnome-cmd-chown-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,15 +87,19 @@ static void on_ok (GtkButton *button, GnomeCmdChownDialog *dialog)
 {
     uid_t uid = -1;
     gid_t gid = -1;
+    gint gid_temp;
 
     if (gcmd_owner.is_root())
     {
-        uid = gnome_cmd_chown_component_get_owner (GNOME_CMD_CHOWN_COMPONENT (dialog->priv->chown_component));
-        g_return_if_fail (uid >= 0);
+        gint uid_temp;
+        uid_temp = gnome_cmd_chown_component_get_owner (GNOME_CMD_CHOWN_COMPONENT (dialog->priv->chown_component));
+        g_return_if_fail (uid_temp >= 0);
+        uid = uid_temp;
     }
 
-    gid = gnome_cmd_chown_component_get_group (GNOME_CMD_CHOWN_COMPONENT (dialog->priv->chown_component));
-    g_return_if_fail (gid >= 0);
+    gid_temp = gnome_cmd_chown_component_get_group (GNOME_CMD_CHOWN_COMPONENT (dialog->priv->chown_component));
+    g_return_if_fail (gid_temp >= 0);
+    gid = gid_temp;
 
     gboolean recurse = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->priv->recurse_check));
 

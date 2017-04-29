@@ -2,7 +2,7 @@
  * @file owner.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,20 +39,6 @@ static gint compare_names (const gchar *name1, const gchar *name2)
 {
     return strcmp(name1, name2);
 }
-
-
-#if !GLIB_CHECK_VERSION (2, 14, 0)
-template <typename T, typename ID>
-GList *GnomeCmdOwner::HashTable<T,ID>::get_names()
-{
-    GList *retval = NULL;
-
-    for (GList *l=users; l; l=l->next)
-        retval = g_list_prepend (retval, static_cast<user_t *>(l->data)->name);
-
-    return g_list_sort (retval, (GCompareFunc) compare_users);
-}
-#endif
 
 
 GnomeCmdOwner::GnomeCmdOwner()
@@ -140,5 +126,5 @@ gpointer GnomeCmdOwner::perform_load_operation (GnomeCmdOwner *self)
 
 void GnomeCmdOwner::load_async()
 {
-    thread = g_thread_create ((GThreadFunc) perform_load_operation, this, TRUE, NULL);
+    thread = g_thread_new (NULL, (GThreadFunc) perform_load_operation, this);
 }

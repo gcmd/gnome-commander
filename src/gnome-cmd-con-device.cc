@@ -2,7 +2,7 @@
  * @file gnome-cmd-con-device.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ struct GnomeCmdConDevicePrivate
 static GnomeCmdConClass *parent_class = NULL;
 
 
-inline gboolean is_mounted (GnomeCmdCon *con)
+static gboolean is_mounted (GnomeCmdCon *con)
 {
     g_return_val_if_fail (GNOME_CMD_IS_CON_DEVICE (con), FALSE);
 
@@ -183,7 +183,7 @@ static void dev_open (GnomeCmdCon *con)
     con->state = GnomeCmdCon::STATE_OPENING;
     con->open_result = GnomeCmdCon::OPEN_IN_PROGRESS;
 
-    g_thread_create ((GThreadFunc) do_mount_thread_func, con, FALSE, NULL);
+    g_thread_new (NULL, (GThreadFunc) do_mount_thread_func, con);
 }
 
 
@@ -225,7 +225,10 @@ static gboolean dev_close (GnomeCmdCon *con)
 
     gnome_cmd_con_set_default_dir (con, NULL);
 
-    chdir (g_get_home_dir ());
+    if (chdir (g_get_home_dir ()) == -1)
+    {
+        DEBUG ('m', "Could not go back to home directory before unmounting\n");
+    }
 
     if (dev_con->priv->autovolume)
     {
@@ -475,7 +478,10 @@ void gnome_cmd_con_device_set_icon_path (GnomeCmdConDevice *dev, const gchar *ic
             if (overlay)
             {
                 GdkPixbuf *umount = IMAGE_get_pixbuf (PIXMAP_OVERLAY_UMOUNT);
-
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
                 if (umount)
                 {
                     gdk_pixbuf_copy_area (umount, 0, 0,
@@ -485,7 +491,9 @@ void gnome_cmd_con_device_set_icon_path (GnomeCmdConDevice *dev, const gchar *ic
 
                     con->close_pixmap = gnome_cmd_pixmap_new_from_pixbuf (overlay);
                 }
-
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
                 g_object_unref (overlay);
             }
         }

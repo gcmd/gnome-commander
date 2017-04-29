@@ -2,7 +2,7 @@
  * @file gnome-cmd-con.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -223,7 +223,7 @@ GtkType gnome_cmd_con_get_type ()
     {
         GtkTypeInfo info =
         {
-            "GnomeCmdCon",
+            (gchar*) "GnomeCmdCon",
             sizeof (GnomeCmdCon),
             sizeof (GnomeCmdConClass),
             (GtkClassInitFunc) class_init,
@@ -244,6 +244,10 @@ static gboolean check_con_open_progress (GnomeCmdCon *con)
     g_return_val_if_fail (GNOME_CMD_IS_CON (con), FALSE);
     g_return_val_if_fail (con->open_result != GnomeCmdCon::OPEN_NOT_STARTED, FALSE);
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (con->open_result)
     {
         case GnomeCmdCon::OPEN_IN_PROGRESS:
@@ -273,6 +277,9 @@ static gboolean check_con_open_progress (GnomeCmdCon *con)
         default:
             return FALSE;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 
@@ -558,6 +565,40 @@ string &__gnome_cmd_con_make_uri (string &s, const gchar *method, gboolean use_a
 
     return s;
 }
+
+#ifdef HAVE_SAMBA
+std::string &gnome_cmd_con_make_smb_uri (std::string &s, gboolean use_auth, std::string &server, std::string &share, std::string &folder, std::string &domain, std::string &user, std::string &password)
+{
+    share = '/' + share;
+
+    user = stringify (gnome_vfs_escape_string (user.c_str()));
+    password = stringify (gnome_vfs_escape_string (password.c_str()));
+
+    if (!password.empty() && !use_auth)
+    {
+        user += ':';
+        user += password;
+    }
+
+    if (!domain.empty())
+        user = domain + ';' + user;
+
+    const gchar *join = !folder.empty() && folder[0] != '/' ? "/" : "";
+
+    folder = share + join + folder;
+    folder = stringify (gnome_vfs_escape_path_string (folder.c_str()));
+
+    s = "smb://";
+
+    if (!user.empty())
+        s += user + '@';
+
+    s += server;
+    s += folder;
+
+    return s;
+}
+#endif
 
 
 XML::xstream &operator << (XML::xstream &xml, GnomeCmdCon &con)

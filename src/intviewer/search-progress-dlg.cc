@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,7 +135,7 @@ GType gviewer_search_progress_dlg_get_type ()
 }
 
 
-GtkWidget *gviewer_search_progress_dlg_new (GtkWindow *parent)
+static GtkWidget *gviewer_search_progress_dlg_new (GtkWindow *parent)
 {
     GViewerSearchProgressDlg *dlg = (GViewerSearchProgressDlg *) g_object_new (gviewer_search_progress_dlg_get_type(), NULL);
 
@@ -143,7 +143,7 @@ GtkWidget *gviewer_search_progress_dlg_new (GtkWindow *parent)
 }
 
 
-gboolean search_progress_dlg_timeout(gpointer data)
+static gboolean search_progress_dlg_timeout(gpointer data)
 {
     g_return_val_if_fail (IS_GVIEWER_SEARCH_PROGRESS_DLG (data), FALSE);
 

@@ -2,7 +2,7 @@
  * @file gnome-cmd-string-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ static void on_ok (GtkButton *button, GnomeCmdStringDialog *dialog)
 
         valid = dialog->priv->ok_cb (dialog, (const gchar**)values, dialog->priv->data);
         if (!valid)
-            create_error_dialog (dialog->priv->error_desc);
+            create_error_dialog ("%s", dialog->priv->error_desc);
         g_free (values);
     }
 
@@ -160,7 +160,7 @@ GtkType gnome_cmd_string_dialog_get_type ()
     {
         GtkTypeInfo dlg_info =
         {
-            "GnomeCmdStringDialog",
+            (gchar*) "GnomeCmdStringDialog",
             sizeof (GnomeCmdStringDialog),
             sizeof (GnomeCmdStringDialogClass),
             (GtkClassInitFunc) class_init,

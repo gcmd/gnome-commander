@@ -2,7 +2,7 @@
  * @file filter.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,11 +28,11 @@
 using namespace std;
 
 
-Filter::Filter(const gchar *exp, gboolean case_sens, Type type): re_exp(NULL), fn_exp(NULL), fn_flags(0)
+Filter::Filter(const gchar *exp, gboolean case_sens, Type _type): re_exp(NULL), fn_exp(NULL), fn_flags(0)
 {
-    this->type = type;
+    this->type = _type;
 
-    switch (type)
+    switch (_type)
     {
         case TYPE_REGEX:
             re_exp = g_new (regex_t, 1);
@@ -66,12 +66,12 @@ Filter::~Filter()
 
 gboolean Filter::match(const gchar *text)
 {
-    static regmatch_t match;
+    static regmatch_t _match;
 
     switch (type)
     {
         case TYPE_REGEX:
-            return regexec (re_exp, text, 1, &match, 0) == 0;
+            return regexec (re_exp, text, 1, &_match, 0) == 0;
 
         case TYPE_FNMATCH:
             return fnmatch (fn_exp, text, fn_flags) == 0;

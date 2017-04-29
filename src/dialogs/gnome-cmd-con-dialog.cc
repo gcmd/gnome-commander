@@ -2,7 +2,7 @@
  * @file gnome-cmd-con-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -278,7 +278,7 @@ inline void GnomeCmdConnectDialog::Private::show_entry(GtkWidget *table, GtkWidg
 }
 
 
-inline gboolean GnomeCmdConnectDialog::verify_uri()
+gboolean GnomeCmdConnectDialog::verify_uri()
 {
     string uri;
     string server;
@@ -342,8 +342,14 @@ inline gboolean GnomeCmdConnectDialog::verify_uri()
     return TRUE;
 }
 
-
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-declarations"
+#endif
 G_DEFINE_TYPE (GnomeCmdConnectDialog, gnome_cmd_connect_dialog, GTK_TYPE_DIALOG)
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 
 static void gnome_cmd_connect_dialog_finalize (GObject *object)
@@ -414,7 +420,6 @@ static void gnome_cmd_connect_dialog_init (GnomeCmdConnectDialog *dialog)
     GtkWidget *label;
     GtkWidget *table;
     GtkWidget *combo;
-    GtkWidget *check;
     GtkWidget *hbox;
     GtkWidget *vbox;
 

@@ -2,7 +2,7 @@
  * @file gnome-cmd-dir.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -401,7 +401,6 @@ static GList *create_file_list (GnomeCmdDir *dir, GList *info_list)
 
         if (info && info->name)
         {
-            GnomeCmdCon *con = gnome_cmd_dir_get_connection (dir);
 
             if (strcmp (info->name, ".") == 0 || strcmp (info->name, "..") == 0)
             {
@@ -410,6 +409,7 @@ static GList *create_file_list (GnomeCmdDir *dir, GList *info_list)
             }
 
 #ifdef HAVE_SAMBA
+            GnomeCmdCon *con = gnome_cmd_dir_get_connection (dir);
             if (GNOME_CMD_IS_CON_SMB (con)
                 && info->mime_type
                 && (strcmp (info->mime_type, "application/x-gnome-app-info") == 0 ||
@@ -703,6 +703,10 @@ void gnome_cmd_dir_file_created (GnomeCmdDir *dir, const gchar *uri_str)
     GnomeVFSFileInfo *info = gnome_vfs_file_info_new ();
     GnomeVFSFileInfoOptions infoOpts = (GnomeVFSFileInfoOptions) (GNOME_VFS_FILE_INFO_FOLLOW_LINKS|GNOME_VFS_FILE_INFO_GET_MIME_TYPE);
     GnomeVFSResult res = gnome_vfs_get_file_info_uri (uri, info, infoOpts);
+    if (res != GNOME_VFS_OK)
+    {
+        DEBUG ('t', "Could not retrieve file information for %s\n", uri_str);
+    }
     gnome_vfs_uri_unref (uri);
 
     GnomeCmdFile *f;
@@ -754,6 +758,10 @@ void gnome_cmd_dir_file_changed (GnomeCmdDir *dir, const gchar *uri_str)
     GnomeVFSURI *uri = f->get_uri();
     GnomeVFSFileInfo *info = gnome_vfs_file_info_new ();
     GnomeVFSResult res = gnome_vfs_get_file_info_uri (uri, info, GNOME_VFS_FILE_INFO_GET_MIME_TYPE);
+    if (res != GNOME_VFS_OK)
+    {
+        DEBUG ('t', "Could not retrieve file information for changed file %s\n", uri_str);
+    }
     gnome_vfs_uri_unref (uri);
 
     dir->priv->needs_mtime_update = TRUE;

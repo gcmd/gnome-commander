@@ -2,7 +2,7 @@
  * @file gnome-cmd-main-win.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2016 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,15 +128,15 @@ static GtkTooltips *toolbar_tooltips = NULL;
 static void gnome_cmd_main_win_real_switch_fs (GnomeCmdMainWin *mw, GnomeCmdFileSelector *fs);
 
 
-gint gnome_cmd_key_snooper(GtkWidget *grab_widget, GdkEventKey *event, GnomeCmdMainWin *mw)
+static gint gnome_cmd_key_snooper(GtkWidget *grab_widget, GdkEventKey *event, GnomeCmdMainWin *mw)
 {
     g_return_val_if_fail (mw!=NULL, FALSE);
 
     if (event->type!=GDK_KEY_PRESS)
         return FALSE;
 
-    if (!(event->keyval >= GDK_A && event->keyval <= GDK_Z || event->keyval >= GDK_a && event->keyval <= GDK_z ||
-          event->keyval >= GDK_0 && event->keyval <= GDK_9 ||
+    if (!((event->keyval >= GDK_A && event->keyval <= GDK_Z) || (event->keyval >= GDK_a && event->keyval <= GDK_z) ||
+          (event->keyval >= GDK_0 && event->keyval <= GDK_9) ||
           event->keyval == GDK_period || event->keyval == GDK_question|| event->keyval == GDK_asterisk || event->keyval == GDK_bracketleft))
         return FALSE;
 
@@ -254,6 +254,7 @@ static void create_toolbar (GnomeCmdMainWin *mw, GnomeUIInfo *uiinfo)
                 case  TOOLBAR_BTN_COPY:       mw->priv->tb_cap_copy_btn = w;  break;
                 case  TOOLBAR_BTN_PASTE:      mw->priv->tb_cap_paste_btn = w;  break;
                 case  TOOLBAR_BTN_DISCONNECT: mw->priv->tb_con_drop_btn = w;  break;
+                default: break;
             }
         }
 
@@ -523,6 +524,10 @@ static void on_fs_list_resize_column (GtkCList *clist, gint column, gint width, 
 
 static void on_size_allocate (GtkWidget *widget, GtkAllocation *allocation, gpointer user_data)
 {
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (gnome_cmd_data.main_win_state)
     {
         case GDK_WINDOW_STATE_FULLSCREEN:
@@ -534,6 +539,9 @@ static void on_size_allocate (GtkWidget *widget, GtkAllocation *allocation, gpoi
             gnome_cmd_data.main_win_width = allocation->width;
             gnome_cmd_data.main_win_height = allocation->height;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 
@@ -638,6 +646,10 @@ inline void restore_size_and_pos (GnomeCmdMainWin *mw)
     if (x >= 0 && y >= 0)
         gtk_window_move (GTK_WINDOW (mw), x, y);
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (gnome_cmd_data.main_win_state)
     {
         case GDK_WINDOW_STATE_MAXIMIZED:
@@ -648,6 +660,9 @@ inline void restore_size_and_pos (GnomeCmdMainWin *mw)
         default:
             break;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 
@@ -661,6 +676,10 @@ static gboolean on_window_state_event (GtkWidget *mw, GdkEventWindowState *event
 {
     gint x, y;
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (event->new_window_state)
     {
         case GDK_WINDOW_STATE_MAXIMIZED:    // not usable
@@ -672,11 +691,17 @@ static gboolean on_window_state_event (GtkWidget *mw, GdkEventWindowState *event
                 gnome_cmd_data.main_win_state == GDK_WINDOW_STATE_FULLSCREEN)
                 break;  // not usable
 
+#if defined (__GNUC__) && __GNUC__ >= 7
+        __attribute__ ((fallthrough));
+#endif
         default:            // other are usable
             gdk_window_get_root_origin (mw->window, &x, &y);
             gnome_cmd_data_set_main_win_pos (x, y);
     }
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     gnome_cmd_data.main_win_state = event->new_window_state;
 
     return FALSE;
@@ -839,7 +864,7 @@ GtkType gnome_cmd_main_win_get_type ()
     {
         GtkTypeInfo mw_info =
         {
-            "GnomeCmdMainWin",
+            (gchar*) "GnomeCmdMainWin",
             sizeof (GnomeCmdMainWin),
             sizeof (GnomeCmdMainWinClass),
             (GtkClassInitFunc) class_init,
@@ -862,12 +887,12 @@ FileSelectorID GnomeCmdMainWin::fs() const
 }
 
 
-FileSelectorID GnomeCmdMainWin::fs(GnomeCmdFileSelector *fs) const
+FileSelectorID GnomeCmdMainWin::fs(GnomeCmdFileSelector *fselector) const
 {
-    if (!priv->file_selector[LEFT] || priv->file_selector[LEFT]==*fs)
+    if (!priv->file_selector[LEFT] || priv->file_selector[LEFT]==*fselector)
         return LEFT;
 
-    if (!priv->file_selector[RIGHT] || priv->file_selector[RIGHT]==*fs)
+    if (!priv->file_selector[RIGHT] || priv->file_selector[RIGHT]==*fselector)
         return RIGHT;
 
     g_assert_not_reached();
@@ -946,6 +971,8 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                 if (gnome_cmd_data.cmdline_visibility)
                     gnome_cmd_cmdline_show_history (GNOME_CMD_CMDLINE (priv->cmdline));
                 return TRUE;
+            default:
+                break;
         }
     }
     else if (state_is_ctrl_shift (event->state))
@@ -957,6 +984,8 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                 gnome_cmd_data.options.filter.hidden = !gnome_cmd_data.options.filter.hidden;
                 gnome_cmd_data.save();
                 return TRUE;
+            default:
+                break;
         }
     }
     else if (state_is_ctrl (event->state))
@@ -1001,6 +1030,9 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                     clear_event_key (event);
                 }
                 return TRUE;
+
+            default:
+                break;
         }
     }
     else if (state_is_alt_shift (event->state))
@@ -1020,6 +1052,9 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                 fs(ACTIVE)->set_connection(GNOME_CMD_CON (con));
             }
             break;
+
+            default:
+                break;
         }
     }
     else
@@ -1068,13 +1103,16 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                 case GDK_F9:
                     on_search_clicked (NULL, this);
                     return TRUE;
+
+                default:
+                    break;
             }
 
     return fs(ACTIVE)->key_pressed(event);
 }
 
 
-inline void GnomeCmdMainWin::open_tabs(FileSelectorID id)
+void GnomeCmdMainWin::open_tabs(FileSelectorID id)
 {
     GnomeCmdCon *home = get_home_con ();
 
@@ -1091,31 +1129,31 @@ inline void GnomeCmdMainWin::open_tabs(FileSelectorID id)
 }
 
 
-void GnomeCmdMainWin::switch_fs(GnomeCmdFileSelector *fs)
+void GnomeCmdMainWin::switch_fs(GnomeCmdFileSelector *fselector)
 {
-    g_return_if_fail (GNOME_CMD_IS_FILE_SELECTOR (fs));
+    g_return_if_fail (GNOME_CMD_IS_FILE_SELECTOR (fselector));
 
-    g_signal_emit (this, signals[SWITCH_FS], 0, fs);
+    g_signal_emit (this, signals[SWITCH_FS], 0, fselector);
 }
 
 
 void GnomeCmdMainWin::change_connection(FileSelectorID id)
 {
-    GnomeCmdFileSelector *fs = this->fs(id);
+    GnomeCmdFileSelector *fselector = this->fs(id);
 
-    switch_fs(fs);
+    switch_fs(fselector);
     if (gnome_cmd_data.show_devlist)
-        fs->con_combo->popup_list();
+        fselector->con_combo->popup_list();
 }
 
 
 void GnomeCmdMainWin::set_fs_directory_to_opposite(FileSelectorID fsID)
 {
-    GnomeCmdFileSelector *fs =  this->fs(fsID);
+    GnomeCmdFileSelector *fselector =  this->fs(fsID);
     GnomeCmdFileSelector *other = this->fs(!fsID);
 
     GnomeCmdDir *dir = other->get_directory();
-    gboolean fs_is_active = fs->is_active();
+    gboolean fs_is_active = fselector->is_active();
 
     if (!fs_is_active)
     {
@@ -1125,13 +1163,13 @@ void GnomeCmdMainWin::set_fs_directory_to_opposite(FileSelectorID fsID)
             dir = GNOME_CMD_IS_DIR (file) ? GNOME_CMD_DIR (file) : gnome_cmd_dir_new_from_info (file->info, dir);
     }
 
-    if (fs->file_list()->locked)
-        fs->new_tab(dir);
+    if (fselector->file_list()->locked)
+        fselector->new_tab(dir);
     else
-        fs->file_list()->set_connection(other->get_connection(), dir);
+        fselector->file_list()->set_connection(other->get_connection(), dir);
 
     other->set_active(!fs_is_active);
-    fs->set_active(fs_is_active);
+    fselector->set_active(fs_is_active);
 }
 
 

@@ -1,11 +1,9 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
-GCONF_DEBUG="no"
+PYTHON_COMPAT=( python{2_7,3_4} )
 GNOME2_LA_PUNT="yes"
 
 inherit eutils gnome2 python-single-r1
@@ -16,12 +14,12 @@ HOMEPAGE="http://gcmd.github.io/"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="chm doc exif gsf pdf python taglib samba test"
+IUSE="chm exif gsf pdf python taglib samba test unique"
 
 RDEPEND="
 	app-text/gnome-doc-utils
 	>=dev-libs/glib-@GLIB_REQ@:2
-	>=dev-libs/libunique-@UNIQUE_REQ@:1
+	unique? ( >=dev-libs/libunique-@UNIQUE_REQ@:1 )
 	gnome-base/gnome-keyring
 	>=gnome-base/gnome-vfs-@GNOMEVFS_REQ@
 	>=gnome-base/libgnome-@GNOME_REQ@
@@ -32,7 +30,6 @@ RDEPEND="
 	gsf? ( >=gnome-extra/libgsf-@LIBGSF_REQ@ )
 	samba? ( >=gnome-base/gnome-vfs-@GNOMEVFS_REQ@[samba] )
 	pdf? ( >=app-text/poppler-@POPPLER_REQ@ )
-	python? ( >=dev-python/gnome-vfs-python-@GNOMEVFS_REQ@ )
 	taglib? ( >=media-libs/taglib-@TAGLIB_REQ@ )
 "
 DEPEND="
@@ -41,19 +38,17 @@ DEPEND="
 	>=dev-util/intltool-0.35.0
 	sys-devel/gettext
 	virtual/pkgconfig
-	test? ( dev-util/cppunit-@CPPUNIT_REQ@ )
+	test? ( >=dev-cpp/gtest-@GTEST_REQ@ )
 "
 
-DOCS="AUTHORS BUGS ChangeLog NEWS README TODO"
-
 src_configure() {
-	DOCS="AUTHORS BUGS ChangeLog NEWS README TODO"
 	gnome2_src_configure \
 		--disable-static \
 		$(use_enable python) \
 		$(use_with chm libchm) \
 		$(use_with exif exiv2) \
 		$(use_with gsf libgsf) \
+		$(use_with samba) \
 		$(use_with taglib) \
 		$(use_with pdf poppler)
 }
