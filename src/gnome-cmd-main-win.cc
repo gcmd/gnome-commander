@@ -2,7 +2,7 @@
  * @file gnome-cmd-main-win.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,19 +128,19 @@ static GtkTooltips *toolbar_tooltips = NULL;
 static void gnome_cmd_main_win_real_switch_fs (GnomeCmdMainWin *mw, GnomeCmdFileSelector *fs);
 
 
-gint gnome_cmd_key_snooper(GtkWidget *grab_widget, GdkEventKey *event, GnomeCmdMainWin *mw)
+static gint gnome_cmd_key_snooper(GtkWidget *grab_widget, GdkEventKey *event, GnomeCmdMainWin *mw)
 {
     g_return_val_if_fail (mw!=NULL, FALSE);
 
     if (event->type!=GDK_KEY_PRESS)
         return FALSE;
 
-    if (!(event->keyval >= GDK_A && event->keyval <= GDK_Z || event->keyval >= GDK_a && event->keyval <= GDK_z ||
-          event->keyval >= GDK_0 && event->keyval <= GDK_9 ||
+    if (!((event->keyval >= GDK_A && event->keyval <= GDK_Z) || (event->keyval >= GDK_a && event->keyval <= GDK_z) ||
+          (event->keyval >= GDK_0 && event->keyval <= GDK_9) ||
           event->keyval == GDK_period || event->keyval == GDK_question|| event->keyval == GDK_asterisk || event->keyval == GDK_bracketleft))
         return FALSE;
 
-    if (!gnome_cmd_data.options.alt_quick_search)
+    if (!gnome_cmd_data.options.quick_search)
         return FALSE;
 
     if (!state_is_alt (event->state) && !state_is_alt_shift (event->state))
@@ -254,6 +254,7 @@ static void create_toolbar (GnomeCmdMainWin *mw, GnomeUIInfo *uiinfo)
                 case  TOOLBAR_BTN_COPY:       mw->priv->tb_cap_copy_btn = w;  break;
                 case  TOOLBAR_BTN_PASTE:      mw->priv->tb_cap_paste_btn = w;  break;
                 case  TOOLBAR_BTN_DISCONNECT: mw->priv->tb_con_drop_btn = w;  break;
+                default: break;
             }
         }
 
@@ -269,7 +270,7 @@ static void create_toolbar (GnomeCmdMainWin *mw, GnomeUIInfo *uiinfo)
 static void slide_set_100_0 (GtkMenu *menu, gpointer user_data)
 {
     gtk_paned_set_position (GTK_PANED (main_win->priv->paned),
-                            gnome_cmd_data.list_orientation ? GTK_WIDGET (main_win)->allocation.height :
+                            gnome_cmd_data.horizontal_orientation ? GTK_WIDGET (main_win)->allocation.height :
                                                               GTK_WIDGET (main_win)->allocation.width);
 }
 
@@ -277,7 +278,7 @@ static void slide_set_100_0 (GtkMenu *menu, gpointer user_data)
 static void slide_set_80_20 (GtkMenu *menu, gpointer user_data)
 {
     gtk_paned_set_position (GTK_PANED (main_win->priv->paned),
-                            gnome_cmd_data.list_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.8f) :
+                            gnome_cmd_data.horizontal_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.8f) :
                                                               (int)(GTK_WIDGET (main_win)->allocation.width*0.8f));
 }
 
@@ -285,7 +286,7 @@ static void slide_set_80_20 (GtkMenu *menu, gpointer user_data)
 static void slide_set_60_40 (GtkMenu *menu, gpointer user_data)
 {
     gtk_paned_set_position (GTK_PANED (main_win->priv->paned),
-                            gnome_cmd_data.list_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.6f) :
+                            gnome_cmd_data.horizontal_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.6f) :
                                                               (int)(GTK_WIDGET (main_win)->allocation.width*0.6f));
 }
 
@@ -293,7 +294,7 @@ static void slide_set_60_40 (GtkMenu *menu, gpointer user_data)
 static void slide_set_50_50 (GtkMenu *menu, gpointer user_data)
 {
     gtk_paned_set_position (GTK_PANED (main_win->priv->paned),
-                            gnome_cmd_data.list_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.5f) :
+                            gnome_cmd_data.horizontal_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.5f) :
                                                               (int)(GTK_WIDGET (main_win)->allocation.width*0.5f));
 }
 
@@ -301,7 +302,7 @@ static void slide_set_50_50 (GtkMenu *menu, gpointer user_data)
 static void slide_set_40_60 (GtkMenu *menu, gpointer user_data)
 {
     gtk_paned_set_position (GTK_PANED (main_win->priv->paned),
-                            gnome_cmd_data.list_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.4f) :
+                            gnome_cmd_data.horizontal_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.4f) :
                                                               (int)(GTK_WIDGET (main_win)->allocation.width*0.4f));
 }
 
@@ -309,7 +310,7 @@ static void slide_set_40_60 (GtkMenu *menu, gpointer user_data)
 static void slide_set_20_80 (GtkMenu *menu, gpointer user_data)
 {
     gtk_paned_set_position (GTK_PANED (main_win->priv->paned),
-                            gnome_cmd_data.list_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.2f) :
+                            gnome_cmd_data.horizontal_orientation ? (int)(GTK_WIDGET (main_win)->allocation.height*0.2f) :
                                                               (int)(GTK_WIDGET (main_win)->allocation.width*0.2f));
 }
 
@@ -523,6 +524,10 @@ static void on_fs_list_resize_column (GtkCList *clist, gint column, gint width, 
 
 static void on_size_allocate (GtkWidget *widget, GtkAllocation *allocation, gpointer user_data)
 {
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (gnome_cmd_data.main_win_state)
     {
         case GDK_WINDOW_STATE_FULLSCREEN:
@@ -534,6 +539,9 @@ static void on_size_allocate (GtkWidget *widget, GtkAllocation *allocation, gpoi
             gnome_cmd_data.main_win_width = allocation->width;
             gnome_cmd_data.main_win_height = allocation->height;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 
@@ -544,7 +552,7 @@ inline void update_browse_buttons (GnomeCmdMainWin *mw, GnomeCmdFileSelector *fs
 
     if (fs == mw->fs(ACTIVE))
     {
-        if (gnome_cmd_data.toolbar_visibility)
+        if (gnome_cmd_data.show_toolbar)
         {
             gtk_widget_set_sensitive (mw->priv->tb_first_btn, fs->can_back());
             gtk_widget_set_sensitive (mw->priv->tb_back_btn, fs->can_back());
@@ -569,7 +577,7 @@ void GnomeCmdMainWin::update_drop_con_button(GnomeCmdFileList *fl)
     if (!con)
         return;
 
-    if (!gnome_cmd_data.toolbar_visibility
+    if (!gnome_cmd_data.show_toolbar
         || (gnome_cmd_data.options.skip_mounting && GNOME_CMD_IS_CON_DEVICE (con)))
         return;
 
@@ -638,6 +646,10 @@ inline void restore_size_and_pos (GnomeCmdMainWin *mw)
     if (x >= 0 && y >= 0)
         gtk_window_move (GTK_WINDOW (mw), x, y);
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (gnome_cmd_data.main_win_state)
     {
         case GDK_WINDOW_STATE_MAXIMIZED:
@@ -648,6 +660,9 @@ inline void restore_size_and_pos (GnomeCmdMainWin *mw)
         default:
             break;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 
@@ -661,6 +676,10 @@ static gboolean on_window_state_event (GtkWidget *mw, GdkEventWindowState *event
 {
     gint x, y;
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (event->new_window_state)
     {
         case GDK_WINDOW_STATE_MAXIMIZED:    // not usable
@@ -672,11 +691,17 @@ static gboolean on_window_state_event (GtkWidget *mw, GdkEventWindowState *event
                 gnome_cmd_data.main_win_state == GDK_WINDOW_STATE_FULLSCREEN)
                 break;  // not usable
 
+#if defined (__GNUC__) && __GNUC__ >= 7
+        __attribute__ ((fallthrough));
+#endif
         default:            // other are usable
             gdk_window_get_root_origin (mw->window, &x, &y);
             gnome_cmd_data_set_main_win_pos (x, y);
     }
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     gnome_cmd_data.main_win_state = event->new_window_state;
 
     return FALSE;
@@ -771,13 +796,14 @@ static void init (GnomeCmdMainWin *mw)
     mw->priv->menubar = gnome_cmd_main_menu_new ();
     g_object_ref (mw->priv->menubar);
     g_object_set_data_full (*mw, "vbox", mw->priv->menubar, g_object_unref);
-    gtk_widget_show (mw->priv->menubar);
+    if(gnome_cmd_data.mainmenu_visibility)
+		gtk_widget_show (mw->priv->menubar);
     gtk_box_pack_start (GTK_BOX (mw->priv->vbox), mw->priv->menubar, FALSE, TRUE, 0);
     gtk_box_pack_start (GTK_BOX (mw->priv->vbox), create_separator (FALSE), FALSE, TRUE, 0);
 
     gnome_app_set_contents (GNOME_APP (mw), mw->priv->vbox);
 
-    mw->priv->paned = gnome_cmd_data.list_orientation ? gtk_vpaned_new () : gtk_hpaned_new ();
+    mw->priv->paned = gnome_cmd_data.horizontal_orientation ? gtk_vpaned_new () : gtk_hpaned_new ();
 
     g_object_ref (mw->priv->paned);
     g_object_set_data_full (*mw, "paned", mw->priv->paned, g_object_unref);
@@ -797,7 +823,7 @@ static void init (GnomeCmdMainWin *mw)
     gtk_widget_show (mw->priv->file_selector[RIGHT]);
     gtk_paned_pack2 (GTK_PANED (mw->priv->paned), mw->priv->file_selector[RIGHT], TRUE, TRUE);
 
-    mw->update_toolbar_visibility();
+    mw->update_show_toolbar();
     mw->update_cmdline_visibility();
     mw->update_buttonbar_visibility();
 
@@ -838,7 +864,7 @@ GtkType gnome_cmd_main_win_get_type ()
     {
         GtkTypeInfo mw_info =
         {
-            "GnomeCmdMainWin",
+            (gchar*) "GnomeCmdMainWin",
             sizeof (GnomeCmdMainWin),
             sizeof (GnomeCmdMainWinClass),
             (GtkClassInitFunc) class_init,
@@ -861,12 +887,12 @@ FileSelectorID GnomeCmdMainWin::fs() const
 }
 
 
-FileSelectorID GnomeCmdMainWin::fs(GnomeCmdFileSelector *fs) const
+FileSelectorID GnomeCmdMainWin::fs(GnomeCmdFileSelector *fselector) const
 {
-    if (!priv->file_selector[LEFT] || priv->file_selector[LEFT]==*fs)
+    if (!priv->file_selector[LEFT] || priv->file_selector[LEFT]==*fselector)
         return LEFT;
 
-    if (!priv->file_selector[RIGHT] || priv->file_selector[RIGHT]==*fs)
+    if (!priv->file_selector[RIGHT] || priv->file_selector[RIGHT]==*fselector)
         return RIGHT;
 
     g_assert_not_reached();
@@ -895,6 +921,13 @@ GnomeCmdFileSelector *GnomeCmdMainWin::fs(FileSelectorID id) const
        default:
             return NULL;
     }
+}
+
+
+void GnomeCmdMainWin::update_view()
+{
+    gnome_cmd_style_create (gnome_cmd_data.options);
+    update_style();
 }
 
 
@@ -938,6 +971,8 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                 if (gnome_cmd_data.cmdline_visibility)
                     gnome_cmd_cmdline_show_history (GNOME_CMD_CMDLINE (priv->cmdline));
                 return TRUE;
+            default:
+                break;
         }
     }
     else if (state_is_ctrl_shift (event->state))
@@ -947,10 +982,10 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
             case GDK_H:
             case GDK_h:
                 gnome_cmd_data.options.filter.hidden = !gnome_cmd_data.options.filter.hidden;
-                gnome_cmd_style_create (gnome_cmd_data.options);
-                update_style();
                 gnome_cmd_data.save();
                 return TRUE;
+            default:
+                break;
         }
     }
     else if (state_is_ctrl (event->state))
@@ -995,6 +1030,9 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                     clear_event_key (event);
                 }
                 return TRUE;
+
+            default:
+                break;
         }
     }
     else if (state_is_alt_shift (event->state))
@@ -1014,6 +1052,9 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                 fs(ACTIVE)->set_connection(GNOME_CMD_CON (con));
             }
             break;
+
+            default:
+                break;
         }
     }
     else
@@ -1062,13 +1103,16 @@ gboolean GnomeCmdMainWin::key_pressed(GdkEventKey *event)
                 case GDK_F9:
                     on_search_clicked (NULL, this);
                     return TRUE;
+
+                default:
+                    break;
             }
 
     return fs(ACTIVE)->key_pressed(event);
 }
 
 
-inline void GnomeCmdMainWin::open_tabs(FileSelectorID id)
+void GnomeCmdMainWin::open_tabs(FileSelectorID id)
 {
     GnomeCmdCon *home = get_home_con ();
 
@@ -1085,31 +1129,31 @@ inline void GnomeCmdMainWin::open_tabs(FileSelectorID id)
 }
 
 
-void GnomeCmdMainWin::switch_fs(GnomeCmdFileSelector *fs)
+void GnomeCmdMainWin::switch_fs(GnomeCmdFileSelector *fselector)
 {
-    g_return_if_fail (GNOME_CMD_IS_FILE_SELECTOR (fs));
+    g_return_if_fail (GNOME_CMD_IS_FILE_SELECTOR (fselector));
 
-    g_signal_emit (this, signals[SWITCH_FS], 0, fs);
+    g_signal_emit (this, signals[SWITCH_FS], 0, fselector);
 }
 
 
 void GnomeCmdMainWin::change_connection(FileSelectorID id)
 {
-    GnomeCmdFileSelector *fs = this->fs(id);
+    GnomeCmdFileSelector *fselector = this->fs(id);
 
-    switch_fs(fs);
-    if (gnome_cmd_data.concombo_visibility)
-        fs->con_combo->popup_list();
+    switch_fs(fselector);
+    if (gnome_cmd_data.show_devlist)
+        fselector->con_combo->popup_list();
 }
 
 
 void GnomeCmdMainWin::set_fs_directory_to_opposite(FileSelectorID fsID)
 {
-    GnomeCmdFileSelector *fs =  this->fs(fsID);
+    GnomeCmdFileSelector *fselector =  this->fs(fsID);
     GnomeCmdFileSelector *other = this->fs(!fsID);
 
     GnomeCmdDir *dir = other->get_directory();
-    gboolean fs_is_active = fs->is_active();
+    gboolean fs_is_active = fselector->is_active();
 
     if (!fs_is_active)
     {
@@ -1119,13 +1163,13 @@ void GnomeCmdMainWin::set_fs_directory_to_opposite(FileSelectorID fsID)
             dir = GNOME_CMD_IS_DIR (file) ? GNOME_CMD_DIR (file) : gnome_cmd_dir_new_from_info (file->info, dir);
     }
 
-    if (fs->file_list()->locked)
-        fs->new_tab(dir);
+    if (fselector->file_list()->locked)
+        fselector->new_tab(dir);
     else
-        fs->file_list()->set_connection(other->get_connection(), dir);
+        fselector->file_list()->set_connection(other->get_connection(), dir);
 
     other->set_active(!fs_is_active);
-    fs->set_active(fs_is_active);
+    fselector->set_active(fs_is_active);
 }
 
 
@@ -1158,7 +1202,7 @@ void GnomeCmdMainWin::update_bookmarks()
 }
 
 
-void GnomeCmdMainWin::update_toolbar_visibility()
+void GnomeCmdMainWin::update_show_toolbar()
 {
     static GnomeUIInfo toolbar_uiinfo[] =
     {
@@ -1184,7 +1228,7 @@ void GnomeCmdMainWin::update_toolbar_visibility()
         GNOMEUIINFO_END
     };
 
-    if (gnome_cmd_data.toolbar_visibility)
+    if (gnome_cmd_data.show_toolbar)
     {
         create_toolbar (this, toolbar_uiinfo);
         gtk_box_pack_start (GTK_BOX (priv->vbox), priv->toolbar, FALSE, TRUE, 0);
@@ -1236,7 +1280,7 @@ void GnomeCmdMainWin::update_cmdline_visibility()
         g_object_ref (priv->cmdline);
         g_object_set_data_full (*this, "cmdline", priv->cmdline, g_object_unref);
         gtk_widget_show (priv->cmdline);
-        if (gnome_cmd_data.toolbar_visibility)
+        if (gnome_cmd_data.show_toolbar)
             pos += 2;
         gtk_box_pack_start (GTK_BOX (priv->vbox), priv->cmdline_sep, FALSE, TRUE, 0);
         gtk_box_pack_start (GTK_BOX (priv->vbox), priv->cmdline, FALSE, TRUE, 1);
@@ -1255,7 +1299,7 @@ void GnomeCmdMainWin::update_cmdline_visibility()
 }
 
 
-void GnomeCmdMainWin::update_list_orientation()
+void GnomeCmdMainWin::update_horizontal_orientation()
 {
     gint pos = 2;
 
@@ -1266,7 +1310,7 @@ void GnomeCmdMainWin::update_list_orientation()
 
     gtk_object_destroy (GTK_OBJECT (priv->paned));
 
-    priv->paned = gnome_cmd_data.list_orientation ? gtk_vpaned_new () : gtk_hpaned_new ();
+    priv->paned = gnome_cmd_data.horizontal_orientation ? gtk_vpaned_new () : gtk_hpaned_new ();
 
     g_object_ref (priv->paned);
     g_object_set_data_full (*this, "paned", priv->paned, g_object_unref);
@@ -1275,7 +1319,7 @@ void GnomeCmdMainWin::update_list_orientation()
     gtk_paned_pack1 (GTK_PANED (priv->paned), priv->file_selector[LEFT], TRUE, TRUE);
     gtk_paned_pack2 (GTK_PANED (priv->paned), priv->file_selector[RIGHT], TRUE, TRUE);
 
-    if (gnome_cmd_data.toolbar_visibility)
+    if (gnome_cmd_data.show_toolbar)
         pos += 2;
 
     gtk_box_pack_start (GTK_BOX (priv->vbox), priv->paned, TRUE, TRUE, 0);
@@ -1286,6 +1330,19 @@ void GnomeCmdMainWin::update_list_orientation()
 
     g_signal_connect (priv->paned, "button-press-event", G_CALLBACK (on_slide_button_press), this);
     slide_set_50_50 (NULL, NULL);
+}
+
+
+void GnomeCmdMainWin::update_mainmenu_visibility()
+{
+    if (gnome_cmd_data.mainmenu_visibility)
+    {
+        gtk_widget_show (priv->menubar);
+    }
+    else
+    {
+        gtk_widget_hide (priv->menubar);
+    }
 }
 
 

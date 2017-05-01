@@ -2,7 +2,7 @@
  * @file gnome-cmd-file-props-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ struct GnomeCmdFilePropsDialogPrivate
     GtkWidget *dialog;
     GnomeCmdFile *f;
     GThread *thread;
-    GMutex *mutex;
+    GMutex mutex;
     gboolean count_done;
     gchar *msg;
     guint updater_proc_id;
@@ -113,10 +113,10 @@ static void calc_tree_size_r (GnomeCmdFilePropsDialogPrivate *data, GnomeVFSURI 
     if (data->stop)
         g_thread_exit (NULL);
 
-    g_mutex_lock (data->mutex);
+    g_mutex_lock (&data->mutex);
     g_free (data->msg);
     data->msg = create_nice_size_str (data->size);
-    g_mutex_unlock (data->mutex);
+    g_mutex_unlock (&data->mutex);
 }
 
 
@@ -153,10 +153,10 @@ static void on_dialog_destroy (GtkDialog *dialog, GnomeCmdFilePropsDialogPrivate
 
 static gboolean update_count_status (GnomeCmdFilePropsDialogPrivate *data)
 {
-    g_mutex_lock (data->mutex);
+    g_mutex_lock (&data->mutex);
     if (data->size_label)
         gtk_label_set_text (GTK_LABEL (data->size_label), data->msg);
-    g_mutex_unlock (data->mutex);
+    g_mutex_unlock (&data->mutex);
 
     if (data->count_done)
     {
@@ -176,7 +176,7 @@ static void do_calc_tree_size (GnomeCmdFilePropsDialogPrivate *data)
     data->size = 0;
     data->count_done = FALSE;
 
-    data->thread = g_thread_create ((PthreadFunc) calc_tree_size_func, data, TRUE, NULL);
+    data->thread = g_thread_new (NULL, (PthreadFunc) calc_tree_size_func, data);
 
     data->updater_proc_id = g_timeout_add (gnome_cmd_data.gui_update_rate, (GSourceFunc) update_count_status, data);
 }
@@ -209,15 +209,11 @@ static void on_dialog_ok (GtkButton *btn, GnomeCmdFilePropsDialogPrivate *data)
 
     if (result == GNOME_VFS_OK)
     {
+        
         uid_t uid = gnome_cmd_chown_component_get_owner (GNOME_CMD_CHOWN_COMPONENT (data->chown_component));
         gid_t gid = gnome_cmd_chown_component_get_group (GNOME_CMD_CHOWN_COMPONENT (data->chown_component));
 
-        if (uid == data->f->info->uid)
-            uid = -1;
-        if (gid == data->f->info->gid)
-            gid = -1;
-
-        if (uid != -1 || gid != -1)
+        if (uid != data->f->info->uid || gid != data->f->info->gid)
             result = data->f->chown(uid,gid);
     }
 
@@ -290,7 +286,7 @@ inline void add_sep (GtkWidget *table, gint y)
 }
 
 
-inline void add_tag (GtkWidget *dialog, GtkWidget *table, gint &y, GnomeCmdFileMetadata &metadata, GnomeCmdTag tag, const gchar *appended_text=NULL)
+static void add_tag (GtkWidget *dialog, GtkWidget *table, gint &y, GnomeCmdFileMetadata &metadata, GnomeCmdTag tag, const gchar *appended_text=NULL)
 {
     if (!metadata.has_tag (tag))
         return;
@@ -332,14 +328,12 @@ inline void add_width_height_tag (GtkWidget *dialog, GtkWidget *table, gint &y, 
 }
 
 
-inline GtkWidget *create_properties_tab (GnomeCmdFilePropsDialogPrivate *data)
+static GtkWidget *create_properties_tab (GnomeCmdFilePropsDialogPrivate *data)
 {
     gint y = 0;
     GtkWidget *dialog = data->dialog;
     GtkWidget *table;
     GtkWidget *label;
-    GtkWidget *hbox;
-    GtkWidget *btn;
     gchar *fname;
 
     GtkWidget *space_frame = create_space_frame (dialog, 6);
@@ -439,6 +433,8 @@ inline GtkWidget *create_properties_tab (GnomeCmdFilePropsDialogPrivate *data)
 
     if (data->f->info->type != GNOME_VFS_FILE_TYPE_DIRECTORY)
     {
+        GtkWidget *hbox;
+
         label = create_bold_label (dialog, _("Opens with:"));
         table_add (table, label, 0, y, GTK_FILL);
 
@@ -489,7 +485,8 @@ inline GtkWidget *create_properties_tab (GnomeCmdFilePropsDialogPrivate *data)
 
     data->size_label = label;
 
-    gcmd_tags_bulk_load (data->f);
+    if (data->f->info->type != GNOME_VFS_FILE_TYPE_CHARACTER_DEVICE) 
+        gcmd_tags_bulk_load (data->f);
 
     if (data->f->metadata)
     {
@@ -559,7 +556,7 @@ static GtkTreeModel *create_and_fill_model (GnomeCmdFile *f)
                                                   G_TYPE_STRING,
                                                   G_TYPE_STRING);
 
-    if (!gcmd_tags_bulk_load (f))
+    if (f->info->type == GNOME_VFS_FILE_TYPE_CHARACTER_DEVICE || !gcmd_tags_bulk_load (f))
         return GTK_TREE_MODEL (treestore);
 
     GnomeCmdTagClass prev_tagclass = TAG_NONE_CLASS;
@@ -697,7 +694,7 @@ GtkWidget *gnome_cmd_file_props_dialog_create (GnomeCmdFile *f)
     data->dialog = GTK_WIDGET (dialog);
     data->f = f;
     data->uri = f->get_uri();
-    data->mutex = g_mutex_new ();
+    g_mutex_init(&data->mutex);
     data->msg = NULL;
     data->notebook = notebook;
     f->ref();

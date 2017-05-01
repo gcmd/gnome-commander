@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,17 +22,18 @@
  */
 
 #include "gtest/gtest.h"
-#include <iv_fileops_test.h>
+#include <libgviewer.h>
+#include <gvtypes.h>
+#include <fileops.h>
 
-FileOpsTest::FileOpsTest() {}
-FileOpsTest::~FileOpsTest() {}
+// The fixture for testing class FileOpsTest.
+class FileOpsTest : public ::testing::Test {};
 
 TEST_F(FileOpsTest, gv_file_get_byte_does_read) {
-    const char *file_path = "../INSTALL";
+    const char *file_path = "../README";
     ViewerFileOps *fops;
     offset_type end;
     offset_type current;
-    int value;
 
     fops = gv_fileops_new();
 
@@ -42,7 +43,7 @@ TEST_F(FileOpsTest, gv_file_get_byte_does_read) {
 
     for (current = 0; current < end; current++)
     {
-        value = gv_file_get_byte(fops, current);
+        int value = gv_file_get_byte(fops, current);
         ASSERT_TRUE (0 <= value && value <= 255 );
     }
 

@@ -2,7 +2,7 @@
  * @file gnome-cmd-convert.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include "gnome-cmd-includes.h"
 #include "utils.h"
+#include "gnome-cmd-convert.h"
 
 using namespace std;
 
@@ -199,8 +200,8 @@ gchar *gcmd_convert_sentence_case (gchar *string)
             strncpy (word, utf8_character, g_unichar_to_utf8 (g_unichar_toupper (c), utf8_character));
 
             // Set lowercase the first character of this word if found in the exempt words list
-            for (gint i=0; exempt[i]!=NULL; ++i)
-                if (g_ascii_strncasecmp (exempt[i], word, strlen (exempt[i])) == 0)
+            for (gint ii=0; exempt[ii]!=NULL; ++ii)
+                if (g_ascii_strncasecmp (exempt[ii], word, strlen (exempt[ii])) == 0)
                 {
                     c = g_utf8_get_char (word);
                     strncpy (word, utf8_character, g_unichar_to_utf8 (g_unichar_tolower (c), utf8_character));

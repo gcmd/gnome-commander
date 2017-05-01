@@ -2,9 +2,9 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
   <!ENTITY author "Uwe Scholz">
   <!ENTITY legal SYSTEM "legal.xml">
-  <!ENTITY appversion "1.4.1">
-  <!ENTITY manrevision "1.4.1">
-  <!ENTITY date "??? 2014">
+  <!ENTITY appversion "1.8.0">
+  <!ENTITY manrevision "1.8.0">
+  <!ENTITY date "??? 2016">
   <!ENTITY app "GNOME Commander">
 ]>
 <!-- Information about the entities
@@ -39,6 +39,9 @@
       <holder>Piotr Eljasiak</holder>
     </copyright>
     <copyright>
+      <year>2017</year>
+      <year>2016</year>
+      <year>2015</year>
       <year>2014</year>
       <year>2013</year>
       <holder>Uwe Scholz</holder>
@@ -326,7 +329,88 @@
       </revision>
       <revision>
         <revnumber>GNOME Commander Manual V1.4.1;</revnumber>
-        <date>2014-???-???</date>
+        <date>2014-04-05</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.4.2;</revnumber>
+        <date>2014-05-23</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.4.3;</revnumber>
+        <date>2014-06-22</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.4.4;</revnumber>
+        <date>2014-11-11</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.4.5;</revnumber>
+        <date>2015-01-24</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.4.6;</revnumber>
+        <date>2015-05-19</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.4.7;</revnumber>
+        <date>2014-05-30</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.4.8;</revnumber>
+        <date>2016-03-14</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.6.0;</revnumber>
+        <date>2016-10-04</date>
+        <revdescription>
+          <para role="author">Uwe Scholz
+                <email>u.scholz83@gmx.de</email></para>
+          <para role="publisher">GNOME Documentation Project</para>
+        </revdescription>
+      </revision>
+      <revision>
+        <revnumber>GNOME Commander Manual V1.8.0;</revnumber>
+        <date>2017-??-??</date>
         <revdescription>
           <para role="author">Uwe Scholz
                 <email>u.scholz83@gmx.de</email></para>
@@ -338,7 +422,7 @@
     <legalnotice>
       <title>Feedback</title>
       <para>To report a bug or make a suggestion regarding the &app; application or
-      this manual, follow the directions in the <ulink type="help" url="ghelp:gnome-feedback">GNOME Feedback Page</ulink>.
+      this manual, follow the directions in the <ulink type="help" url="help:gnome-feedback">GNOME Feedback Page</ulink>.
       </para>
 
 
@@ -874,7 +958,7 @@
         </listitem>
       </itemizedlist>
       <note>
-        <para>The first Three options will allow you to move into another application than &app;.</para>
+        <para>With the first three options it is possible to move marked items into another application.</para>
       </note>
     </sect2>
     <!-- ================ Renaming Files Subsection ======================= -->
@@ -4904,19 +4988,6 @@
                 containing the custom icons here.</para>
               </entry>
             </row>
-            <row>
-              <entry>
-                <para/>
-                <guilabel/>
-              </entry>
-              <entry colname="colspec2">
-                <para>Document icon directory</para>
-              </entry>
-              <entry colname="colspec3">
-                <para>If you wish to customize the document icons select the folder
-                containing the new document icons here.</para>
-              </entry>
-            </row>
           </tbody>
         </tgroup>
       </table>
@@ -6157,6 +6228,11 @@
             <entry><para></para></entry>
         </row>
         <row valign="top">
+            <entry><para><keycombo><keycap>F12</keycap></keycombo></para></entry>
+            <entry><para>Display main menu</para></entry>
+            <entry><para>yes</para></entry>
+        </row>
+        <row valign="top">
             <entry><para></para></entry>
             <entry><para></para></entry>
             <entry><para></para></entry>
@@ -6871,6 +6947,10 @@
                         <entry><para>Delete files</para></entry>
                     </row>
                     <row valign="top">
+                        <entry><para>Display main menu</para></entry>
+                        <entry><para>Display main menu</para></entry>
+                    </row>
+                    <row valign="top">
                         <entry><para>Do nothing</para></entry>
                         <entry><para>Do nothing (use to block key bindings)</para></entry>
                     </row>
@@ -7136,7 +7216,65 @@
     </sect2>
   </sect1>
 
-<!-- ============= Plugins ================================ -->
+<!-- ================= Additional Popup Menu Actions ================= -->
+<!-- This section contains info about the simple plugin system of gcmd.-->
+  <sect1 id="popup-menu-actions">
+    <title>Additional Pop-up Menu Actions</title>
+    <sect2 id="popup-menu-actions-introduction">
+        <title>Introduction</title>
+        <para>
+            The pop-up menu of &app;, which can be opened by right-clicking on a file or folder or by pressing
+            <keycombo><keycap>SHIFT</keycap><keycap>F10</keycap></keycombo>, can be easily extended by putting executable files into
+            <guilabel>~/.gnome-commander/scripts/</guilabel>. For each file in this directory a separate entry in the pop-up menu will be displayed.
+            When such a menu entry is clicked, the associated script will be executed with the names of all selected items as arguments. When the
+            <keycap>SHIFT</keycap> key is pressed while clicking the pop-up menu entry, the script will be called separately for each selected file.
+        </para>
+        <figure id="popup-menu-actions-example-fig">
+            <title>Example picture of the pop-up menu with four additional entries</title>
+            <screenshot>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="figures/gnome-commander_simple_plugins_example.png" format="PNG"/>
+                    </imageobject>
+                </mediaobject>
+            </screenshot>
+        </figure>
+    </sect2>
+    <sect2 id="popup-menu-actions-file-format">
+        <title>File format</title>
+        <para>
+            The files can be binary or simple text files. In the latter case it is possible to handle some config variables over to &app;
+            by using a key-value format: <guilabel>#[key]: [value]</guilabel>, with '#' being the first character in a text line.
+        </para>
+        <para>Currently, the following keys are implemented:</para>
+        <informaltable frame="topbot">
+            <tgroup cols='3'>
+                <colspec colname="Key"/>
+                <colspec colname="Description"/>
+                <colspec colname="Comment"/>
+                <tbody>
+                    <row valign="top">
+                        <entry><para>name</para></entry>
+                        <entry><para>The label of the menu item</para></entry>
+                        <entry><para>If undefined, the script file name will be used</para></entry>
+                    </row>
+                    <row valign="top">
+                        <entry><para>term</para></entry>
+                        <entry><para>Run the script in a terminal window</para></entry>
+                        <entry><para>To activate this, set value to 'true'</para></entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </sect2>
+    <sect2 id="popup-menu-actions-examples">
+        <title>Example Pop-up menu scripts</title>
+        <para>Some example scripts can be found <ulink url="https://git.gnome.org/browse/gnome-commander/tree/gcmd-scripts" type="https">online</ulink> in
+        the &app; git repository.</para>
+    </sect2>
+  </sect1>
+
+<!-- ============= Python Plugins ================================ -->
 <!-- This section contains info about the python plugins.-->
   <sect1 id="gnome-commander-python-plugins">
     <title>Python Plugins</title>
@@ -7384,33 +7522,6 @@
             </listitem>
           </itemizedlist>
 	</sect2>
-	<sect2 id="gnome-commander-nautilus-theme">
-	  <title>Using Nautilus icon theme</title>
-          <warning>
-            <para>This is outdated info since Nautilus and later GNOME versions no longer use these kind of themes.</para>
-          </warning>
-          <para>The default icon theme that comes with &app; lacks icons for a lot of file types and only looks good at icon size 16.
-              There are other themes around though, that are more complete and looks better in bigger sizes.
-              Unscalable Gorilla by Jimmac is one example and can be used in &app; by following these steps:</para>
-          <itemizedlist>
-            <listitem>
-              <para>Download the theme.</para>
-            </listitem>
-            <listitem>
-              <para>Unpack the theme to where ever you want.</para>
-            </listitem>
-            <listitem>
-              <para>Start &app; open the <guimenu>Options</guimenu> dialog. In the <guimenuitem>Layout</guimenuitem> tab set
-        the Theme icon directory to be the folder where you extracted Unscalable Gorilla. Also change Row height
-        and Icon size to 20 or some other size that you like. When you&apos;re done also make sure that
-        the Graphical mode is set to MIME icons.</para>
-            </listitem>
-            <listitem>
-              <para>When you now close the <guimenu>Options</guimenu> dialog the file listings should refresh
-              and you should see Unscalable Gorilla being used.</para>
-            </listitem>
-          </itemizedlist>
-	</sect2>
 	<sect2 id="gnome-commander-mime-types">
 	  <title>Handling MIME types</title>
 	  <note><para>Since GNOME has changed to follow the freedesktop.org standard of handling mimetypes, the editing 
@@ -7430,6 +7541,10 @@
 	      <para>To copy full paths of selected files to the environment's clipboard, hold down 
 	      <keycap>SHIFT</keycap> while activating either the Copy File Names action on the <guimenu>Edit</guimenu> 
 	      menu or the "**" icon on the toolbar.</para>
+            </listitem>
+            <listitem>
+	      <para>To copy the full path of the current directory, right click on the directory indicator at the top
+          of the directory list.</para>
             </listitem>
             <listitem>
 	      <para>To insert the current file's path in Gnome Commander's command line, press 
@@ -7523,553 +7638,13 @@
           <para/>
         </listitem>
       </varlistentry>
-      <varlistentry>
-        <term>
-          <guilabel>~/.gnome2/gnome-commander</guilabel>
-        </term>
-        <listitem>
-          <para>
-            <informaltable frame="topbot">
-                        <tgroup cols="5">
-                            <colspec colname="col1"/>
-                            <colspec colname="col2"/>
-                            <colspec colname="col3"/>
-                            <colspec colname="col4"/>
-                            <colspec colname="col5"/>
-                            <thead>
-                                <row valign="top">
-                                    <entry colname="col1" colsep="0" valign="top"><para>Section</para></entry>
-                                    <entry colname="col2" valign="top"><para>Key</para></entry>
-                                    <entry colname="col3" valign="top"><para>Type</para></entry>
-                                    <entry colname="col4" valign="top"><para>Value</para></entry>
-                                    <entry colname="col5" valign="top"><para>Refer to</para></entry>
-                                </row>
-                            </thead>
-                            <tbody>
-                                <row valign="top">
-                                    <entry><para>[network]</para></entry>
-                                    <entry><para>ftp_anonymous_password</para></entry>
-                                    <entry><para>string</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[options]</para></entry>
-                                    <entry><para>backup_filter</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>btn_relief</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>cmdline_history_length</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>cmdline_visibility</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para>Show commandline.</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>conbuttons_visibility</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para>Show connection/device buttons.</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>con_list_visibility</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para>Show connection/device list.</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>date_disp_mode</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>dir_cache_size</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>document_icon_dir</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>ext_disp_mode</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>hidden_filter</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>icon_size</para></entry>
-                                    <entry><para>integer</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>dev_icon_size</para></entry>
-                                    <entry><para>integer</para></entry>
-                                    <entry><para>Size of device icons. Defaults to 16.</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>icon_scale_quality</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>layout</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>list_font</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>list_orientation</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>list_row_height</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>main_win_pos_x</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>main_win_pos_y</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>perm_disp_mode</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>left_mouse_button_mode</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>left_mouse_button_unselects</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>right_mouse_button_mode</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>select_dirs</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_block_device</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_char_device</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_directory</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_fifo</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_regular</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_socket</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_symbolic_link</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_toolbar</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>show_unknown</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>size_disp_mode</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>symlink_prefix</para></entry>
-                                    <entry><para>string</para></entry>
-                                    <entry><para>Empty value means 'use "link to %s" for symlink'
-                                                (or translation if available), other values = use given string
-                                                for symlink name.
-                                                <note>
-                                                  <para>"%s" is crucial here - it is expanded to original filename.</para>
-                                                </note>
-                                    </para></entry>
-                                    <entry><para><xref linkend="gnome-commander-symbolic-links"/></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>theme_icon_dir</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[sort]</para></entry>
-                                    <entry><para>case_sensitive</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[confirm]</para></entry>
-                                    <entry><para>delete</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>confirm_mouse_dnd</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para>If enabled, confirm drag &amp; drop operations</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[colors]</para></entry>
-                                    <entry><para>curs_bg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Cursor background</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>curs_fg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Cursor foreground</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>mode</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>norm_bg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Current background</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>norm_fg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Current foreground</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>alt_bg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Alternate background</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>alt_fg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Alternate foreground</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>sel_bg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Selected background</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>sel_fg</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para>Selected foreground</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>use_ls_colors</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para>Colorize files according to the LS_COLORS environment variable. Defaults to FALSE.</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[programs]</para></entry>
-                                    <entry><para>buttonbar_visibility</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>differ</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>editor</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>honor_expect_uris</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>always_show_tabs</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para><xref linkend="gnome-commander-prefs-tabs"/></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>tab_lock_indicator</para></entry>
-                                    <entry><para>integer</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para><xref linkend="gnome-commander-prefs-tabs"/></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>allow_multiple_instances</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>skip_mounting</para></entry>
-                                    <entry><para>boolean</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>terminal</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>toolbar_visibility</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>use_internal_viewer</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>viewer</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[devices]</para></entry>
-                                    <entry><para>only_icon</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[quick-connect]</para></entry>
-                                    <entry><para>uri</para></entry>
-                                    <entry><para>string</para></entry>
-                                    <entry><para>URI for the last entered location.</para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[defaults]</para></entry>
-                                    <entry><para>backup_pattern</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[local_bookmarks]</para></entry>
-                                    <entry><para>count</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>name<emphasis><subscript>n</subscript></emphasis></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>path<emphasis><subscript>n</subscript></emphasis></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[smb_bookmarks]</para></entry>
-                                    <entry><para>count</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[plugins]</para></entry>
-                                    <entry><para>auto_load<emphasis><subscript>n</subscript></emphasis></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para></para></entry>
-                                    <entry><para>count</para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                    <entry><para></para></entry>
-                                </row>
-                                <row valign="top">
-                                    <entry><para>[key-bindings]</para></entry>
-                                    <entry><para>[&lt;shift&gt;][&lt;control&gt;][&lt;alt&gt;][&lt;win&gt;]<emphasis>key_name</emphasis></para></entry>
-                                    <entry><para>string</para></entry>
-                                    <entry><para><command>action[|options]</command></para></entry>
-                                    <entry><para><xref linkend="gnome-commander-user-actions"/></para></entry>
-                                </row>
-                </tbody>
-              </tgroup>
-            </informaltable>
-          </para>
-        </listitem>
-      </varlistentry>
     </variablelist>
+    <note>
+        <para>
+            Since &app; version  1.6.0 the options file <guilabel>~/.gnome2/gnome-commander</guilabel> is obsolete.
+            The settings of this file are now stored in GSettings under the path <guilabel>org.gnome.gnome-commander</guilabel>.
+        </para>
+    </note>
   </sect1>
 
 <xi:include href="releases.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
@@ -8147,8 +7722,8 @@
       General Public license as published by the Free Software
       Foundation; either version 2 of the License, or (at your option)
       any later version. A copy of this license can be found at this
-      <ulink type="help" url="ghelp:gpl">link</ulink>, or in the file
-      COPYING included with the source code of this program.</para>
+      <ulink type="http" url="https://www.gnu.org/licenses/gpl-2.0.html">link</ulink>,
+      or in the file COPYING included with the source code of this program.</para>
     </sect2>
   </sect1>
 </article>

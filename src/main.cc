@@ -2,7 +2,7 @@
  * @file main.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,11 @@ extern "C"
 }
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <locale.h>
+#ifdef HAVE_UNIQUE
 #include <unique/unique.h>
+#endif
 #include <libgnomeui/gnome-ui-init.h>
 
 #include "gnome-cmd-includes.h"
@@ -53,10 +56,6 @@ gchar *start_dir_right;
 gchar *config_dir;
 gchar *debug_flags;
 
-#ifdef HAVE_LOCALE_H
-struct lconv *locale_information;
-#endif
-
 extern gint created_files_cnt;
 extern gint deleted_files_cnt;
 extern int created_dirs_cnt;
@@ -73,8 +72,13 @@ static const GOptionEntry options [] =
 };
 
 
+#ifdef HAVE_UNIQUE
 static UniqueResponse on_message_received (UniqueApp *app, UniqueCommand cmd, UniqueMessageData *msg, guint t, gpointer  user_data)
 {
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (cmd)
     {
         case UNIQUE_ACTIVATE:
@@ -86,20 +90,24 @@ static UniqueResponse on_message_received (UniqueApp *app, UniqueCommand cmd, Un
         default:
             break;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     return UNIQUE_RESPONSE_OK;
 }
+#endif
 
 
 int main (int argc, char *argv[])
 {
     GnomeProgram *program;
     GOptionContext *option_context;
+#ifdef HAVE_UNIQUE
     UniqueApp *app;
+#endif
 
     main_win = NULL;
-
-    g_thread_init (NULL);
 
     if (!g_thread_supported ())
     {
@@ -107,17 +115,10 @@ int main (int argc, char *argv[])
         return 0;
     }
 
-#ifdef ENABLE_NLS
-    bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+    setlocale (LC_ALL, "");
+    bindtextdomain (PACKAGE, DATADIR "/locale");
     bind_textdomain_codeset (PACKAGE, "UTF-8");
     textdomain (PACKAGE);
-#endif
-
-#ifdef HAVE_LOCALE_H
-    if (setlocale(LC_ALL, "") == NULL)
-        g_warning ("Error while processing locales, call to setlocale failed");
-    locale_information = localeconv();
-#endif
 
     gnome_cmd_mime_config();
 
@@ -131,7 +132,7 @@ int main (int argc, char *argv[])
                                   GNOME_PARAM_NONE);
 
     if (debug_flags && strchr(debug_flags,'a'))
-        debug_flags = "cdfgiklmnpstuvwyzx";
+        debug_flags = g_strdup("cdfgiklmnpstuvwyzx");
 
     gdk_rgb_init ();
     gnome_vfs_init ();
@@ -140,16 +141,22 @@ int main (int argc, char *argv[])
     create_dir_if_needed (conf_dir);
     g_free (conf_dir);
 
+    /* Load Settings */
     IMAGE_init ();
     gcmd_user_actions.init();
+    gnome_cmd_data.migrate_all_data_to_gsettings();
     gnome_cmd_data.load();
 
+#ifdef HAVE_UNIQUE
     app = unique_app_new ("org.gnome.GnomeCommander", NULL);
+#endif
 
+#ifdef HAVE_UNIQUE
     if (!gnome_cmd_data.options.allow_multiple_instances && unique_app_is_running (app))
         unique_app_send_message (app, UNIQUE_ACTIVATE, NULL);
     else
     {
+#endif
         if (start_dir_left)
             gnome_cmd_data.tabs[LEFT].push_back(make_pair(string(start_dir_left),make_triple(GnomeCmdFileList::COLUMN_NAME,GTK_SORT_ASCENDING,FALSE)));
 
@@ -166,9 +173,10 @@ int main (int argc, char *argv[])
 
         main_win = new GnomeCmdMainWin;
         main_win_widget = *main_win;
-
+#ifdef HAVE_UNIQUE
         unique_app_watch_window (app, *main_win);
         g_signal_connect (app, "message-received", G_CALLBACK (on_message_received), NULL);
+#endif
 
         gtk_widget_show (*main_win);
         gcmd_owner.load_async();
@@ -191,12 +199,17 @@ int main (int argc, char *argv[])
         IMAGE_free ();
 
         remove_temp_download_dir ();
+#ifdef HAVE_UNIQUE
     }
+#endif
 
     gnome_vfs_shutdown ();
 
+#ifdef HAVE_UNIQUE
     g_object_unref (app);
+#endif
     g_object_unref (program);
+    g_free (debug_flags);
 
     DEBUG ('c', "dirs total: %d remaining: %d\n", created_dirs_cnt, created_dirs_cnt - deleted_dirs_cnt);
     DEBUG ('c', "files total: %d remaining: %d\n", created_files_cnt, created_files_cnt - deleted_files_cnt);

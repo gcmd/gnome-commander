@@ -2,7 +2,7 @@
  * @file gnome-cmd-xfer.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,10 +128,10 @@ create_xfer_data (GnomeVFSXferOptions xferOptions, GList *src_uri_list, GList *d
     // The async_xfer_callback-results for file and byte totals are not reliable
     if (xferOptions == GNOME_VFS_XFER_REMOVESOURCE) {
         GList *uris;
-        GnomeVFSURI *uri;
         data->bytes_total = 0;
         data->files_total = 0;
         for (uris = data->src_uri_list; uris != NULL; uris = uris->next) {
+            GnomeVFSURI *uri;
             uri = (GnomeVFSURI*)uris->data;
             data->bytes_total += calc_tree_size(uri,&(data->files_total));
         }
@@ -182,9 +182,9 @@ static gint async_xfer_callback (GnomeVFSAsyncHandle *handle, GnomeVFSXferProgre
 
     if (info->status == GNOME_VFS_XFER_PROGRESS_STATUS_OVERWRITE)
     {
-	gchar *s = NULL;
-	// Check if the src uri is from local ('file:///...'). If not, just use the base name.
-	if ( !(s = gnome_vfs_get_local_path_from_uri (info->source_name) )) s = str_uri_basename (info->source_name);
+    gchar *s = NULL;
+    // Check if the src uri is from local ('file:///...'). If not, just use the base name.
+    if ( !(s = gnome_vfs_get_local_path_from_uri (info->source_name) )) s = str_uri_basename (info->source_name);
         gchar *t = gnome_cmd_dir_is_local (data->to_dir) ? gnome_vfs_get_local_path_from_uri (info->target_name) : str_uri_basename (info->target_name);
 
         gchar *source_filename = get_utf8 (s);
@@ -196,8 +196,6 @@ static gint async_xfer_callback (GnomeVFSAsyncHandle *handle, GnomeVFSXferProgre
         gchar *source_details = file_details (info->source_name);
         gchar *target_details = file_details (info->target_name);
 
-	GtkWidget *msg;
-
         gchar *text = g_strdup_printf (_("Overwrite file:\n\n<b>%s</b>\n<span color='dimgray' size='smaller'>%s</span>\n\nWith:\n\n<b>%s</b>\n<span color='dimgray' size='smaller'>%s</span>"), target_filename, target_details, source_filename, source_details);
 
         g_free (source_filename);
@@ -208,8 +206,8 @@ static gint async_xfer_callback (GnomeVFSAsyncHandle *handle, GnomeVFSXferProgre
         gdk_threads_enter ();
 
         gint ret = run_simple_dialog (*main_win, FALSE, GTK_MESSAGE_QUESTION, text, " ",
-						 1, _("Abort"), _("Replace"), _("Replace All"), _("Skip"), _("Skip All"), NULL);
-	g_free(text);
+                         1, _("Abort"), _("Replace"), _("Replace All"), _("Skip"), _("Skip All"), NULL);
+        g_free(text);
 
         data->prev_status = GNOME_VFS_XFER_PROGRESS_STATUS_OVERWRITE;
         gdk_threads_leave ();
@@ -554,6 +552,10 @@ gnome_cmd_xfer_tmp_download_multiple (GList *src_uri_list,
                                    XFER_PRIORITY,
                                    (GnomeVFSAsyncXferProgressCallback) async_xfer_callback, data,
                                    NULL, NULL);
+    if (result != GNOME_VFS_OK)
+    {
+        DEBUG ('x', "Downloading could not be started properly as of wrong arguments in gnome_vfs_async_xfer()\n");
+    }
 
     g_timeout_add (gnome_cmd_data.gui_update_rate, (GSourceFunc) update_xfer_gui_func, data);
 }

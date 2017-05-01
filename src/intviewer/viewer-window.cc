@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
  *
  */
 
-#include <config.h>
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
@@ -39,7 +38,7 @@
 #include "gnome-cmd-treeview.h"
 #include "utils.h"
 #include "tags/gnome-cmd-tags.h"
-
+#include "gnome-cmd-data.h"
 
 using namespace std;
 
@@ -49,6 +48,55 @@ using namespace std;
 #define G_OBJ_BYTES_PER_LINE_KEY "bytesperline"
 #define G_OBJ_IMAGE_OP_KEY       "imageop"
 #define G_OBJ_EXTERNAL_TOOL_KEY  "exttool"
+
+#define GCMD_INTERNAL_VIEWER               "org.gnome.gnome-commander.preferences.internal-viewer"
+#define GCMD_GSETTINGS_IV_CHARSET          "charset"
+
+/***********************************
+ * Functions for using GSettings
+ ***********************************/
+
+struct _InternalViewerSettings
+{
+    GObject parent;
+    GSettings *internalviewer;
+};
+
+G_DEFINE_TYPE (InternalViewerSettings, iv_settings, G_TYPE_OBJECT)
+
+static void iv_settings_finalize (GObject *object)
+{
+    G_OBJECT_CLASS (iv_settings_parent_class)->finalize (object);
+}
+
+static void iv_settings_dispose (GObject *object)
+{
+    InternalViewerSettings *gs = GCMD_IV_SETTINGS (object);
+
+    g_clear_object (&gs->internalviewer);
+
+    G_OBJECT_CLASS (iv_settings_parent_class)->dispose (object);
+}
+
+static void iv_settings_class_init (InternalViewerSettingsClass *klass)
+{
+    GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+    object_class->finalize = iv_settings_finalize;
+    object_class->dispose = iv_settings_dispose;
+}
+
+InternalViewerSettings *iv_settings_new ()
+{
+    return (InternalViewerSettings *) g_object_new (INTERNAL_VIEWER_SETTINGS, NULL);
+}
+
+static void iv_settings_init (InternalViewerSettings *gs)
+{
+    gs->internalviewer = g_settings_new (GCMD_INTERNAL_VIEWER);
+}
+
+/***********************************/
 
 static GtkWindowClass *parent_class = NULL;
 
@@ -127,11 +175,9 @@ static void menu_settings_save_settings(GtkMenuItem *item, GViewerWindow *obj);
 static void menu_help_quick_help(GtkMenuItem *item, GViewerWindow *obj);
 static void menu_help_keyboard(GtkMenuItem *item, GViewerWindow *obj);
 
-static void set_zoom_best_fit(GViewerWindow *obj);
-
 inline GtkTreeModel *create_model ();
 inline void fill_model (GtkTreeStore *treestore, GnomeCmdFile *f);
-inline GtkWidget *create_view ();
+GtkWidget *create_view ();
 
 /*****************************************
     public functions
@@ -294,6 +340,8 @@ void gviewer_window_set_settings(GViewerWindow *obj, /*in*/ GViewerWindowSetting
         case 80:
             gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (obj->priv->fixed_limit_menu_items[2]), TRUE);
             break;
+        default:
+            break;
     }
 
     gviewer_set_wrap_mode(obj->priv->viewer, settings->wrap_mode);
@@ -390,6 +438,9 @@ static gboolean gviewer_window_key_pressed(GtkWidget *widget, GdkEventKey *event
         case GDK_KP_Subtract:
            menu_view_zoom_out(NULL, w);
            return TRUE;
+
+        default:
+           break;
     }
 
     if (state_is_ctrl(event->state))
@@ -407,6 +458,9 @@ static gboolean gviewer_window_key_pressed(GtkWidget *widget, GdkEventKey *event
             case GDK_W:
                 gtk_widget_destroy (GTK_WIDGET (w));
                 return TRUE;
+
+            default:
+                break;
         }
 
     if (state_is_shift(event->state))
@@ -415,6 +469,8 @@ static gboolean gviewer_window_key_pressed(GtkWidget *widget, GdkEventKey *event
             case GDK_F7:
                menu_edit_find_next(NULL, w);
                return TRUE;
+            default:
+                break;
         }
 
     if (state_is_alt(event->state))
@@ -424,6 +480,8 @@ static gboolean gviewer_window_key_pressed(GtkWidget *widget, GdkEventKey *event
             case GDK_KP_Enter:
                 gviewer_window_show_metadata(w);
                 return TRUE;
+            default:
+                break;
         }
 
     switch (state_is_blank(event->keyval))
@@ -439,6 +497,9 @@ static gboolean gviewer_window_key_pressed(GtkWidget *widget, GdkEventKey *event
         case GDK_F7:
            menu_edit_find(NULL, w);
            return TRUE;
+
+        default:
+           break;
     }
 
     return FALSE;
@@ -502,6 +563,10 @@ static GtkWidget *create_menu_item (MENUITEMTYPE type,
 {
     GtkWidget *menuitem;
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (type)
     {
         case MI_CHECK:
@@ -513,6 +578,9 @@ static GtkWidget *create_menu_item (MENUITEMTYPE type,
             menuitem = gtk_image_menu_item_new_with_mnemonic (_(name));
             break;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     if (pixmap_type != GNOME_APP_PIXMAP_NONE && pixmap_info != NULL)
     {
@@ -617,6 +685,9 @@ static void create_menu_items (GtkWidget *container, GtkAccelGroup *accel, gpoin
                                                   menudata->modifier,
                                                   menudata->callback, user_data);
                 }
+                break;
+
+            default:
                 break;
         }
 
@@ -1011,7 +1082,7 @@ static void menu_view_zoom_out(GtkMenuItem *item, GViewerWindow *obj)
             {
                int size = gviewer_get_font_size(obj->priv->viewer);
 
-               if (size==0 || size<4)  return;
+               if (size < 4)  return;
 
                size--;
                gviewer_set_font_size(obj->priv->viewer, size);
@@ -1097,9 +1168,6 @@ static void menu_edit_copy(GtkMenuItem *item, GViewerWindow *obj)
 
 static void start_find_thread(GViewerWindow *obj, gboolean forward)
 {
-    offset_type result;
-    GtkWidget *w;
-
     g_viewer_searcher_start_search(obj->priv->srchr, forward);
     gviewer_show_search_progress_dlg(GTK_WINDOW (obj),
                                      obj->priv->search_pattern,
@@ -1111,12 +1179,16 @@ static void start_find_thread(GViewerWindow *obj, gboolean forward)
 
     if (g_viewer_searcher_get_end_of_search(obj->priv->srchr))
     {
+        GtkWidget *w;
+
         w = gtk_message_dialog_new(GTK_WINDOW (obj), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, _("Pattern \"%s\" was not found"), obj->priv->search_pattern);
         gtk_dialog_run (GTK_DIALOG (w));
         gtk_widget_destroy (w);
     }
     else
     {
+        offset_type result;
+
         result = g_viewer_searcher_get_search_result(obj->priv->srchr);
         text_render_set_marker(gviewer_get_text_render(obj->priv->viewer),
                 result,
@@ -1246,29 +1318,32 @@ void gviewer_window_load_settings(/* out */ GViewerWindowSettings *settings)
 {
     g_return_if_fail (settings!=NULL);
 
-    gchar *temp = gviewer_get_string (GVIEWER_DEFAULT_PATH_PREFIX "charset", "UTF8");
+    InternalViewerSettings *iv_settings;
+    iv_settings = iv_settings_new();
+
+    gchar *temp = g_settings_get_string (iv_settings->internalviewer, GCMD_GSETTINGS_IV_CHARSET);
     strncpy(settings->charset, temp, sizeof(settings->charset));
     g_free (temp);
 
-    temp = gviewer_get_string (GVIEWER_DEFAULT_PATH_PREFIX "fixed_font_name", "Monospace");
+    temp = g_settings_get_string (iv_settings->internalviewer, GCMD_SETTINGS_IV_FIXED_FONT_NAME);
     strncpy(settings->fixed_font_name, temp, sizeof(settings->fixed_font_name));
     g_free (temp);
 
-    temp = gviewer_get_string (GVIEWER_DEFAULT_PATH_PREFIX "variable_font_name", "Sans");
+    temp = g_settings_get_string (iv_settings->internalviewer, GCMD_SETTINGS_IV_VARIABLE_FONT_NAME);
     strncpy(settings->variable_font_name, temp, sizeof(settings->variable_font_name));
     g_free (temp);
 
-    settings->hex_decimal_offset = gviewer_get_bool (GVIEWER_DEFAULT_PATH_PREFIX "hex_offset_display", TRUE);
-    settings->wrap_mode = gviewer_get_bool (GVIEWER_DEFAULT_PATH_PREFIX "wrap_mode", TRUE);
+    settings->hex_decimal_offset = g_settings_get_boolean (iv_settings->internalviewer, GCMD_SETTINGS_IV_DISPLAY_HEX_OFFSET);
+    settings->wrap_mode = g_settings_get_boolean (iv_settings->internalviewer, GCMD_SETTINGS_IV_WRAP_MODE);
 
-    settings->font_size = gviewer_get_int (GVIEWER_DEFAULT_PATH_PREFIX "font_size", 12);
-    settings->tab_size = gviewer_get_int (GVIEWER_DEFAULT_PATH_PREFIX "tab_size ", 8);
-    settings->binary_bytes_per_line = gviewer_get_int (GVIEWER_DEFAULT_PATH_PREFIX "binary_bytes_per_line", 80);
+    settings->font_size = g_settings_get_uint (iv_settings->internalviewer, GCMD_SETTINGS_IV_FONT_SIZE);
+    settings->tab_size = g_settings_get_uint (iv_settings->internalviewer, GCMD_SETTINGS_IV_TAB_SIZE);
+    settings->binary_bytes_per_line = g_settings_get_uint (iv_settings->internalviewer, GCMD_SETTINGS_IV_BINARY_BYTES_PER_LINE);
 
-    settings->rect.x = gviewer_get_int (GVIEWER_DEFAULT_PATH_PREFIX "x", -2);
-    settings->rect.y = gviewer_get_int (GVIEWER_DEFAULT_PATH_PREFIX "y", -2);
-    settings->rect.width = gviewer_get_int (GVIEWER_DEFAULT_PATH_PREFIX "width", -1);
-    settings->rect.height = gviewer_get_int (GVIEWER_DEFAULT_PATH_PREFIX "height", -1);
+    settings->rect.x = g_settings_get_int (iv_settings->internalviewer, GCMD_SETTINGS_IV_X_OFFSET);
+    settings->rect.y = g_settings_get_int (iv_settings->internalviewer, GCMD_SETTINGS_IV_Y_OFFSET);
+    settings->rect.width = g_settings_get_uint (iv_settings->internalviewer, GCMD_SETTINGS_IV_WINDOW_WIDTH);
+    settings->rect.height = g_settings_get_uint (iv_settings->internalviewer, GCMD_SETTINGS_IV_WINDOW_HEIGHT);
 }
 
 
@@ -1276,28 +1351,29 @@ static void menu_settings_save_settings(GtkMenuItem *item, GViewerWindow *obj)
 {
     GViewerWindowSettings settings;
 
+    InternalViewerSettings *iv_settings;
+    iv_settings = iv_settings_new();
+
     g_return_if_fail (obj);
     g_return_if_fail (obj->priv->viewer);
 
     gviewer_window_get_current_settings(obj, &settings);
 
-    gnome_config_set_string (GVIEWER_DEFAULT_PATH_PREFIX "charset", settings.charset);
-    gnome_config_set_string (GVIEWER_DEFAULT_PATH_PREFIX "fixed_font_name", settings.fixed_font_name);
-    gnome_config_set_string (GVIEWER_DEFAULT_PATH_PREFIX "variable_font_name", settings.variable_font_name);
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_GSETTINGS_IV_CHARSET, settings.charset);
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_FIXED_FONT_NAME, settings.fixed_font_name);
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_VARIABLE_FONT_NAME, settings.variable_font_name);
 
-    gnome_config_set_bool (GVIEWER_DEFAULT_PATH_PREFIX "hex_offset_display", settings.hex_decimal_offset);
-    gnome_config_set_bool (GVIEWER_DEFAULT_PATH_PREFIX "wrap_mode", settings.wrap_mode);
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_DISPLAY_HEX_OFFSET, &(settings.hex_decimal_offset));
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_WRAP_MODE, &(settings.wrap_mode));
 
-    gnome_config_set_int (GVIEWER_DEFAULT_PATH_PREFIX "font_size", settings.font_size);
-    gnome_config_set_int (GVIEWER_DEFAULT_PATH_PREFIX "tab_size ", settings.tab_size);
-    gnome_config_set_int (GVIEWER_DEFAULT_PATH_PREFIX "binary_bytes_per_line", settings.binary_bytes_per_line);
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_FONT_SIZE, &(settings.font_size));
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_TAB_SIZE, &(settings.tab_size));
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_BINARY_BYTES_PER_LINE, &(settings.binary_bytes_per_line));
  
-    gnome_config_set_int (GVIEWER_DEFAULT_PATH_PREFIX "x", settings.rect.x);
-    gnome_config_set_int (GVIEWER_DEFAULT_PATH_PREFIX "y", settings.rect.y);
-    gnome_config_set_int (GVIEWER_DEFAULT_PATH_PREFIX "width", settings.rect.width);
-    gnome_config_set_int (GVIEWER_DEFAULT_PATH_PREFIX "height", settings.rect.height);
-
-    gnome_config_sync ();
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_X_OFFSET, &(settings.rect.x));
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_Y_OFFSET, &(settings.rect.y));
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_WINDOW_WIDTH, &(settings.rect.width));
+    gnome_cmd_data.set_gsettings_when_changed (iv_settings->internalviewer, GCMD_SETTINGS_IV_WINDOW_HEIGHT, &(settings.rect.height));
 }
 
 
@@ -1432,7 +1508,7 @@ inline void fill_model (GtkTreeStore *tree, GnomeCmdFile *f)
 }
 
 
-inline GtkWidget *create_view ()
+GtkWidget *create_view ()
 {
     GtkWidget *view = gtk_tree_view_new ();
 

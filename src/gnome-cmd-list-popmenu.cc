@@ -2,7 +2,7 @@
  * @file gnome-cmd-list-popmenu.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,7 +115,6 @@ GtkWidget *gnome_cmd_list_popmenu_new (GnomeCmdFileSelector *fs)
         GNOMEUIINFO_SUBTREE(N_("_New"), new_uiinfo),
         GNOMEUIINFO_ITEM_STOCK(N_("_Paste"), NULL, on_paste, GTK_STOCK_PASTE),
         GNOMEUIINFO_SEPARATOR,
-        GNOMEUIINFO_ITEM_FILENAME (N_("Open this _folder"), NULL, command_open_nautilus_in_cwd, PACKAGE_NAME G_DIR_SEPARATOR_S "nautilus.svg"),
         GNOMEUIINFO_ITEM_FILENAME (N_("Open _terminal here"), NULL, command_open_terminal__internal, PACKAGE_NAME G_DIR_SEPARATOR_S "terminal.svg"),
         GNOMEUIINFO_SEPARATOR,
         GNOMEUIINFO_ITEM_STOCK(N_("_Refresh"), NULL, on_refresh, GTK_STOCK_REFRESH),
@@ -151,7 +150,7 @@ GtkType gnome_cmd_list_popmenu_get_type ()
     {
         GtkTypeInfo info =
         {
-            "GnomeCmdListPopmenu",
+            (gchar*) "GnomeCmdListPopmenu",
             sizeof (GnomeCmdListPopmenu),
             sizeof (GnomeCmdListPopmenuClass),
             (GtkClassInitFunc) class_init,

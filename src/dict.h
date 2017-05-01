@@ -2,7 +2,7 @@
  * @file dict.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,20 +41,20 @@ class DICT
 
   public:
 
-    DICT(const KEY no_key=KEY(), const VAL no_val=VAL()): NO_KEY(no_key), NO_VALUE(no_val)   {}
+    DICT(const KEY &no_key=KEY(), const VAL &no_val=VAL()): NO_KEY(no_key), NO_VALUE(no_val)   {}
 
-    void add(const KEY k, const VAL &v);
-    void add(const VAL v, const KEY &k)             {  add(k,v);  }
+    void add(const KEY &k, const VAL &v);
+    void add(const VAL &v, const KEY &k)             {  add(k,v);  }
 
     void clear()                                    {  k_coll.clear(); v_coll.clear();  }
 
-    const VAL &operator [] (const KEY k) const;
-    const KEY &operator [] (const VAL v) const;
+    const VAL &operator [] (const KEY &k) const;
+    const KEY &operator [] (const VAL &v) const;
 };
 
 
 template <typename KEY, typename VAL>
-inline void DICT<KEY,VAL>::add(const KEY k, const VAL &v)
+inline void DICT<KEY,VAL>::add(const KEY &k, const VAL &v)
 {
     std::pair<typename KEY_COLL::iterator,bool> k_pos = k_coll.insert(std::make_pair(k,(const VAL *) NULL));
     std::pair<typename VAL_COLL::iterator,bool> v_pos = v_coll.insert(std::make_pair(v,(const KEY *) NULL));
@@ -68,7 +68,7 @@ inline void DICT<KEY,VAL>::add(const KEY k, const VAL &v)
 
 
 template <typename KEY, typename VAL>
-inline const VAL &DICT<KEY,VAL>::operator [] (const KEY k) const
+inline const VAL &DICT<KEY,VAL>::operator [] (const KEY &k) const
 {
     typename KEY_COLL::const_iterator pos = k_coll.find(k);
 
@@ -80,7 +80,7 @@ inline const VAL &DICT<KEY,VAL>::operator [] (const KEY k) const
 
 
 template <typename KEY, typename VAL>
-inline const KEY &DICT<KEY,VAL>::operator [] (const VAL v) const
+inline const KEY &DICT<KEY,VAL>::operator [] (const VAL &v) const
 {
     typename VAL_COLL::const_iterator pos = v_coll.find(v);
 
@@ -144,13 +144,13 @@ inline void load_data(DICT<KEY,VAL> &dict, void *a, unsigned n)
     if (!a)
         return;
 
-    typedef struct
+    struct TUPLE
     {
         KEY key;
         VAL value;
-    } TUPLE;
+    };
 
-    TUPLE *t = static_cast<TUPLE *>(a);
+    struct TUPLE *t = static_cast<struct TUPLE *>(a);
 
     for (unsigned i=0; i<n; ++i, ++t)
          dict.add(t->key,t->value);
@@ -163,13 +163,13 @@ inline void load_data(DICT<KEY,std::string> &dict, void *a, unsigned n)
     if (!a)
         return;
 
-    typedef struct
+    struct TUPLE
     {
         KEY  key;
         char *value;
-    } TUPLE;
+    };
 
-    TUPLE *t = static_cast<TUPLE *>(a);
+    struct TUPLE *t = static_cast<struct TUPLE *>(a);
 
     for (unsigned i=0; i<n; ++i, ++t)
          dict.add(t->key,t->value);
@@ -182,13 +182,13 @@ inline void load_data(DICT<std::string,VAL> &dict, void *a, unsigned n)
     if (!a)
         return;
 
-    typedef struct
+    struct TUPLE
     {
         char *key;
         VAL  value;
-    } TUPLE;
+    };
 
-    TUPLE *t = static_cast<TUPLE *>(a);
+    struct TUPLE *t = static_cast<struct TUPLE *>(a);
 
     for (unsigned i=0; i<n; ++i, ++t)
          dict.add(t->key,t->value);
@@ -200,13 +200,13 @@ inline void load_data(DICT<std::string,std::string> &dict, void *a, unsigned n)
     if (!a)
         return;
 
-    typedef struct
+    struct TUPLE
     {
         char *key;
         char *value;
-    } TUPLE;
+    };
 
-    TUPLE *t = static_cast<TUPLE *>(a);
+    struct TUPLE *t = static_cast<struct TUPLE *>(a);
 
     for (unsigned i=0; i<n; ++i, ++t)
          dict.add(t->key,t->value);

@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -826,7 +826,7 @@ inline void image_render_start_background_pixbuf_loading (ImageRender *obj)
 
     // Start background loading
     g_object_ref (obj);
-    obj->priv->pixbuf_loading_thread = g_thread_create((GThreadFunc) image_render_pixbuf_loading_thread, (gpointer) obj, FALSE, NULL);
+    obj->priv->pixbuf_loading_thread = g_thread_new("pixbuf_load", (GThreadFunc) image_render_pixbuf_loading_thread, (gpointer) obj);
 }
 
 

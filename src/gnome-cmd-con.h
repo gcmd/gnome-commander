@@ -2,7 +2,7 @@
  * @file gnome-cmd-con.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -334,15 +334,9 @@ GnomeCmdBookmarkGroup *gnome_cmd_con_get_bookmarks (GnomeCmdCon *con);
 
 void gnome_cmd_con_set_bookmarks (GnomeCmdCon *con, GnomeCmdBookmarkGroup *bookmarks);
 
-inline void gnome_cmd_con_add_bookmark (GnomeCmdCon *con, gchar *name, gchar *path)
-{
-    GnomeCmdBookmarkGroup *group = gnome_cmd_con_get_bookmarks (con);
-    GnomeCmdBookmark *bookmark = g_new (GnomeCmdBookmark, 1);
-    bookmark->name = name;
-    bookmark->path = path;
-    bookmark->group = group;
-    group->bookmarks = g_list_append (group->bookmarks, bookmark);
-}
+void gnome_cmd_con_add_bookmark (GnomeCmdCon *con, gchar *name, gchar *path);
+
+void gnome_cmd_con_erase_bookmark (GnomeCmdCon *con);
 
 void gnome_cmd_con_updated (GnomeCmdCon *con);
 
@@ -379,7 +373,10 @@ inline gchar *gnome_cmd_con_get_free_space (GnomeCmdCon *con, GnomeCmdDir *dir, 
     if (!free_space)
         return _("Unknown disk usage");
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
     gchar *retval = g_strdup_printf (fmt, free_space);
+#pragma GCC diagnostic pop
     g_free (free_space);
 
     return retval;
@@ -430,37 +427,7 @@ inline std::string &gnome_cmd_con_make_ftp_uri (std::string &s, gboolean use_aut
 }
 
 #ifdef HAVE_SAMBA
-inline std::string &gnome_cmd_con_make_smb_uri (std::string &s, gboolean use_auth, std::string &server, std::string &share, std::string &folder, std::string &domain, std::string &user, std::string &password)
-{
-    share = '/' + share;
-
-    user = stringify (gnome_vfs_escape_string (user.c_str()));
-    password = stringify (gnome_vfs_escape_string (password.c_str()));
-
-    if (!password.empty() && !use_auth)
-    {
-        user += ':';
-        user += password;
-    }
-
-    if (!domain.empty())
-        user = domain + ';' + user;
-
-    const gchar *join = !folder.empty() && folder[0] != '/' ? "/" : "";
-
-    folder = share + join + folder;
-    folder = stringify (gnome_vfs_escape_path_string (folder.c_str()));
-
-    s = "smb://";
-
-    if (!user.empty())
-        s += user + '@';
-
-    s += server;
-    s += folder;
-
-    return s;
-}
+std::string &gnome_cmd_con_make_smb_uri (std::string &s, gboolean use_auth, std::string &server, std::string &share, std::string &folder, std::string &domain, std::string &user, std::string &password);
 #endif
 
 inline std::string &gnome_cmd_con_make_dav_uri (std::string &s, gboolean use_auth, std::string &server, std::string &port, std::string &folder, std::string &user, std::string &password)
@@ -492,6 +459,7 @@ inline std::string &gnome_cmd_con_make_uri (std::string &s, ConnectionMethodID m
 
         case CON_URI:       return gnome_cmd_con_make_custom_uri (s, uri);
 
+        case CON_LOCAL:
         default:            return s;
     }
 }

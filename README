@@ -1,8 +1,8 @@
-                GNOME Commander Version 1.5.0
+                GNOME Commander Version 1.7.0
 
                 Copyright (C) 2001-2006 Marcus Bjurman <marbj499@student.liu.se>
                 Copyright (C) 2007-2012 Piotr Eljasiak <epiotr@use.pl>
-                Copyright (C) 2013-2015 Uwe Scholz <u.scholz83@gmx.de>
+                Copyright (C) 2013-2017 Uwe Scholz <u.scholz83@gmx.de>
                 http://gcmd.github.io/
 
 
@@ -68,7 +68,7 @@ Plugins:
 3. Building
 --------------------------------
 
-GNOME Commander requires glib >= 2.6.0, GTK+ >= 2.8.0, gnome >= 2.4.0, 
+GNOME Commander requires glib >= 2.44.0, GTK+ >= 2.8.0, gnome >= 2.4.0, 
 gnome-keyring >= 2.22 and unique >= 0.9.3 libraries.
 
 Additionally GNOME Commander may require:
@@ -97,8 +97,8 @@ Additionally GNOME Commander may require:
 
 Simple install procedure:
 
-  % tar -xf gnome-commander-1.5.0.tar.xz	# unpack the sources
-  % cd gnome-commander-1.5.0			# change to the toplevel directory
+  % tar -xf gnome-commander-1.7.0.tar.xz	# unpack the sources
+  % cd gnome-commander-1.7.0			# change to the toplevel directory
   % ./configure					# run the `configure' script
   % make					# build GNOME Commander
   [ Become root if necessary ]

@@ -1,7 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
+AM_CXXFLAGS = $(WARN_CXXFLAGS)
+AM_LDFLAGS = $(WARN_LDFLAGS)
+
 AM_CPPFLAGS = \
-	$(CC_WARNINGS) \
 	$(GNOMEUI_CFLAGS) \
 	$(GNOMEVFS_CFLAGS)
 
@@ -14,7 +16,6 @@ libgcmd_la_SOURCES = \
 	gnome-cmd-string-dialog.h gnome-cmd-string-dialog.cc \
 	gnome-cmd-state.h \
 	libgcmd-utils.h libgcmd-utils.cc \
-	libgcmd-data.h libgcmd-data.cc \
 	libgcmd-widget-factory.h libgcmd-widget-factory.cc \
 	plugin-info.h \
 	libgcmd-deps.h \

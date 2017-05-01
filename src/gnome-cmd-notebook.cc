@@ -2,7 +2,7 @@
  * @file gnome-cmd-notebook.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ void GnomeCmdNotebook::show_tabs(TabBarVisibility _show_tabs)
     if (_show_tabs!=tabs_visibility)
     {
         tabs_visibility = _show_tabs;
-        gtk_notebook_set_show_tabs (*this, _show_tabs==SHOW_TABS || _show_tabs!=HIDE_TABS && size()>1);
+        gtk_notebook_set_show_tabs (*this, _show_tabs==SHOW_TABS || (_show_tabs!=HIDE_TABS && size()>1));
     }
 }
 
@@ -107,11 +107,11 @@ int GnomeCmdNotebook::find_tab_num_at_pos(gint screen_x, gint screen_y) const
         return -1;
 
     GtkPositionType tab_pos = gtk_notebook_get_tab_pos (*this);
-    GtkWidget *page;
+    GtkWidget *the_page;
 
-    for (int page_num=0; (page=GnomeCmdNotebook::page(page_num)); ++page_num)
+    for (int page_num=0; (the_page=GnomeCmdNotebook::page(page_num)); ++page_num)
     {
-        GtkWidget *tab = gtk_notebook_get_tab_label (*this, page);
+        GtkWidget *tab = gtk_notebook_get_tab_label (*this, the_page);
 
         g_return_val_if_fail (tab!=NULL, -1);
 
@@ -148,6 +148,9 @@ int GnomeCmdNotebook::find_tab_num_at_pos(gint screen_x, gint screen_y) const
                     if (screen_y <= y_root + tab->allocation.y + tab->allocation.height)
                         return page_num;
                 }
+
+                break;
+            default:
                 break;
         }
     }

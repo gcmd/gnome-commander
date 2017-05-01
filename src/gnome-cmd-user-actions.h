@@ -2,7 +2,7 @@
  * @file gnome-cmd-user-actions.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,10 @@
 #include "dict.h"
 
 #define GNOME_CMD_USER_ACTION(f)   void f(GtkMenuItem *menuitem=NULL, gpointer user_data=NULL)
+
+#define USER_ACTION_SETTINGS (gcmd_user_action_settings_get_type ())
+G_DECLARE_FINAL_TYPE (GcmdUserActionSettings, gcmd_user_action_settings, GCMD, USER_ACTIONS, GObject)
+GcmdUserActionSettings *gcmd_user_action_settings_new (void);
 
 typedef void (*GnomeCmdUserActionFunc) (GtkMenuItem *menuitem, gpointer user_data);
 
@@ -165,8 +169,7 @@ class GnomeCmdUserActions
     void init();
     void set_defaults();
     void shutdown();
-
-    void load(const gchar *section);
+    GcmdUserActionSettings *settings;
 
     void clear()                                                            {   action.clear();               }
 
@@ -187,17 +190,17 @@ class GnomeCmdUserActions
     {
         const_iterator (const ACTIONS_COLL::iterator &i): ACTIONS_COLL::iterator(i)   {}
 
-        const ACTIONS_COLL::key_type &operator * () const                   {  return (ACTIONS_COLL::iterator::operator * ()).first;  }
+        const ACTIONS_COLL::key_type &operator * () const                   {  return (ACTIONS_COLL::iterator::operator * ()).first;       }
     };
 
-    const_iterator begin()                                                  {  return action.begin();                                 }
-    const_iterator end()                                                    {  return action.end();                                   }
-    unsigned size()                                                         {  return action.size();                                  }
+    const_iterator begin()                                                  {  return action.begin();                                      }
+    const_iterator end()                                                    {  return action.end();                                        }
+    unsigned size()                                                         {  return action.size();                                       }
 
-    const gchar *name(const_iterator &i)                                    {  return action_func[i->second.func].c_str();            }
-    const gchar *name(const std::string description)                        {  return action_func[action_name[description]].c_str();  }
-    const gchar *description(const_iterator &i)                             {  return action_name[i->second.func].c_str();            }
-    const gchar *options(const_iterator &i)                                 {  return i->second.user_data.c_str();                    }
+    const gchar *name(const_iterator &i)                                    {  return action_func[i->second.func].c_str();                 }
+    const gchar *name(const std::string &name_description)                  {  return action_func[action_name[name_description]].c_str();  }
+    const gchar *description(const_iterator &i)                             {  return action_name[i->second.func].c_str();                 }
+    const gchar *options(const_iterator &i)                                 {  return i->second.user_data.c_str();                         }
 
     friend XML::xstream &operator << (XML::xstream &xml, GnomeCmdUserActions &usr);
 };
@@ -209,9 +212,9 @@ inline GnomeCmdUserActions::UserAction::UserAction(GnomeCmdUserActionFunc _func,
         user_data = _user_data;
 }
 
-inline gboolean GnomeCmdUserActions::register_action(guint keyval, const gchar *name, const char *user_data)
+inline gboolean GnomeCmdUserActions::register_action(guint keyval, const gchar *action_name, const char *user_data)
 {
-    return register_action(0, keyval, name, user_data);
+    return register_action(0, keyval, action_name, user_data);
 }
 
 
@@ -274,13 +277,11 @@ GNOME_CMD_USER_ACTION(command_execute);
 GNOME_CMD_USER_ACTION(command_open_terminal__internal);             // this function is NOT exposed to user as UserAction
 GNOME_CMD_USER_ACTION(command_open_terminal);
 GNOME_CMD_USER_ACTION(command_open_terminal_as_root);
-GNOME_CMD_USER_ACTION(command_open_nautilus);
-GNOME_CMD_USER_ACTION(command_open_nautilus_in_cwd);
 GNOME_CMD_USER_ACTION(command_root_mode);
 
 /************** View Menu **************/
 GNOME_CMD_USER_ACTION(view_conbuttons);
-GNOME_CMD_USER_ACTION(view_concombo);
+GNOME_CMD_USER_ACTION(view_devlist);
 GNOME_CMD_USER_ACTION(view_toolbar);
 GNOME_CMD_USER_ACTION(view_buttonbar);
 GNOME_CMD_USER_ACTION(view_cmdline);
@@ -311,11 +312,16 @@ GNOME_CMD_USER_ACTION(view_next_tab);
 GNOME_CMD_USER_ACTION(view_in_new_tab);
 GNOME_CMD_USER_ACTION(view_in_inactive_tab);
 GNOME_CMD_USER_ACTION(view_toggle_tab_lock);
+GNOME_CMD_USER_ACTION(view_horizontal_orientation);
+GNOME_CMD_USER_ACTION(view_main_menu);
+GNOME_CMD_USER_ACTION(view_step_up);
+GNOME_CMD_USER_ACTION(view_step_down);
 
 /************** Bookmarks Menu **************/
 GNOME_CMD_USER_ACTION(bookmarks_add_current);
 GNOME_CMD_USER_ACTION(bookmarks_edit);
 GNOME_CMD_USER_ACTION(bookmarks_goto);
+GNOME_CMD_USER_ACTION(bookmarks_view);
 
 /************** Options Menu **************/
 GNOME_CMD_USER_ACTION(options_edit);

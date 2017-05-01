@@ -2,7 +2,7 @@
  * @file gnome-cmd-combo.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -379,7 +379,7 @@ static void init (GnomeCmdCombo *combo)
 
     combo->button = gtk_button_new ();
     g_object_ref (combo->button);
-    gtk_button_set_relief (GTK_BUTTON (combo->button), gnome_cmd_data.button_relief);
+    gtk_button_set_relief (GTK_BUTTON (combo->button), GTK_RELIEF_NONE);
     g_object_set_data_full (*combo, "button", combo->button, g_object_unref);
     gtk_widget_show (combo->button);
 
@@ -450,7 +450,7 @@ GtkType gnome_cmd_combo_get_type ()
     {
         static const GtkTypeInfo combo_info =
         {
-            "GnomeCmdCombo",
+            (gchar*) "GnomeCmdCombo",
             sizeof (GnomeCmdCombo),
             sizeof (GnomeCmdComboClass),
             (GtkClassInitFunc) class_init,
@@ -521,13 +521,6 @@ void GnomeCmdCombo::set_pixmap(gint row, gint col, GnomeCmdPixmap *pixmap)
         gtk_clist_set_column_width (GTK_CLIST (list), 0, pixmap->width);
         widest_pixmap = pixmap->width;
     }
-}
-
-
-void GnomeCmdCombo::select_text(const gchar *text)
-{
-    if (text)
-        gtk_entry_set_text (GTK_ENTRY (entry), text);
 }
 
 

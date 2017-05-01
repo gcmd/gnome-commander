@@ -2,7 +2,7 @@
  * @file plugin_manager.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
 #include <dirent.h>
 #include <gmodule.h>
 
@@ -156,7 +155,11 @@ static void scan_plugins_in_dir (const gchar *dpath)
     }
 
     prev_dir = getcwd (buff, sizeof(buff));
-    chdir (dpath);
+    if (chdir (dpath))
+    {
+        g_warning ("Could not change directory to %s: %s", dpath, strerror (errno));
+        return;
+    }
 
     while ((ent = readdir (dir)) != NULL)
     {
@@ -197,7 +200,13 @@ static void scan_plugins_in_dir (const gchar *dpath)
     closedir (dir);
 
     if (prev_dir)
-        chdir (prev_dir);
+    {
+        if (chdir (prev_dir))
+        {
+            g_warning ("Could not change directory back to %s: %s", prev_dir, strerror (errno));
+            return;
+        }
+    }
 }
 
 
@@ -262,7 +271,7 @@ GList *plugin_manager_get_all ()
 }
 
 
-PluginData *get_selected_plugin (GtkCList *list)
+static PluginData *get_selected_plugin (GtkCList *list)
 {
     return (PluginData *) gtk_clist_get_row_data (list, list->focus_row);
 }

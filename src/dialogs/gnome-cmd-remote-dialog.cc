@@ -2,7 +2,7 @@
  * @file gnome-cmd-remote-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,7 +168,6 @@ static void on_new_btn_clicked (GtkButton *button, GnomeCmdRemoteDialog *remote_
     if (!server)
         return;
 
-    GnomeCmdCon *con = GNOME_CMD_CON (server);
     GtkListStore *store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (remote_dialog->priv->connection_list)));
     GtkTreeIter iter;
 
@@ -283,19 +282,6 @@ static gint sort_by_name (GtkTreeModel *model, GtkTreeIter *i1, GtkTreeIter *i2,
 }
 
 
-static gint sort_by_auth (GtkTreeModel *model, GtkTreeIter *i1, GtkTreeIter *i2, gpointer user_data)
-{
-    gboolean a1;
-    gboolean a2;
-
-    gtk_tree_model_get (model, i1, COL_AUTH, &a1, -1);
-    gtk_tree_model_get (model, i2, COL_AUTH, &a2, -1);
-
-    return a1 == a2 ? sort_by_name (model, i1, i2, user_data) :
-                      a1 ? -1 : 1;
-}
-
-
 static gint sort_by_method (GtkTreeModel *model, GtkTreeIter *i1, GtkTreeIter *i2, gpointer user_data)
 {
     GnomeCmdCon *c1;
@@ -323,8 +309,6 @@ inline GtkTreeModel *create_and_fill_model (GList *list)
 
     for (GtkTreeIter iter; list; list=list->next)
     {
-        GnomeCmdCon *con = GNOME_CMD_CON (list->data);
-
         gtk_list_store_append (store, &iter);
         set_server (store, &iter, GNOME_CMD_CON_REMOTE (list->data));
     }
@@ -466,8 +450,8 @@ static void gnome_cmd_remote_dialog_init (GnomeCmdRemoteDialog *dialog)
     dialog->priv->anonymous_pw_entry = create_entry (*dialog, "anonymous_pw_entry", gnome_cmd_data_get_ftp_anonymous_password ());
     table_add (table, dialog->priv->anonymous_pw_entry, 1, 0, GTK_FILL);
 
-    button = gnome_cmd_dialog_add_button (*dialog, GTK_STOCK_HELP, GTK_SIGNAL_FUNC (on_help_btn_clicked), dialog);
-    button = gnome_cmd_dialog_add_button (*dialog, GTK_STOCK_CLOSE, GTK_SIGNAL_FUNC (on_close_btn_clicked), dialog);
+    gnome_cmd_dialog_add_button (*dialog, GTK_STOCK_HELP, GTK_SIGNAL_FUNC (on_help_btn_clicked), dialog);
+    gnome_cmd_dialog_add_button (*dialog, GTK_STOCK_CLOSE, GTK_SIGNAL_FUNC (on_close_btn_clicked), dialog);
     button = gnome_cmd_dialog_add_button (*dialog, GTK_STOCK_CONNECT, GTK_SIGNAL_FUNC (on_connect_btn_clicked), dialog);
 
     dialog->priv->connect_button = button;

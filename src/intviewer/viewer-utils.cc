@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,45 +22,12 @@
  *
  */
 
-#include <config.h>
 #include <glib.h>
-#include <libgnome/gnome-config.h>
 
 #include "gvtypes.h"
 #include "viewer-utils.h"
 
 using namespace std;
-
-
-gchar *gviewer_get_string (const gchar *path, const gchar *def)
-{
-    gboolean b = FALSE;
-    gchar *value = gnome_config_get_string_with_default (path, &b);
-    if (b)
-        return g_strdup (def);
-    return value;
-}
-
-
-gint gviewer_get_int (const gchar *path, int def)
-{
-    gboolean b = FALSE;
-    gint value = gnome_config_get_int_with_default (path, &b);
-    if (b)
-        return def;
-    return value;
-}
-
-
-gboolean gviewer_get_bool (const gchar *path, gboolean def)
-{
-    gboolean b = FALSE;
-    gboolean value = gnome_config_get_bool_with_default (path, &b);
-    if (b)
-        return def;
-    return value;
-}
-
 
 int unicode2utf8 (unsigned int unicode, unsigned char *out)
 {
@@ -178,14 +145,14 @@ guint8 *text2hex (const gchar *text, /*out*/ guint &buflen)
     len = 0;
     high_nib = TRUE;
     value = 0;
-    for (gint idx=0; text[idx]; ++idx)
-        if (g_ascii_isxdigit (text[idx]))
+    for (gint idx2=0; text[idx2]; ++idx2)
+        if (g_ascii_isxdigit (text[idx2]))
         {
             if (high_nib)
-                value = g_ascii_xdigit_value(text[idx]) * 16;
+                value = g_ascii_xdigit_value(text[idx2]) * 16;
             else
             {
-                value += g_ascii_xdigit_value(text[idx]);
+                value += g_ascii_xdigit_value(text[idx2]);
                 result[len] = value;
                 len++;
             }

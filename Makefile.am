@@ -1,5 +1,9 @@
 ACLOCAL_AMFLAGS = -I m4
 
+AM_CXXFLAGS = $(WARN_CXXFLAGS)
+
+AM_LDFLAGS = $(WARN_LDFLAGS)
+
 SUBDIRS = libgcmd src plugins po pixmaps doc data tests
 
 distuninstallcheck_listfiles = find . -type f -print | grep -v scrollkeeper
@@ -11,14 +15,12 @@ EXTRA_DIST =                \
 	ChangeLog-20090629      \
 	xmldocs.make            \
 	omf.make                \
-	m4/                     \
-	gnome-doc-utils.make
-
-DISTCLEANFILES =            \
-	gnome-doc-utils.make    \
-	intltool-extract        \
-	intltool-merge          \
-	intltool-update
+	m4                      \
+	AUTHORS                 \
+	ChangeLog               \
+	INSTALL                 \
+	NEWS                    \
+	README
 
 DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper
 
@@ -42,6 +44,25 @@ ChangeLog:
 	  (echo A git checkout and git-log is required to generate ChangeLog >&2 && \
 	  echo A git checkout and git-log is required to generate this file >> $@); \
 	fi
+
+#
+# Add filenames to this variable if the should be added to .gitignore automatically
+#
+GITIGNOREFILES = \
+	doc/doxygen/ \
+	data/gnome-commander.desktop.in \
+	data/gnome-commander.ebuild \
+	data/gnome-commander.spec \
+	.geanyprj \
+	INSTALL \
+	py-compile \
+	translators.sh
+
+MAINTAINERCLEANFILES = \
+	$(GITIGNORE_MAINTAINERCLEANFILES_TOPLEVEL) \
+	$(GITIGNORE_MAINTAINERCLEANFILES_MAKEFILE_IN) \
+	$(GITIGNORE_MAINTAINERCLEANFILES_M4_GETTEXT) \
+	$(GITIGNORE_MAINTAINERCLEANFILES_M4_LIBTOOL)
 
 .PHONY: ChangeLog
 

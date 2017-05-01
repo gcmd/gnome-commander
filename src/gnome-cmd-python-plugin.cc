@@ -2,7 +2,7 @@
  * @file gnome-cmd-python-plugin.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,8 @@ static gint compare_plugins(const PythonPluginData *p1, const PythonPluginData *
     return g_ascii_strcasecmp (p1->name, p2->name);
 }
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
 static void scan_plugins_in_dir (const gchar *dpath)
 {
     DIR *dir = opendir(dpath);
@@ -57,11 +58,11 @@ static void scan_plugins_in_dir (const gchar *dpath)
 
     long dir_size = pathconf(".", _PC_PATH_MAX);
 
-   if (dir_size==-1)
-   {
-       g_warning ( "pathconf(\".\"): %s", strerror(errno));
-      return;
-   }
+    if (dir_size==-1)
+    {
+        g_warning ( "pathconf(\".\"): %s", strerror(errno));
+        return;
+    }
 
     gchar *prev_dir = (gchar *) g_malloc (dir_size);
 
@@ -125,7 +126,7 @@ static void scan_plugins_in_dir (const gchar *dpath)
 
     g_free (prev_dir);
 }
-
+#pragma GCC diagnostic pop
 
 void python_plugin_manager_init ()
 {
@@ -222,7 +223,11 @@ gboolean gnome_cmd_python_plugin_execute(const PythonPluginData *plugin, GnomeCm
     if (!pURIclass)
         goto out_B;
 
+#if PY_MAJOR_VERSION > 2
+    pName = PyUnicode_FromString(plugin->fname);
+#else
     pName = PyString_FromString(plugin->fname);
+#endif
     pModule = PyImport_Import(pName);
     Py_XDECREF(pName);
 
@@ -287,8 +292,13 @@ gboolean gnome_cmd_python_plugin_execute(const PythonPluginData *plugin, GnomeCm
 
     main_win_xid = GDK_WINDOW_XID (GTK_WIDGET (mw)->window);
     pMainWinXID = PyLong_FromUnsignedLong (main_win_xid);
+#if PY_MAJOR_VERSION > 2
+    pActiveCwd = PyUnicode_FromString(active_dir);
+    pInactiveCwd = PyUnicode_FromString(inactive_dir);
+#else
     pActiveCwd = PyString_FromString (active_dir);
     pInactiveCwd = PyString_FromString (inactive_dir);
+#endif
     pSelectedFiles = PyTuple_New(n);
 
     DEBUG('p', "Main window XID: %lu (%#lx)\n", main_win_xid, main_win_xid);
@@ -319,7 +329,11 @@ gboolean gnome_cmd_python_plugin_execute(const PythonPluginData *plugin, GnomeCm
 
     if (pValue)
     {
+#if PY_MAJOR_VERSION > 2
+        retval = PyLong_AsLong(pValue);
+#else
         retval = PyInt_AsLong(pValue);
+#endif
         DEBUG('p', "Result of call %s." MODULE_INIT_FUNC "(): %ld\n", plugin->fname, retval);
     }
     else

@@ -2,7 +2,7 @@
     GNOME Commander - A GNOME based file manager
     Copyright (C) 2001-2006 Marcus Bjurman
     Copyright (C) 2007-2012 Piotr Eljasiak
-    Copyright (C) 2013-2015 Uwe Scholz
+    Copyright (C) 2013-2017 Uwe Scholz
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ GtkType test_plugin_get_type ()
     {
         GtkTypeInfo info =
         {
-            "TestPlugin",
+            (gchar*) "TestPlugin",
             sizeof (TestPlugin),
             sizeof (TestPluginClass),
             (GtkClassInitFunc) class_init,
@@ -209,22 +209,26 @@ GnomeCmdPlugin *test_plugin_new ()
 }
 
 
-extern "C" GnomeCmdPlugin *create_plugin ()
+extern "C"
 {
-    return test_plugin_new ();
+    GnomeCmdPlugin *create_plugin ()
+    {
+        return test_plugin_new ();
+    }
 }
 
-
-extern "C" PluginInfo *get_plugin_info ()
+extern "C"
 {
-    if (!plugin_nfo.authors)
+    PluginInfo *get_plugin_info ()
     {
-        plugin_nfo.authors = g_new0 (gchar *, 2);
-        plugin_nfo.authors[0] = AUTHOR;
-        plugin_nfo.authors[1] = NULL;
-        plugin_nfo.comments = g_strdup (_("This is an example plugin that is mostly useful as a "
-                                          "simple example for aspiring plugin hackers"));
+        if (!plugin_nfo.authors)
+        {
+            plugin_nfo.authors = g_new0 (gchar *, 2);
+            plugin_nfo.authors[0] = (gchar*) AUTHOR;
+            plugin_nfo.authors[1] = NULL;
+            plugin_nfo.comments = g_strdup (_("This is an example plugin that is mostly useful as a "
+                                            "simple example for aspiring plugin hackers"));
+        }
+        return &plugin_nfo;
     }
-
-    return &plugin_nfo;
 }

@@ -2,7 +2,7 @@
  * @file gnome-cmd-advrename-regex-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,13 +122,6 @@ gboolean gnome_cmd_advrename_regex_dialog_new (const gchar *title, GtkWindow *pa
     g_object_set_data (G_OBJECT (dialog), "match_case", check);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check), rx ? rx->match_case : FALSE);
     gtk_container_add (GTK_CONTAINER (align), check);
-
-#if !GLIB_CHECK_VERSION (2, 14, 0)
-    GtkWidget *box = gnome_cmd_hint_box_new (_("Some regular expressions functionality is disabled. "
-                                               "To enable it's necessary to build GNOME Commander with GLib ≥ 2.14. "
-                                               "Please contact your package maintainer about that."));
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
-#endif
 
 #if GTK_CHECK_VERSION (2, 14, 0)
     gtk_widget_show_all (content_area);

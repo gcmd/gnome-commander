@@ -2,7 +2,7 @@
  * @file gnome-cmd-about-plugin.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,6 +145,8 @@ static void gnome_cmd_about_plugin_update_translation_information_label (GnomeCm
     gchar *tmp = g_markup_escape_text (about->priv->translator_credits, -1);
     g_string_append (string, tmp);
     g_free (tmp);
+
+    g_string_append_c (string, '\n');
 
     gtk_label_set_markup (GTK_LABEL (label), string->str);
     g_string_free (string, TRUE);
@@ -491,7 +493,7 @@ static void gnome_cmd_about_plugin_set_name (GnomeCmdAboutPlugin *about, const g
 {
     gchar *title_string;
     gchar *name_string;
-    gchar *tmp_name, *tmp_version;
+    gchar *tmp_name;
 
     g_free (about->priv->name);
     about->priv->name = g_strdup (name ? name : "");
@@ -504,6 +506,7 @@ static void gnome_cmd_about_plugin_set_name (GnomeCmdAboutPlugin *about, const g
 
     if (about->priv->version)
     {
+        gchar *tmp_version;
         tmp_version = g_markup_escape_text (about->priv->version, -1);
         name_string = g_strdup_printf ("<span size=\"xx-large\" weight=\"bold\">%s %s</span>", tmp_name, tmp_version);
         g_free (tmp_version);
@@ -698,15 +701,15 @@ static void gnome_cmd_about_plugin_get_property (GObject *object, guint prop_id,
  * @param translator_credits The translator for the current locale.
  * @param webpage The plugins's webpage.
  */
-void gnome_cmd_about_plugin_construct (GnomeCmdAboutPlugin *about,
-                                       const gchar  *name,
-                                       const gchar  *version,
-                                       const gchar  *copyright,
-                                       const gchar  *comments,
-                                       const gchar **authors,
-                                       const gchar **documenters,
-                                       const gchar  *translator_credits,
-                                       const gchar  *webpage)
+static void gnome_cmd_about_plugin_construct (GnomeCmdAboutPlugin *about,
+                                              const gchar  *name,
+                                              const gchar  *version,
+                                              const gchar  *copyright,
+                                              const gchar  *comments,
+                                              const gchar **authors,
+                                              const gchar **documenters,
+                                              const gchar  *translator_credits,
+                                              const gchar  *webpage)
 {
     GArray *authors_array = g_array_new (FALSE, FALSE, sizeof(char*));
     GArray *documenters_array = NULL;
@@ -732,8 +735,8 @@ void gnome_cmd_about_plugin_construct (GnomeCmdAboutPlugin *about,
                   "version", version,
                   "copyright", copyright,
                   "comments", comments,
-                  "authors", authors_array,
-                  "documenters", documenters_array,
+//                  "authors", authors_array,
+//                  "documenters", documenters_array,
                   "translator_credits", translator_credits,
                   "webpage", webpage,
                   NULL);

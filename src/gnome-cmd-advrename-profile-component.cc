@@ -2,7 +2,7 @@
  * @file gnome-cmd-advrename-profile-component.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,9 @@
 #include "dialogs/gnome-cmd-advrename-regex-dialog.h"
 #include "tags/gnome-cmd-tags.h"
 #include "utils.h"
+
+// This define is used to remove warnings for CLAMP makro when doying CLAMP((uint) 1, 0, 2)
+#define MYCLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) <= (low)) ? (low) : (x)))
 
 using namespace std;
 
@@ -123,44 +126,44 @@ struct GnomeCmdAdvrenameProfileComponent::Private
 
 
 GtkItemFactoryEntry GnomeCmdAdvrenameProfileComponent::Private::dir_items[] =
-    {{N_("/Grandparent"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 0},
-     {N_("/Parent"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 1}};
+    {{(gchar*) N_("/Grandparent"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 0},
+     {(gchar*) N_("/Parent"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 1}};
 
 GtkItemFactoryEntry GnomeCmdAdvrenameProfileComponent::Private::name_items[] =
-    {{N_("/File name"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 2},
-     {N_("/File name (range)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_range, 2},
-     {N_("/File name without extension"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 3},
-     {N_("/File name without extension (range)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_range,3},
-     {N_("/File extension"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 4}};
+    {{(gchar*) N_("/File name"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 2},
+     {(gchar*) N_("/File name (range)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_range, 2},
+     {(gchar*) N_("/File name without extension"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 3},
+     {(gchar*) N_("/File name without extension (range)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_range,3},
+     {(gchar*) N_("/File extension"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 4}};
 
 GtkItemFactoryEntry GnomeCmdAdvrenameProfileComponent::Private::counter_items[] =
-    {{N_("/Counter"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 5},
-     {N_("/Counter (width)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 6},
-     {N_("/Counter (auto)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 27},
-     {N_("/Hexadecimal random number (width)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 7}};
+    {{(gchar*) N_("/Counter"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 5},
+     {(gchar*) N_("/Counter (width)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 6},
+     {(gchar*) N_("/Counter (auto)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 27},
+     {(gchar*) N_("/Hexadecimal random number (width)"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 7}};
 
 GtkItemFactoryEntry GnomeCmdAdvrenameProfileComponent::Private::date_items[] =
-    {{N_("/Date"), NULL, NULL, 0, "<Branch>"},
-     {N_("/Date/<locale>"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 8},
-     {N_("/Date/yyyy-mm-dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 9},
-     {N_("/Date/yy-mm-dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 10},
-     {N_("/Date/yy.mm.dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 11},
-     {N_("/Date/yymmdd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 12},
-     {N_("/Date/dd.mm.yy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 13},
-     {N_("/Date/mm-dd-yy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 14},
-     {N_("/Date/yyyy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 15},
-     {N_("/Date/yy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 16},
-     {N_("/Date/mm"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 17},
-     {N_("/Date/mmm"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 18},
-     {N_("/Date/dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 19},
-     {N_("/Time"), NULL, NULL, 0, "<Branch>"},
-     {N_("/Time/<locale>"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 20},
-     {N_("/Time/HH.MM.SS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 21},
-     {N_("/Time/HH-MM-SS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 22},
-     {N_("/Time/HHMMSS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 23},
-     {N_("/Time/HH"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 24},
-     {N_("/Time/MM"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 25},
-     {N_("/Time/SS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 26}};
+    {{(gchar*) N_("/Date"), NULL, NULL, 0, (gchar*) "<Branch>"},
+     {(gchar*) N_("/Date/<locale>"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 8},
+     {(gchar*) N_("/Date/yyyy-mm-dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 9},
+     {(gchar*) N_("/Date/yy-mm-dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 10},
+     {(gchar*) N_("/Date/yy.mm.dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 11},
+     {(gchar*) N_("/Date/yymmdd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 12},
+     {(gchar*) N_("/Date/dd.mm.yy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 13},
+     {(gchar*) N_("/Date/mm-dd-yy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 14},
+     {(gchar*) N_("/Date/yyyy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 15},
+     {(gchar*) N_("/Date/yy"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 16},
+     {(gchar*) N_("/Date/mm"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 17},
+     {(gchar*) N_("/Date/mmm"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 18},
+     {(gchar*) N_("/Date/dd"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 19},
+     {(gchar*) N_("/Time"), NULL, NULL, 0, (gchar*) "<Branch>"},
+     {(gchar*) N_("/Time/<locale>"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 20},
+     {(gchar*) N_("/Time/HH.MM.SS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 21},
+     {(gchar*) N_("/Time/HH-MM-SS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 22},
+     {(gchar*) N_("/Time/HHMMSS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 23},
+     {(gchar*) N_("/Time/HH"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 24},
+     {(gchar*) N_("/Time/MM"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 25},
+     {(gchar*) N_("/Time/SS"), NULL, (GtkItemFactoryCallback) GnomeCmdAdvrenameProfileComponent::Private::insert_text_tag, 26}};
 
 GtkItemFactoryEntry *GnomeCmdAdvrenameProfileComponent::Private::items[] = {dir_items, name_items, counter_items, date_items};
 
@@ -375,6 +378,18 @@ inline GnomeCmdAdvrenameProfileComponent::Private::Private()
     trim_blanks = gcmd_convert_strip;
     regex_model = NULL;
     sample_fname = NULL;
+    template_entry = NULL;
+    template_combo = NULL;
+    counter_start_spin = NULL;
+    counter_step_spin = NULL;
+    counter_digits_combo = NULL;
+    regex_view = NULL;
+    regex_add_button = NULL;
+    regex_edit_button = NULL;
+    regex_remove_button = NULL;
+    regex_remove_all_button = NULL;
+    case_combo = NULL;
+    trim_combo = NULL;
 }
 
 
@@ -456,23 +471,23 @@ inline GtkWidget *GnomeCmdAdvrenameProfileComponent::Private::create_placeholder
 
                 g_return_val_if_fail (items!=NULL, NULL);
 
-                for (guint i=0; i<G_N_ELEMENTS(metatags); ++i)
+                for (guint ii=0; ii<G_N_ELEMENTS(metatags); ++ii)
                 {
-                    GnomeCmdTag tag = metatags[i];
+                    GnomeCmdTag tag = metatags[ii];
                     const gchar *class_name = gcmd_tags_get_class_name(tag);
-                    GtkItemFactoryEntry *p = items+i;
+                    GtkItemFactoryEntry *p = items+ii;
 
                     if (!class_name || *class_name==0)
                     {
                         p->path = g_strdup("/");
-                        p->item_type = "<Separator>";
+                        p->item_type = g_strdup("<Separator>");
                     }
                     else
                     {
                         strncpy (s, gcmd_tags_get_title (tag), BUFF_SIZE-1);
 
-                        for (gchar *i=s; *i; ++i)
-                            if (*i=='/')  *i = ' ';
+                        for (gchar *kk=s; *kk; ++kk)
+                            if (*kk=='/')  *kk = ' ';
 
                         p->path = g_strdup_printf ("/%s/%s", gcmd_tags_get_class_name(tag), s);
                         p->callback = (GtkItemFactoryCallback) insert_num_tag;
@@ -486,8 +501,8 @@ inline GtkWidget *GnomeCmdAdvrenameProfileComponent::Private::create_placeholder
 
                 gtk_item_factory_create_items (ifac, G_N_ELEMENTS(metatags), items, this);
 
-                for (guint i=0; i<G_N_ELEMENTS(metatags); ++i)
-                    g_free (items[i].path);
+                for (guint ii=0; ii<G_N_ELEMENTS(metatags); ++ii)
+                    g_free (items[ii].path);
 
                 g_free (items);
 
@@ -620,16 +635,16 @@ inline gchar *GnomeCmdAdvrenameProfileComponent::Private::get_selected_range (Gt
     if (result==GTK_RESPONSE_OK)
     {
         gint beg, end;
-        GtkWidget *entry = lookup_widget (GTK_WIDGET (dialog), "filename");
+        GtkWidget *local_entry = lookup_widget (GTK_WIDGET (dialog), "filename");
 
         gboolean inversed = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (lookup_widget (GTK_WIDGET (dialog), "inverse")));
 
-        if (gtk_editable_get_selection_bounds (GTK_EDITABLE (entry), &beg, &end))
+        if (gtk_editable_get_selection_bounds (GTK_EDITABLE (local_entry), &beg, &end))
         {
 #if GTK_CHECK_VERSION (2, 16, 0)
-            guint16 len = gtk_entry_get_text_length (GTK_ENTRY (entry));
+            guint16 len = gtk_entry_get_text_length (GTK_ENTRY (local_entry));
 #else
-            guint16 len = (guint16) g_utf8_strlen (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
+            guint16 len = (guint16) g_utf8_strlen (gtk_entry_get_text (GTK_ENTRY (local_entry)), -1);
 #endif
             if (!inversed)
                 range = end==len ? g_strdup_printf ("%s(%i:)", placeholder, beg) :
@@ -705,11 +720,10 @@ void GnomeCmdAdvrenameProfileComponent::Private::on_counter_step_spin_value_chan
     g_signal_emit (component, signals[COUNTER_CHANGED], 0);
 }
 
-
 void GnomeCmdAdvrenameProfileComponent::Private::on_counter_digits_combo_value_changed (GtkWidget *combo, GnomeCmdAdvrenameProfileComponent *component)
 {
     component->profile.counter_width = gtk_combo_box_get_active (GTK_COMBO_BOX (combo));
-    component->profile.counter_width = CLAMP(component->profile.counter_width, 0, 16);
+    component->profile.counter_width = MYCLAMP(component->profile.counter_width, 0, 16);
     g_signal_emit (component, signals[COUNTER_CHANGED], 0);
 }
 
@@ -899,26 +913,26 @@ static void gnome_cmd_advrename_profile_component_init (GnomeCmdAdvrenameProfile
         gtk_box_pack_start (GTK_BOX (vbox), align, FALSE, FALSE, 0);
 
         {
-            GtkWidget *vbox = gtk_vbox_new (FALSE, 6);
-            gtk_container_add (GTK_CONTAINER (align), vbox);
+            GtkWidget *local_vbox = gtk_vbox_new (FALSE, 6);
+            gtk_container_add (GTK_CONTAINER (align), local_vbox);
 
             component->priv->template_combo = combo = gtk_combo_box_entry_new_text ();
             component->priv->template_entry = gtk_bin_get_child (GTK_BIN (component->priv->template_combo));
             gtk_entry_set_activates_default (GTK_ENTRY (component->priv->template_entry), TRUE);
             gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
-            gtk_box_pack_start (GTK_BOX (vbox), combo, FALSE, FALSE, 0);
+            gtk_box_pack_start (GTK_BOX (local_vbox), combo, FALSE, FALSE, 0);
             g_object_ref (component->priv->template_entry);
 
-            GtkWidget *bbox = gtk_hbutton_box_new ();
-            gtk_box_pack_start (GTK_BOX (vbox), bbox, TRUE, FALSE, 0);
+            GtkWidget *local_bbox = gtk_hbutton_box_new ();
+            gtk_box_pack_start (GTK_BOX (local_vbox), local_bbox, TRUE, FALSE, 0);
 
-            gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_START);
-            gtk_box_set_spacing (GTK_BOX (bbox), 6);
-            gtk_box_pack_start (GTK_BOX (bbox), component->priv->create_button_with_menu (_("Directory"), GnomeCmdAdvrenameProfileComponent::Private::DIR_MENU), FALSE, FALSE, 0);
-            gtk_box_pack_start (GTK_BOX (bbox), component->priv->create_button_with_menu (_("File"), GnomeCmdAdvrenameProfileComponent::Private::FILE_MENU), FALSE, FALSE, 0);
-            gtk_box_pack_start (GTK_BOX (bbox), component->priv->create_button_with_menu (_("Counter"), GnomeCmdAdvrenameProfileComponent::Private::COUNTER_MENU), FALSE, FALSE, 0);
-            gtk_box_pack_start (GTK_BOX (bbox), component->priv->create_button_with_menu (_("Date"), GnomeCmdAdvrenameProfileComponent::Private::DATE_MENU), FALSE, FALSE, 0);
-            gtk_box_pack_start (GTK_BOX (bbox), component->priv->create_button_with_menu (_("Metatag"), GnomeCmdAdvrenameProfileComponent::Private::METATAG_MENU), FALSE, FALSE, 0);
+            gtk_button_box_set_layout (GTK_BUTTON_BOX (local_bbox), GTK_BUTTONBOX_START);
+            gtk_box_set_spacing (GTK_BOX (local_bbox), 6);
+            gtk_box_pack_start (GTK_BOX (local_bbox), component->priv->create_button_with_menu (_("Directory"), GnomeCmdAdvrenameProfileComponent::Private::DIR_MENU), FALSE, FALSE, 0);
+            gtk_box_pack_start (GTK_BOX (local_bbox), component->priv->create_button_with_menu (_("File"), GnomeCmdAdvrenameProfileComponent::Private::FILE_MENU), FALSE, FALSE, 0);
+            gtk_box_pack_start (GTK_BOX (local_bbox), component->priv->create_button_with_menu (_("Counter"), GnomeCmdAdvrenameProfileComponent::Private::COUNTER_MENU), FALSE, FALSE, 0);
+            gtk_box_pack_start (GTK_BOX (local_bbox), component->priv->create_button_with_menu (_("Date"), GnomeCmdAdvrenameProfileComponent::Private::DATE_MENU), FALSE, FALSE, 0);
+            gtk_box_pack_start (GTK_BOX (local_bbox), component->priv->create_button_with_menu (_("Metatag"), GnomeCmdAdvrenameProfileComponent::Private::METATAG_MENU), FALSE, FALSE, 0);
         }
     }
 

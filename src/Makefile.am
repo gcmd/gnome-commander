@@ -2,8 +2,10 @@
 
 SUBDIRS = dialogs tags intviewer
 
+AM_CXXFLAGS = $(WARN_CXXFLAGS)
+AM_LDFLAGS = $(WARN_LDFLAGS)
+
 AM_CPPFLAGS = \
-	$(CC_WARNINGS) \
 	-I$(top_srcdir) \
 	$(GNOMEUI_CFLAGS) \
 	$(GNOMEVFS_CFLAGS) \
@@ -107,6 +109,9 @@ gnome_commander_LDADD = \
 	$(POPPLER_LIBS) \
 	$(PYTHON_LIBS) \
 	$(PYTHON_EXTRA_LIBS)
+
+CLEANFILES = \
+	gnome-cmd-advrename-lexer.cc
 
 gcmd_block_SOURCES = block.cc
 

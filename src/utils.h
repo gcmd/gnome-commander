@@ -2,7 +2,7 @@
  * @file utils.h 
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 
+#include <config.h>
 #include <libgnome/gnome-help.h>
 
 #include "gnome-cmd-file.h"
@@ -277,15 +278,7 @@ inline void gnome_cmd_show_message (GtkWindow *parent, std::string message, cons
 }
 
 
-inline void gnome_cmd_help_display (const gchar *file_name, const gchar *link_id=NULL)
-{
-    GError *error = NULL;
-
-    gnome_help_display (file_name, link_id, &error);
-
-    if (error != NULL)
-        gnome_cmd_error_message (_("There was an error displaying help."), error);
-}
+void gnome_cmd_help_display (const gchar *file_name, const gchar *link_id=NULL);
 
 
 inline void gnome_cmd_error_message (const gchar *title, GError *error)
@@ -322,7 +315,7 @@ inline std::string &stringify(std::string &s, gchar *val)
 }
 
 template <typename T>
-inline std::string &stringify(std::string &s, const T &val)
+std::string &stringify(std::string &s, const T &val)
 {
    std::ostringstream os;
 
@@ -350,7 +343,7 @@ inline std::string stringify(const T &val)
 int split(const std::string &s, std::vector<std::string> &coll, const char *sep);
 
 template <typename Iterator>
-inline std::ostream &join(std::ostream &os, Iterator beg, Iterator end, const std::string sep=" ")
+inline std::ostream &join(std::ostream &os, Iterator beg, Iterator end, const std::string &sep=" ")
 {
     if (beg==end)  return os;
 
@@ -369,13 +362,13 @@ inline std::ostream &join(std::ostream &os, Iterator beg, Iterator end, const st
 // }
 
 template <typename T, typename Compare, typename Allocator, template <typename, typename, typename> class COLL>
-inline std::ostream &join(std::ostream &os, const COLL<T, Compare, Allocator> &coll, const std::string sep=" ")
+inline std::ostream &join(std::ostream &os, const COLL<T, Compare, Allocator> &coll, const std::string &sep=" ")
 {
     return join(os,coll.begin(),coll.end(),sep);
 }
 
 template <typename Iterator>
-inline std::string &join(std::string &s, Iterator beg, Iterator end, const std::string sep=" ")
+inline std::string &join(std::string &s, Iterator beg, Iterator end, const std::string &sep=" ")
 {
     s.clear();
 
@@ -400,13 +393,13 @@ inline std::string &join(std::string &s, Iterator beg, Iterator end, const std::
 // }
 
 template <typename T, typename Compare, typename Allocator, template <typename, typename, typename> class COLL>
-inline std::string &join(std::string &s, const COLL<T, Compare, Allocator> &coll, const std::string sep=" ")
+inline std::string &join(std::string &s, const COLL<T, Compare, Allocator> &coll, const std::string &sep=" ")
 {
     return join(s,coll.begin(),coll.end(),sep);
 }
 
 template <typename Iterator>
-inline std::string join(Iterator beg, Iterator end, const std::string sep=" ")
+inline std::string join(Iterator beg, Iterator end, const std::string &sep=" ")
 {
     std::string s;
 
@@ -422,11 +415,13 @@ inline std::string join(Iterator beg, Iterator end, const std::string sep=" ")
 // }
 
 template <typename T, typename Compare, typename Allocator, template <typename, typename, typename> class COLL>
-inline std::string join(const COLL<T, Compare, Allocator> &coll, const std::string sep=" ")
+inline std::string join(const COLL<T, Compare, Allocator> &coll, const std::string &sep=" ")
 {
     std::string s;
 
     return join(s,coll.begin(),coll.end(),sep);
 }
+
+gint get_string_pixel_size (const char *s, int len);
 
 #endif // __UTILS_H__

@@ -12,7 +12,7 @@
     <email>u.scholz83@gmx.de</email>
     <name>Uwe Scholz</name>
   </maintainer>
-  <changelog>https://git.gnome.org/browse/gnome-commander/tree/NEWS?h=gcmd-1-4</changelog>
+  <changelog>https://git.gnome.org/browse/gnome-commander/tree/NEWS?h=gcmd-1-6</changelog>
   <bugs-to>https://bugzilla.gnome.org/browse.cgi?product=gnome-commander</bugs-to>
   <remote-id type="freecode">gnome-commander</remote-id>
 </upstream>
@@ -22,5 +22,6 @@
   <flag name="pdf">Add metadata support for PDF</flag>
   <flag name="python">Add support for python plugins"</flag>
   <flag name="taglib">Add metadata support for ID3, Vorbis, FLAC and APE</flag>
+  <flag name="unique">Enable single instance support using dev-libs/libunique</flag>
 </use>
 </pkgmetadata>

@@ -2,7 +2,7 @@
  * @file tuple.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ struct triple: public std::pair<T1,T2>
 
     triple(): third(T3()) {}
     triple(const T1 &t1, const T2 &t2, const T3 &t3): std::pair<T1,T2>(t1,t2), third(t3) {}
-    template<typename U1, typename U2, typename U3> triple(const triple<U1,U2,U3> &t): std::pair<U1,U2>(t.first,t.second), third(third) {}
+    template<typename U1, typename U2, typename U3> explicit triple(const triple<U1,U2,U3> &t): std::pair<U1,U2>(t.first,t.second), third(third) {}
 };
 
 template <typename T1, typename T2, typename T3>

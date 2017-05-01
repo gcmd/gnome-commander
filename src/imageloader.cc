@@ -2,7 +2,7 @@
  * @file imageloader.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,8 +65,6 @@ static const gchar *pixmap_files[NUM_PIXMAPS] = {"",
 
                                                  "overlay_symlink.xpm",
                                                  "overlay_umount.xpm",
-                                                 "toggle_vertical.xpm",
-                                                 "toggle_horizontal.xpm",
 
                                                  "internal-viewer.xpm"};
 
@@ -122,7 +120,7 @@ void IMAGE_init ()
 
      // Load file type icons
 
-     for (gint i=0; i<NUM_FILE_TYPE_PIXMAPS; i++)
+     for (size_t i=0; i<NUM_FILE_TYPE_PIXMAPS; i++)
     {
         CacheEntry *e = &file_type_pixmaps[i];
         gchar *path = g_build_filename (PIXMAPS_DIR, file_type_pixmap_files[i], NULL);
@@ -191,6 +189,10 @@ static const gchar *get_type_icon_name (GnomeVFSFileType type)
         "i-symlink.png"
     };
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (type)
     {
         case GNOME_VFS_FILE_TYPE_DIRECTORY:
@@ -211,6 +213,9 @@ static const gchar *get_type_icon_name (GnomeVFSFileType type)
         default:
             return names[1];
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     return NULL;
 }
@@ -248,7 +253,7 @@ inline gchar *get_mime_document_type_icon_path (const gchar *mime_type, const gc
  */
 inline gchar *get_category_icon_path (const gchar *mime_type, const gchar *icon_dir)
 {
-    for (gint i=0; i<G_N_ELEMENTS(categories); i++)
+    for (size_t i=0; i<G_N_ELEMENTS(categories); i++)
         if (g_str_has_prefix (mime_type, categories[i][0]))
             return g_build_filename (icon_dir, categories[i][1], NULL);
 
@@ -400,8 +405,8 @@ static gboolean get_mime_icon (GnomeVFSFileType type,
 {
     if (get_mime_icon_in_dir (gnome_cmd_data.options.theme_icon_dir, type, mime_type, symlink, pixmap, mask))
         return TRUE;
-
-    return get_mime_icon_in_dir (gnome_cmd_data.options.document_icon_dir, type, mime_type, symlink, pixmap, mask);
+    else
+        return FALSE;
 }
 
 
@@ -425,6 +430,10 @@ gboolean IMAGE_get_pixmap_and_mask (GnomeVFSFileType type,
                                     GdkPixmap **pixmap,
                                     GdkBitmap **mask)
 {
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
     switch (gnome_cmd_data.options.layout)
     {
         case GNOME_CMD_LAYOUT_TYPE_ICONS:
@@ -438,6 +447,9 @@ gboolean IMAGE_get_pixmap_and_mask (GnomeVFSFileType type,
         default:
             return FALSE;
     }
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     return FALSE;
 }

@@ -2,7 +2,7 @@
  * @file gnome-cmd-advrename-lexer.ll
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ struct CHUNK
       int prec;
       int init_step;
       int init_prec;
-      char fmt[9];
+      char fmt[16];
     } counter;
 
     struct
@@ -160,6 +160,7 @@ tag_name    {ape}|{audio}|{doc}|{exif}|{file}|{flac}|{id3}|{image}|{iptc}|{pdf}|
                                     case 'n' : p->type = NAME;            break;
                                     case 'N' : p->type = FULL_NAME;       break;
                                     case 'p' : p->type = PARENT_DIR;      break;
+                                    default: break;
                                   }
 
                                   from = to = 0;
@@ -175,6 +176,7 @@ tag_name    {ape}|{audio}|{doc}|{exif}|{file}|{flac}|{id3}|{image}|{iptc}|{pdf}|
                                           if (strchr(yytext+3,','))
                                               to = from<0 && to+from>0 ? 0 : from+to;
                                           break;
+                                      default: break;
                                   }
 
                                   g_strfreev(a);
@@ -217,6 +219,7 @@ tag_name    {ape}|{audio}|{doc}|{exif}|{file}|{flac}|{id3}|{image}|{iptc}|{pdf}|
                                   {
                                     case 'x' : p->type = XRANDOM;       break;
                                     case 'X' : p->type = XXRANDOM;      break;
+                                    default: break;
                                   }
                                   p->random.x_prec = min (precision, MAX_XRANDOM_PRECISION);
 
@@ -257,6 +260,7 @@ tag_name    {ape}|{audio}|{doc}|{exif}|{file}|{flac}|{id3}|{image}|{iptc}|{pdf}|
                                     case 'n' : p->type = NAME;            break;
                                     case 'N' : p->type = FULL_NAME;       break;
                                     case 'p' : p->type = PARENT_DIR;      break;
+                                    default: break;
                                   }
 
                                   p->tag.beg = 0;
@@ -290,6 +294,7 @@ tag_name    {ape}|{audio}|{doc}|{exif}|{file}|{flac}|{id3}|{image}|{iptc}|{pdf}|
                                   {
                                     case 'x' : p->type = XRANDOM;       break;
                                     case 'X' : p->type = XXRANDOM;      break;
+                                    default: break;
                                   }
                                   p->random.x_prec = MAX_XRANDOM_PRECISION;
 
@@ -310,13 +315,24 @@ tag_name    {ape}|{audio}|{doc}|{exif}|{file}|{flac}|{id3}|{image}|{iptc}|{pdf}|
                                   fname_template_has_percent = TRUE;
                                 }
 
+%{
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+%}
 [^%$]+                          ECHO;                                      // concatenate consecutive non-[%$] chars into single TEXT chunk
 %%
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 
 void gnome_cmd_advrename_reset_counter(int n, long start, int precision, int step)
 {
-  n = std::max(abs(start),abs(--n*step+start));
+  --n;
+  n = std::max(abs(start),abs(n*step+start));
 
   int auto_precision = n ? log10(n)+1 : 1;
 
@@ -366,6 +382,9 @@ void gnome_cmd_advrename_parse_template(const char *template_string, gboolean &h
           // FIXME: free memory here for all (*i) members
           g_free((*i)->tag.name);
           g_free(*i);
+          break;
+
+      default:
           break;
     }
 
@@ -522,7 +541,14 @@ char *gnome_cmd_advrename_gen_fname (GnomeCmdFile *f, size_t new_fname_size)
                     {
                       static char counter_value[MAX_PRECISION+1];
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
                       snprintf (counter_value, MAX_PRECISION+1, (*i)->counter.fmt, (*i)->counter.n);
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
                       fmt += counter_value;
 
                       (*i)->counter.n += (*i)->counter.step;
@@ -536,8 +562,15 @@ char *gnome_cmd_advrename_gen_fname (GnomeCmdFile *f, size_t new_fname_size)
                       static char random_value[MAX_XRANDOM_PRECISION+1];
 
                       sprintf (custom_counter_fmt, "%%0%u%c", (*i)->random.x_prec, (*i)->type==XRANDOM ? 'x' : 'X');
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
                       snprintf (random_value, MAX_XRANDOM_PRECISION+1, custom_counter_fmt, (*i)->random.x_prec<MAX_XRANDOM_PRECISION ? g_random_int_range (0,1 << 4*(*i)->random.x_prec)
                                                                                                                                      : g_random_int ());
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
                       fmt += random_value;
                     }
                     break;
@@ -549,7 +582,7 @@ char *gnome_cmd_advrename_gen_fname (GnomeCmdFile *f, size_t new_fname_size)
                     // if (tag_value)
                       // append_utf8_chunk (fmt, *i, tag_value, g_utf8_strlen (tag_value, -1));
 
-                    fmt += gcmd_tags_get_value (f, (*i)->tag.tag);
+                    fmt += gcmd_tags_get_value_string (f, (*i)->tag.tag);
                     break;
 
       default :     break;
@@ -565,8 +598,15 @@ char *gnome_cmd_advrename_gen_fname (GnomeCmdFile *f, size_t new_fname_size)
   gboolean new_fname_has_percent = convert ((char *) fmt.c_str(), '%', ESC);
   convert ((char *) fmt.c_str(), SUB, '%');
 
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
   if (!strftime(new_fname, new_fname_size+1, fmt.c_str(), localtime(&f->info->mtime)))      // if new_fname is not big enough...
     new_fname[new_fname_size] = '\0';                                                       //      ... truncate
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
   if (new_fname_has_percent)
     convert (new_fname, ESC, '%');

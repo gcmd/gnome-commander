@@ -2,7 +2,7 @@
  * @file libgcmd-widget-factory.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ GtkWidget *create_check_with_mnemonic (GtkWidget *parent, const gchar *text, con
 
 GtkWidget *create_radio (GtkWidget *parent, GSList *group, const gchar *text, const gchar *name);
 
-GtkWidget *create_radio_with_mnemonic (GtkWidget *parent, GSList *group, gchar *text, gchar *name);
+GtkWidget *create_radio_with_mnemonic (GtkWidget *parent, GSList *group, gchar *text, const gchar *name);
 
 GtkWidget *create_spin (GtkWidget *parent, const gchar *name, gint min, gint max, gint value);
 
@@ -123,6 +123,8 @@ GtkWidget *create_vbuttonbox (GtkWidget *parent);
 GtkWidget *create_hbuttonbox (GtkWidget *parent);
 
 GtkWidget *create_combo (GtkWidget *parent);
+
+GtkWidget *create_combo_new (GtkWidget *parent);
 
 GtkWidget *create_option_menu (GtkWidget *parent, const gchar **items);
 
@@ -164,6 +166,10 @@ void progress_bar_update (GtkWidget *pbar, gint max);
 
 const char *get_entry_text (GtkWidget *parent, const gchar *entry_name);
 
-void create_error_dialog (const gchar *msg, ...);
+#ifdef __GNUC__
+    void create_error_dialog (const gchar *msg, ...) __attribute__ ((format (gnu_printf, 1, 2)));
+#else
+    void create_error_dialog (const gchar *msg, ...);
+#endif
 
 #endif //__LIBGCMD_WIDGET_FACTORY_H__

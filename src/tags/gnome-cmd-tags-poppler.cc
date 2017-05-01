@@ -2,7 +2,7 @@
  * @file gnome-cmd-tags-poppler.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "gnome-cmd-includes.h"
+#include "gnome-cmd-tags-poppler.h"
 #include "gnome-cmd-tags.h"
 #include "utils.h"
 #include "dict.h"
@@ -36,12 +37,16 @@ using namespace std;
 
 #ifdef HAVE_PDF
 
-gchar * pgd_format_date (time_t utime)
+static gchar * pgd_format_date (time_t utime)
 {
 	time_t time = (time_t) utime;
         char s[256];
         const char *fmt_hack = "%c";
         size_t len;
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
 #ifdef HAVE_LOCALTIME_R
         struct tm t;
         if (time == 0 || !localtime_r (&time, &t)) return NULL;
@@ -50,6 +55,9 @@ gchar * pgd_format_date (time_t utime)
         struct tm *t;
         if (time == 0 || !(t = localtime (&time)) ) return NULL;
         len = strftime (s, sizeof (s), fmt_hack, t);
+#endif
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
 #endif
 	
         if (len == 0 || s[0] == '\0') return NULL;
@@ -125,7 +133,7 @@ const regular_paper_sizes[] =
 #endif
 
 
-inline gchar *paper_name (gdouble doc_width, double doc_height)
+static gchar *paper_name (gdouble doc_width, double doc_height)
 {
     gchar *s = NULL;
 
@@ -203,6 +211,7 @@ void gcmd_tags_poppler_load_metadata(GnomeCmdFile *f)
     if (!f->is_local())  return;
 
     // skip non pdf files, as pdf metatags extraction is very expensive...
+    if (f->info->mime_type == NULL) return;
     if (!strstr (f->info->mime_type, "pdf"))  return;
 
     gchar *fname = f->get_real_path();
@@ -324,12 +333,7 @@ void gcmd_tags_poppler_load_metadata(GnomeCmdFile *f)
 
         f->metadata->addf(TAG_PDF_EMBEDDEDFILES, "%u", g_list_length(list));
 
-#if GLIB_CHECK_VERSION(2, 28, 0)
         g_list_free_full(list, g_object_unref);
-#else
-        g_list_foreach(list, (GFunc)g_object_unref, NULL);
-        g_list_free(list);
-#endif
     }
     else
     {

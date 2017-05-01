@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,10 @@
 
 #include "gnome-cmd-includes.h"
 #include "gnome-cmd-file.h"
+
+#define INTERNAL_VIEWER_SETTINGS (iv_settings_get_type ())
+G_DECLARE_FINAL_TYPE (InternalViewerSettings, iv_settings, GCMD_IV, SETTINGS, GObject)
+InternalViewerSettings *iv_settings_new (void);
 
 #define GVIEWER_WINDOW(obj) \
     GTK_CHECK_CAST (obj, gviewer_window_get_type (), GViewerWindow)

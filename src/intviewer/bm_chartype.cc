@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ inline void bch_free(GHashTable *bch)
 
 static void bch_set_value(GHashTable *bch, int key, int value)
 {
-    g_hash_table_insert (bch, (gpointer) key, (gpointer) value);
+    g_hash_table_insert (bch, GINT_TO_POINTER(key), GINT_TO_POINTER(value));
 }
 
 

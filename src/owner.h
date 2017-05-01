@@ -2,7 +2,7 @@
  * @file owner.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2017 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -170,18 +170,14 @@ inline ID GnomeCmdOwner::HashTable<T,ID>::operator [] (const gchar *name)
 {
     Entry *entry = lookup(name);
 
-    g_assert (entry != NULL);
-
     return entry ? entry->id : -1;
 }
 
-#if GLIB_CHECK_VERSION (2, 14, 0)
 template <typename T, typename ID>
 inline GList *GnomeCmdOwner::HashTable<T,ID>::get_names()
 {
     return g_hash_table_get_keys (name_table);  //  FIXME:  sort ?
 }
-#endif
 
 inline GnomeCmdOwner::GnomeCmdUsers::Entry *GnomeCmdOwner::new_entry(const struct passwd *pw)
 {
