@@ -2,7 +2,7 @@
  * @file gnome-cmd-delete-dialog.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -285,7 +285,7 @@ void gnome_cmd_delete_dialog_show (GList *files)
 
         response = run_simple_dialog (*main_win, FALSE,
                                       GTK_MESSAGE_QUESTION, msg, _("Delete"),
-                                      gnome_cmd_data.options.confirm_delete_default==GTK_BUTTONS_CANCEL ? 0 : 1, _("Cancel"), _("OK"), NULL);
+                                      gnome_cmd_data.options.confirm_delete_default==GTK_BUTTONS_CANCEL ? 0 : 1, _("Cancel"), _("Delete"), NULL);
 
         g_free (msg);
     }

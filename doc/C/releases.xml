@@ -24,16 +24,34 @@
     <tbody>
         <row valign="top">
             <entry><para>1.6.0</para></entry>
-            <entry><para>2015-??-??</para></entry>
+            <entry><para>2016-??-??</para></entry>
             <entry>
                 <para>Bug fixes:</para>
                 <para>
                     <itemizedlist>
                         <listitem>
+                           <para>Fixed problem bgo#671616 (Right-Mouse popup menu is displayed in wrong position, Thanks to Puux)</para>
+                       </listitem>
+                        <listitem>
+                           <para>Fixed problem bgo#683087 (Crash opening properties window on certain objects, Thanks to Puux)</para>
+                       </listitem>
+                        <listitem>
                            <para>Fixed problem bgo#742752 (Made options dialog resizable and added scrollbars)</para>
                        </listitem>
                         <listitem>
                            <para>Preserve focused file after renamed with AdvRenDialog (Thanks to Martin Mocko)</para>
+                       </listitem>
+                        <listitem>
+                           <para>Fixed problem bgo#767158 (Shortcuts stop working after changing layout)</para>
+                       </listitem>
+                        <listitem>
+                           <para>Fixed string escaping for directories with ampersand (see bgo#769309)</para>
+                       </listitem>
+                        <listitem>
+                           <para>Fixed problem bgo#770062 (Memory leak in GnomeCmdPlainPath, Thanks to Eric)</para>
+                       </listitem>
+                        <listitem>
+                           <para>Fixed problem bgo#770063 (Memory leak in get_string_pixel_size, Thanks to Eric)</para>
                        </listitem>
                     </itemizedlist>
                 </para>
@@ -56,16 +74,195 @@
                             <para>Device buttons and device list entries act as 'home buttons' for that device when it is already active</para>
                         </listitem>
                         <listitem>
+                            <para>Copy directory path to clipboard after right click on dir-indicator (Thanks to Puux)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Show/hide mainmenu can be set as keyboard shortcut now (Thanks to Puux)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Simple plug-in system for file context menu (Thanks to Puux)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Display of application icons in the "Open With" popup menu (Thanks to Puux)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Write bookmark changes immediately to file, Sync bookmarks between all instances (Thanks to Puux)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Storage of options is done in the dconf database now instead of a gnome-config file (see bgo#570733)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Devices and fav-apps are now stored within the GKeyFile format</para>
+                        </listitem>
+                        <listitem>
                             <para>Started usage of google test framework for unit tests</para>
+                        </listitem>
+                        <listitem>
+                            <para>New colour theme 'Winter'</para>
                         </listitem>
                         <listitem>
                             <para>Code cleanup</para>
                         </listitem>
                         <listitem>
-                            <para>New or updated docs: ??</para>
+                            <para>New or updated docs: cs, de, el, es</para>
                         </listitem>
                         <listitem>
-                            <para>New or updated translations: ??</para>
+                            <para>New or updated translations: bs, ca, cs, de, es, eu, fi, fr, hu, id, lt, nb, oc, pl, pt, pt_BR, ro, sk, sl, sv, tr</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+                <para>Other changes:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Removed "Open folder" command in popup menu and user actions</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+            </entry>
+        </row>
+        <row valign="top">
+            <entry><para>1.4.8</para></entry>
+            <entry><para>2016-03-14</para></entry>
+            <entry>
+                <para>Bug fixes:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Fixed problem bgo#761580 (Support gcc6 -Werror=format-security, thanks to Mamoru Tasaka)</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated translations: cs, de, pl, pt, pt_BR, oc</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated docs: cs, de</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+            </entry>
+        </row>
+        <row valign="top">
+            <entry><para>1.4.7</para></entry>
+            <entry><para>2015-05-30</para></entry>
+            <entry>
+                <para>Bug fixes:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Fixed problem bgo#745454 (Segmentation fault after find files, thanks to Mamoru Tasaka)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#749869 (Segfault on the second search, thanks to Mamoru Tasaka)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#734032 (Clicking on .png file looks at wrong MIME type, thanks to Mamoru Tasaka)</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated translations: co</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated docs: cs</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+            </entry>
+        </row>
+        <row valign="top">
+            <entry><para>1.4.6</para></entry>
+            <entry><para>2015-05-19</para></entry>
+            <entry>
+                <para>Bug fixes:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Fixed problem bgo#748869 (crash when searching two times consecutively)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#746003 (crash on opening property dialog on ftp-directory with "odd" uid)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#747771 (appdata.xml file is not being translated, thanks to Dominique Leuenberger)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#653573 (Passwords store in plain text in ./gnome-commander/connections)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#742752 (Made options dialog resizable and added scrollbars)</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated translations: bs, el, pt</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated docs: cs, el</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+            </entry>
+        </row>
+        <row valign="top">
+            <entry><para>1.4.5</para></entry>
+            <entry><para>2015-01-24</para></entry>
+            <entry>
+                <para>Bug fixes:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Fixed problem bgo#741316 (Appdata missing in POT)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#742716 (Option --start-right-dir crashes gnome-commander)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Removed python-2.6 support from gentoo ebuild</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated translations: cs, hu, id, sr, sr@latin</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated docs: cs</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+            </entry>
+        </row>
+        <row valign="top">
+            <entry><para>1.4.4</para></entry>
+            <entry><para>2014-11-11</para></entry>
+            <entry>
+                <para>Bug fixes:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Fixed problem bgo#571495 (Migrated from gnome_execute_shell to g_spawn_async)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Fixed problem bgo#737088 (Support for user's terminal different from gnome-terminal)</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated translations: cs, de, eu, fi, id, sr, sr@latin</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated docs: cs, es</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+            </entry>
+        </row>
+        <row valign="top">
+            <entry><para>1.4.3</para></entry>
+            <entry><para>2014-06-22</para></entry>
+            <entry>
+                <para>Bug fixes:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Fixed problem bgo#731557 (Crash when drag 'n drop via mouse and file aready exists)</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated translations: cs, de, eu, fi</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated docs: cs</para>
                         </listitem>
                     </itemizedlist>
                 </para>
@@ -73,30 +270,25 @@
         </row>
         <row valign="top">
             <entry><para>1.4.2</para></entry>
-            <entry><para>2014-??-??</para></entry>
+            <entry><para>2014-05-23</para></entry>
             <entry>
                 <para>Bug fixes:</para>
                 <para>
                     <itemizedlist>
                         <listitem>
-                            <para> Fixed problem bgo#367949 (Corrected async_xfer_callback-results for moving folders)</para>
+                            <para>Fixed Gentoo problem #509574 (Switched from python-r1 to python-single-r1 in ebuild)</para>
                         </listitem>
                         <listitem>
-                            <para> Fixed problem bgo#598161 (Selecting text in internal viewer on lines with TAB characters)</para>
-                       </listitem>
-                    </itemizedlist>
-                </para>
-                <para>New features:</para>
-                <para>
-                    <itemizedlist>
-                        <listitem>
-                            <para>???</para>
+                            <para>Fixed problem bgo#367949 (Corrected async_xfer_callback-results for moving folders)</para>
                         </listitem>
                         <listitem>
-                            <para>New or updated docs: ??</para>
+                            <para>Fixed problem bgo#598161 (Selecting text in internal viewer on lines with TAB characters)</para>
                         </listitem>
                         <listitem>
-                            <para>New or updated translations: ??</para>
+                            <para>Text selection in int. viewer works on lines with TAB characters (Thanks to Jan Vleeshouwers)</para>
+                        </listitem>
+                        <listitem>
+                            <para>New or updated translations: cs, el, sr, sr@latin</para>
                         </listitem>
                     </itemizedlist>
                 </para>

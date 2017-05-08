@@ -8,7 +8,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <intviewer/libgviewer.h>
+#include <libgviewer.h>
 #include "gtest/gtest.h"
 
 class ImageRendererBestFitTest : public ::testing::TestWithParam<bool> {};
@@ -41,6 +41,7 @@ TEST_P(ImageRendererBestFitTest, image_renderer_set_best_fit_test) {
     ASSERT_EQ(GetParam(), image_render_get_best_fit(IMAGE_RENDER(imgr)));
 }
 
+////////////////////////////////////////////////////////////////////////
 
 class ImageRendererScaleFactorTest : public ::testing::Test {};
 

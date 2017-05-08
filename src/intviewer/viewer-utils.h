@@ -4,7 +4,7 @@
  *
  * @copyright (C) 2006 Assaf Gordon\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +26,6 @@
 #define __LIBGVIEWER_UTILS_H__
 
 #define GVIEWER_DEFAULT_PATH_PREFIX "/gnome-commander/internal_viewer/"
-
-gchar   *gviewer_get_string (const gchar *path, const gchar *def);
-gint     gviewer_get_int (const gchar *path, int def);
-gboolean gviewer_get_bool (const gchar *path, gboolean def);
 
 int unicode2utf8(unsigned int unicode, unsigned char *out);
 char_type *convert_utf8_to_chartype_array(const gchar *utf8text, /*out*/ int &array_length);

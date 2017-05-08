@@ -2,7 +2,7 @@
  * @file gnome-cmd-con.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -334,15 +334,9 @@ GnomeCmdBookmarkGroup *gnome_cmd_con_get_bookmarks (GnomeCmdCon *con);
 
 void gnome_cmd_con_set_bookmarks (GnomeCmdCon *con, GnomeCmdBookmarkGroup *bookmarks);
 
-inline void gnome_cmd_con_add_bookmark (GnomeCmdCon *con, gchar *name, gchar *path)
-{
-    GnomeCmdBookmarkGroup *group = gnome_cmd_con_get_bookmarks (con);
-    GnomeCmdBookmark *bookmark = g_new (GnomeCmdBookmark, 1);
-    bookmark->name = name;
-    bookmark->path = path;
-    bookmark->group = group;
-    group->bookmarks = g_list_append (group->bookmarks, bookmark);
-}
+void gnome_cmd_con_add_bookmark (GnomeCmdCon *con, gchar *name, gchar *path);
+
+void gnome_cmd_con_erase_bookmark (GnomeCmdCon *con);
 
 void gnome_cmd_con_updated (GnomeCmdCon *con);
 

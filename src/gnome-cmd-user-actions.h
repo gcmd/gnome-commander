@@ -2,7 +2,7 @@
  * @file gnome-cmd-user-actions.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,10 @@
 #include "dict.h"
 
 #define GNOME_CMD_USER_ACTION(f)   void f(GtkMenuItem *menuitem=NULL, gpointer user_data=NULL)
+
+#define USER_ACTION_SETTINGS (gcmd_user_action_settings_get_type ())
+G_DECLARE_FINAL_TYPE (GcmdUserActionSettings, gcmd_user_action_settings, GCMD, USER_ACTIONS, GObject)
+GcmdUserActionSettings *gcmd_user_action_settings_new (void);
 
 typedef void (*GnomeCmdUserActionFunc) (GtkMenuItem *menuitem, gpointer user_data);
 
@@ -165,8 +169,7 @@ class GnomeCmdUserActions
     void init();
     void set_defaults();
     void shutdown();
-
-    void load(const gchar *section);
+    GcmdUserActionSettings *settings;
 
     void clear()                                                            {   action.clear();               }
 
@@ -274,13 +277,11 @@ GNOME_CMD_USER_ACTION(command_execute);
 GNOME_CMD_USER_ACTION(command_open_terminal__internal);             // this function is NOT exposed to user as UserAction
 GNOME_CMD_USER_ACTION(command_open_terminal);
 GNOME_CMD_USER_ACTION(command_open_terminal_as_root);
-GNOME_CMD_USER_ACTION(command_open_nautilus);
-GNOME_CMD_USER_ACTION(command_open_nautilus_in_cwd);
 GNOME_CMD_USER_ACTION(command_root_mode);
 
 /************** View Menu **************/
 GNOME_CMD_USER_ACTION(view_conbuttons);
-GNOME_CMD_USER_ACTION(view_concombo);
+GNOME_CMD_USER_ACTION(view_devlist);
 GNOME_CMD_USER_ACTION(view_toolbar);
 GNOME_CMD_USER_ACTION(view_buttonbar);
 GNOME_CMD_USER_ACTION(view_cmdline);
@@ -311,6 +312,8 @@ GNOME_CMD_USER_ACTION(view_next_tab);
 GNOME_CMD_USER_ACTION(view_in_new_tab);
 GNOME_CMD_USER_ACTION(view_in_inactive_tab);
 GNOME_CMD_USER_ACTION(view_toggle_tab_lock);
+GNOME_CMD_USER_ACTION(view_horizontal_orientation);
+GNOME_CMD_USER_ACTION(view_main_menu);
 
 /************** Bookmarks Menu **************/
 GNOME_CMD_USER_ACTION(bookmarks_add_current);

@@ -2,7 +2,7 @@
  * @file gnome-cmd-dir-indicator.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "gnome-cmd-main-win.h"
 #include "gnome-cmd-data.h"
 #include "gnome-cmd-user-actions.h"
+#include "dialogs/gnome-cmd-manage-bookmarks-dialog.h"
 #include "imageloader.h"
 #include "utils.h"
 
@@ -115,6 +116,22 @@ static gboolean on_dir_indicator_clicked (GnomeCmdDirIndicator *indicator, GdkEv
             }
 
         // pointer is after directory name - just return
+        g_free (chTo);
+        return TRUE;
+    }
+    else if (event->button==3)
+    {
+        const gchar *labelText = gtk_label_get_text (GTK_LABEL (indicator->priv->label));
+        gchar *chTo = g_strdup (labelText);
+        gint x = (gint) event->x;
+
+        for (gint i=0; i < indicator->priv->numPositions; ++i)
+            if (x < indicator->priv->slashPixelPosition[i])
+            {
+                chTo[indicator->priv->slashCharPosition[i]] = 0;
+                gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), chTo, indicator->priv->slashCharPosition[i]);
+                break;
+            }
         g_free (chTo);
         return TRUE;
     }
@@ -213,13 +230,12 @@ inline int get_string_pixel_size (const char *s, int len)
     gchar *ms = get_mono_text (utf8buf);
     gtk_label_set_markup (label, ms);
     g_free (ms);
-    g_object_ref (label);
+    g_object_ref_sink(G_OBJECT(label));
 
     PangoLayout *layout = gtk_label_get_layout (label);
     pango_layout_get_pixel_size (layout, &xSize, &ySize);
 
-    // we're finished with the label
-    gtk_object_sink (GTK_OBJECT (label));
+    g_object_unref(GTK_OBJECT (label));
     g_free (utf8buf);
     g_free (buf);
 
@@ -384,18 +400,7 @@ void gnome_cmd_dir_indicator_show_history (GnomeCmdDirIndicator *indicator)
 
 static void on_bookmarks_add_current (GtkMenuItem *item, GnomeCmdDirIndicator *indicator)
 {
-    GnomeCmdFile *f = GNOME_CMD_FILE (indicator->priv->fs->get_directory());
-    GnomeCmdCon *con = indicator->priv->fs->get_connection();
-    GnomeCmdBookmarkGroup *group = gnome_cmd_con_get_bookmarks (con);
-
-    GnomeCmdBookmark *bm = g_new0 (GnomeCmdBookmark, 1);
-
-    bm->name = g_strdup (f->get_name());
-    bm->path = f->get_path();
-    bm->group = group;
-
-    group->bookmarks = g_list_append (group->bookmarks, bm);
-    main_win->update_bookmarks();
+    gnome_cmd_bookmark_add_current (indicator->priv->fs->get_directory());
 }
 
 
@@ -471,7 +476,7 @@ static void init (GnomeCmdDirIndicator *indicator)
     indicator->priv->history_button = gtk_button_new ();
     GTK_WIDGET_UNSET_FLAGS (indicator->priv->history_button, GTK_CAN_FOCUS);
     g_object_ref (indicator->priv->history_button);
-    gtk_button_set_relief (GTK_BUTTON (indicator->priv->history_button), gnome_cmd_data.button_relief);
+    gtk_button_set_relief (GTK_BUTTON (indicator->priv->history_button), GTK_RELIEF_NONE);
     g_object_set_data_full (G_OBJECT (indicator), "button", indicator->priv->history_button, g_object_unref);
     gtk_widget_show (indicator->priv->history_button);
 
@@ -484,7 +489,7 @@ static void init (GnomeCmdDirIndicator *indicator)
     // create the bookmark popup button
     indicator->priv->bookmark_button = create_styled_pixmap_button (NULL, IMAGE_get_gnome_cmd_pixmap (PIXMAP_BOOKMARK));
     GTK_WIDGET_UNSET_FLAGS (indicator->priv->bookmark_button, GTK_CAN_FOCUS);
-    gtk_button_set_relief (GTK_BUTTON (indicator->priv->bookmark_button), gnome_cmd_data.button_relief);
+    gtk_button_set_relief (GTK_BUTTON (indicator->priv->bookmark_button), GTK_RELIEF_NONE);
     g_object_set_data_full (G_OBJECT (indicator), "button", indicator->priv->bookmark_button, g_object_unref);
     gtk_widget_show (indicator->priv->bookmark_button);
 

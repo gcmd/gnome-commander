@@ -1,6 +1,6 @@
 # GNOME Commander #
 
-[![GitHub license](https://img.shields.io/badge/license-GPLv2-blue.svg)](https://raw.githubusercontent.com/GNOME/gnome-commander/master/COPYING)  |  [![GitHub commits](https://img.shields.io/github/commits-since/GNOME/gnome-commander/1.4.7.svg)](https://git.gnome.org/browse/gnome-commander/atom/?h=master)  |  [![Travis](https://img.shields.io/travis/gcmd/gnome-commander.svg)](https://travis-ci.org/gcmd/gnome-commander)
+[![GitHub license](https://img.shields.io/badge/license-GPLv2-blue.svg)](https://raw.githubusercontent.com/GNOME/gnome-commander/master/COPYING)  |  [![GitHub commits](https://img.shields.io/github/commits-since/GNOME/gnome-commander/1.4.8.svg)](https://git.gnome.org/browse/gnome-commander/atom/?h=master)
 
 ## Introduction ##
 
@@ -105,3 +105,19 @@ For installing GNOME Commander using the sources in the git repository, do the f
 
 After executing ``./configure`` or ``./autogen.sh`` see the file ``INSTALL``
 for detailed information regarding the installation of GNOME Commander.
+
+### Tip for working with git ###
+
+There exists a [pre-commit.sh](pre-commit.sh) script in the main
+directory of the repository. Just type ``ln -s ../../pre-commit.sh
+.git/hooks/pre-commit`` to activate this script. It runs ``make`` and
+``make check`` before your change will be finally committed. This is
+really nice for lazy people.
+
+### Docker ###
+
+There exists also a [Dockerfile](Dockerfile) in the repository. At the
+moment, it is for testing purposes for the Ubuntu distribution only,
+i.e. when you do ``docker build .``, the GCMD sources are compiled on
+the Ubuntu base image. Feel free to push a merge request if you have
+cool ideas using Docker together with GCMD.

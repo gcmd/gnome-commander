@@ -2,7 +2,7 @@
     GNOME Commander - A GNOME based file manager
     Copyright (C) 2001-2006 Marcus Bjurman
     Copyright (C) 2007-2012 Piotr Eljasiak
-    Copyright (C) 2013-2015 Uwe Scholz
+    Copyright (C) 2013-2016 Uwe Scholz
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,10 @@
 
 #ifndef __FILE_ROLLER_PLUGIN_H__
 #define __FILE_ROLLER_PLUGIN_H__
+
+#define PLUGIN_TYPE_SETTINGS (plugin_settings_get_type ())
+G_DECLARE_FINAL_TYPE (PluginSettings, plugin_settings, GCMD, SETTINGS, GObject)
+PluginSettings *plugin_settings_new (void);
 
 #define FILE_ROLLER_PLUGIN(obj) \
     GTK_CHECK_CAST (obj, file_roller_plugin_get_type (), FileRollerPlugin)

@@ -1,8 +1,8 @@
-/** 
+/**
  * @file gnome-cmd-types.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,39 +33,45 @@ enum FileSelectorID
 };
 
 
-enum GnomeCmdLayout
+typedef enum
 {
     GNOME_CMD_LAYOUT_TEXT,
     GNOME_CMD_LAYOUT_TYPE_ICONS,
     GNOME_CMD_LAYOUT_MIME_ICONS
-};
+}GnomeCmdLayout;
 
 
-enum GnomeCmdSizeDispMode
+typedef enum
 {
     GNOME_CMD_SIZE_DISP_MODE_PLAIN,
     GNOME_CMD_SIZE_DISP_MODE_LOCALE,
     GNOME_CMD_SIZE_DISP_MODE_GROUPED,
     GNOME_CMD_SIZE_DISP_MODE_POWERED
-};
+}GnomeCmdSizeDispMode;
 
 
-enum GnomeCmdPermDispMode
+typedef enum
 {
     GNOME_CMD_PERM_DISP_MODE_TEXT,
     GNOME_CMD_PERM_DISP_MODE_NUMBER
-};
+}GnomeCmdPermDispMode;
 
 
-enum GnomeCmdExtDispMode
+typedef enum
+{
+    GNOME_CMD_QUICK_SEARCH_CTRL_ALT,
+    GNOME_CMD_QUICK_SEARCH_ALT
+}GnomeCmdQuickSearchShortcut;
+
+
+typedef enum
 {
     GNOME_CMD_EXT_DISP_WITH_FNAME,
     GNOME_CMD_EXT_DISP_STRIPPED,
     GNOME_CMD_EXT_DISP_BOTH
-};
+}GnomeCmdExtDispMode;
 
-
-enum GnomeCmdColorMode
+typedef enum // Watch out for the usage of GNOME_CMD_COLOR_CUSTOM in gnome-cmd-data.h and dialogs/gnome-cmd-options-dialog.cc when adding another element here.
 {
     GNOME_CMD_COLOR_NONE,
     GNOME_CMD_COLOR_MODERN,
@@ -74,17 +80,17 @@ enum GnomeCmdColorMode
     GNOME_CMD_COLOR_DEEP_BLUE,
     GNOME_CMD_COLOR_CAFEZINHO,
     GNOME_CMD_COLOR_GREEN_TIGER,
-    GNOME_CMD_COLOR_CUSTOM,
-    GNOME_CMD_NUM_COLOR_MODES
-};
+    GNOME_CMD_COLOR_WINTER,
+    GNOME_CMD_COLOR_CUSTOM
+}GnomeCmdColorMode;
 
 
-enum GnomeCmdConfirmOverwriteMode  // The (reversed) order of following enums is significant
+typedef enum // The (reversed) order of following enums is significant
 {
     GNOME_CMD_CONFIRM_OVERWRITE_SKIP_ALL,
     GNOME_CMD_CONFIRM_OVERWRITE_QUERY,
     GNOME_CMD_CONFIRM_OVERWRITE_SILENTLY
-};
+}GnomeCmdConfirmOverwriteMode;
 
 
 struct GnomeCmdColorTheme

@@ -2,7 +2,7 @@
  * @file libgcmd-utils.h
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,17 +26,26 @@ gchar *get_utf8 (const gchar *unknown);
 
 inline gchar *get_bold_text (const gchar *in)
 {
-    return g_strdup_printf ("<span weight=\"bold\">%s</span>", in);
+    gchar *escaped_text = g_markup_escape_text (in, -1);
+    gchar *result = g_strdup_printf("<span weight=\"bold\">%s</span>", escaped_text);
+    g_free (escaped_text);
+    return result;
 }
 
 inline gchar *get_mono_text (const gchar *in)
 {
-    return g_strdup_printf ("<span font_family=\"monospace\">%s</span>", in);
+    gchar *escaped_text = g_markup_escape_text (in, -1);
+    gchar *result = g_strdup_printf("<span font_family=\"monospace\">%s</span>", escaped_text);
+    g_free (escaped_text);
+    return result;
 }
 
 inline gchar *get_bold_mono_text (const gchar *in)
 {
-    return g_strdup_printf ("<span font_family=\"monospace\" weight=\"bold\">%s</span>", in);
+    gchar *escaped_text = g_markup_escape_text (in, -1);
+    gchar *result = g_strdup_printf("<span font_family=\"monospace\" weight=\"bold\">%s</span>", escaped_text);
+    g_free (escaped_text);
+    return result;
 }
 
 #endif //__LIB_GCMD_UTILS_H__

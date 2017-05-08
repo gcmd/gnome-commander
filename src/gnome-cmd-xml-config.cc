@@ -2,7 +2,7 @@
  * @file gnome-cmd-xml-config.cc
  * @copyright (C) 2001-2006 Marcus Bjurman\n
  * @copyright (C) 2007-2012 Piotr Eljasiak\n
- * @copyright (C) 2013-2015 Uwe Scholz\n
+ * @copyright (C) 2013-2016 Uwe Scholz\n
  *
  * @copyright This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -407,14 +407,13 @@ static void xml_start(GMarkupParseContext *context,
 
         case XML_GNOMECOMMANDER_LAYOUT_PANEL_TAB:
             if (g_markup_collect_attributes (element_name, attribute_names, attribute_values, error,
-                                             GMarkupCollectType(G_MARKUP_COLLECT_STRING|G_MARKUP_COLLECT_OPTIONAL), "path", &param1,    //  FIXME: temporarily, G_MARKUP_COLLECT_OPTIONAL to be removed after 1.4
-                                             G_MARKUP_COLLECT_STRING|G_MARKUP_COLLECT_OPTIONAL, "dir", &param2,
+                                             G_MARKUP_COLLECT_STRING, "path", &param1,
                                              G_MARKUP_COLLECT_STRING, "sort", &param3,
                                              G_MARKUP_COLLECT_BOOLEAN, "asc", &param4,
                                              G_MARKUP_COLLECT_BOOLEAN|G_MARKUP_COLLECT_OPTIONAL, "lock", &param5,
                                              G_MARKUP_COLLECT_INVALID))
             {
-                string dir(param1?param1:(param2?param2:""));     //  FIXME: temporarily, dir(param1) after 1.4
+                string dir(param1);
                 gint sort = atoi(param3);
 
                 if (!dir.empty() && sort<GnomeCmdFileList::NUM_COLUMNS)
@@ -528,7 +527,9 @@ static void xml_start(GMarkupParseContext *context,
                                              G_MARKUP_COLLECT_INVALID))
             {
                 if (gnome_cmd_con_list_get()->has_alias(param1))
-                    g_warning ("<Connections> duplicate entry: '%s' - ignored", param1);
+                {
+                    gnome_cmd_con_erase_bookmark (gnome_cmd_con_list_get()->find_alias(param1));
+                }
                 else
                 {
                     GnomeCmdConRemote *server = gnome_cmd_con_remote_new (param1, param2);
@@ -852,7 +853,7 @@ gboolean gnome_cmd_xml_config_parse (const gchar *xml, gsize xml_len, GnomeCmdDa
     if (!g_markup_parse_context_parse (context, xml, xml_len, &error) ||
         !g_markup_parse_context_end_parse (context, &error))
     {
-        g_warning (error->message);
+        g_warning ("%s", error->message);
         g_error_free (error);
     }
 
@@ -873,7 +874,7 @@ gboolean gnome_cmd_xml_config_load (const gchar *path, GnomeCmdData &cfg)
 
     if (!g_file_get_contents (path, &xml, &xml_len, &error))
     {
-        g_warning (error->message);
+        g_warning ("%s", error->message);
         g_error_free (error);
 
         return FALSE;
